@@ -97,6 +97,10 @@
   /* ---------- Atmosphere: chaos resolving to order ---------- */
   #atmosphere{position:fixed; inset:0; z-index:0; pointer-events:none;}
   #atmosphere-stars circle{fill:var(--whisper);}
+  #water-crest{stroke:var(--brass); stroke-width:1; fill:none;}
+  #atmosphere-glints circle{fill:var(--whisper);}
+  @keyframes glint-shimmer{0%,100%{opacity:0.08;} 50%{opacity:0.4;}}
+  .glint-shimmer{animation:glint-shimmer 3.4s ease-in-out infinite;}
   @keyframes twinkle{0%,100%{opacity:0.14;} 50%{opacity:0.5;}}
   .star-twinkle{animation:twinkle 5.5s ease-in-out infinite;}
 
@@ -400,12 +404,16 @@
   <svg id="atmosphere" aria-hidden="true">
     <defs>
       <linearGradient id="waterGradient" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#12313A" stop-opacity="0.3"/>
-        <stop offset="100%" stop-color="#0B1C21" stop-opacity="0.5"/>
+        <stop offset="0%" stop-color="#134048" stop-opacity="0.9"/>
+        <stop offset="100%" stop-color="#081418" stop-opacity="0.96"/>
       </linearGradient>
     </defs>
     <g id="atmosphere-stars"></g>
-    <path id="atmosphere-horizon" fill="url(#waterGradient)"/>
+    <path id="water-back" fill="url(#waterGradient)" opacity="0.32"/>
+    <path id="water-mid" fill="url(#waterGradient)" opacity="0.5"/>
+    <path id="water-front" fill="url(#waterGradient)" opacity="0.78"/>
+    <path id="water-crest" fill="none"/>
+    <g id="atmosphere-glints"></g>
   </svg>
 
   <a class="room-back" href="index.html">← Parallel Room</a>
@@ -777,7 +785,11 @@
   (function () {
     const atmosphereSvg = document.getElementById('atmosphere');
     const starsG = document.getElementById('atmosphere-stars');
-    const horizonPath = document.getElementById('atmosphere-horizon');
+    const glintsG = document.getElementById('atmosphere-glints');
+    const waterBack = document.getElementById('water-back');
+    const waterMid = document.getElementById('water-mid');
+    const waterFront = document.getElementById('water-front');
+    const waterCrest = document.getElementById('water-crest');
 
     function sizeAtmosphere() {
       atmosphereSvg.setAttribute('width', window.innerWidth);
@@ -800,38 +812,77 @@
     }
     starsG.innerHTML = starsHtml;
 
+    // scatter a handful of light glints just above the water surface
+    const glintCount = 12;
+    let glintsHtml = '';
+    for (let i = 0; i < glintCount; i++) {
+      const x = (Math.random() * 100).toFixed(2);
+      const yBand = (60 + Math.random() * 8).toFixed(2);
+      const r = (Math.random() * 1 + 0.5).toFixed(2);
+      const shimmer = Math.random() < 0.5 ? ' class="glint-shimmer"' : '';
+      const delay = (Math.random() * 3.4).toFixed(2);
+      glintsHtml += `<circle cx="${x}%" cy="${yBand}%" r="${r}"${shimmer} style="opacity:0.18; animation-delay:${delay}s;"/>`;
+    }
+    glintsG.innerHTML = glintsHtml;
+
     function scrollProgress() {
       const max = document.documentElement.scrollHeight - window.innerHeight;
       return max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
     }
 
-    function updateHorizon() {
-      const progress = scrollProgress();
-      const w = window.innerWidth, h = window.innerHeight;
-      const baseY = h * 0.62;
-      const amplitude = reduceMotion ? 0 : (1 - progress) * 26;
-      const segments = 16;
+    function waveD(baseY, amplitude, freq, phase, segments, w, h) {
       let d = `M 0 ${h} L 0 ${baseY.toFixed(1)}`;
       for (let i = 0; i <= segments; i++) {
         const x = (w / segments) * i;
-        const y = baseY + Math.sin((i / segments) * Math.PI * 2.4 + progress * 2) * amplitude;
+        const y = baseY + Math.sin((i / segments) * Math.PI * freq + phase) * amplitude;
         d += ` L ${x.toFixed(1)} ${y.toFixed(1)}`;
       }
       d += ` L ${w} ${h} Z`;
-      horizonPath.setAttribute('d', d);
-      const blur = reduceMotion ? 0 : (1 - progress) * 4;
-      horizonPath.style.filter = blur > 0.15 ? `blur(${blur.toFixed(1)}px)` : 'none';
+      return d;
     }
 
-    let ticking = false;
-    window.addEventListener('scroll', () => {
-      if (!ticking) {
-        requestAnimationFrame(() => { updateHorizon(); ticking = false; });
-        ticking = true;
+    function crestD(baseY, amplitude, freq, phase, segments, w) {
+      let d = `M 0 ${(baseY + Math.sin(phase) * amplitude).toFixed(1)}`;
+      for (let i = 1; i <= segments; i++) {
+        const x = (w / segments) * i;
+        const y = baseY + Math.sin((i / segments) * Math.PI * freq + phase) * amplitude;
+        d += ` L ${x.toFixed(1)} ${y.toFixed(1)}`;
       }
-    }, { passive: true });
+      return d;
+    }
 
-    updateHorizon();
+    const segments = 22;
+    const restRipple = 4; // calm water still has a whisper of motion, even fully "resolved"
+
+    function frame(now) {
+      const t = (now || 0) / 1000;
+      const progress = scrollProgress();
+      const w = window.innerWidth, h = window.innerHeight;
+
+      const ampBack = reduceMotion ? 0 : restRipple + (1 - progress) * 34;
+      const phaseBack = reduceMotion ? 0 : t * 0.12 + progress * 1.6;
+      waterBack.setAttribute('d', waveD(h * 0.60, ampBack, 1.8, phaseBack, segments, w, h));
+      waterBack.style.filter = reduceMotion ? 'none' : `blur(${((1 - progress) * 6 + 2).toFixed(1)}px)`;
+
+      const ampMid = reduceMotion ? 0 : restRipple * 0.85 + (1 - progress) * 25;
+      const phaseMid = reduceMotion ? 0 : t * 0.19 + progress * 2 + 1.3;
+      waterMid.setAttribute('d', waveD(h * 0.63, ampMid, 2.5, phaseMid, segments, w, h));
+      waterMid.style.filter = reduceMotion ? 'none' : `blur(${((1 - progress) * 4 + 1).toFixed(1)}px)`;
+
+      const ampFront = reduceMotion ? 0 : restRipple * 0.6 + (1 - progress) * 17;
+      const phaseFront = reduceMotion ? 0 : t * 0.27 + progress * 2.4 + 2.6;
+      waterFront.setAttribute('d', waveD(h * 0.66, ampFront, 3.1, phaseFront, segments, w, h));
+      waterFront.style.filter = reduceMotion ? 'none' : `blur(${((1 - progress) * 2).toFixed(1)}px)`;
+
+      waterCrest.setAttribute('d', crestD(h * 0.66, ampFront, 3.1, phaseFront, segments, w));
+      waterCrest.style.opacity = (0.1 + progress * 0.18).toFixed(2);
+
+      if (!reduceMotion) requestAnimationFrame(frame);
+    }
+
+    requestAnimationFrame(frame);
+    if (reduceMotion) frame(0);
+    window.addEventListener('scroll', () => { if (reduceMotion) frame(0); }, { passive: true });
   })();
 </script>
 
