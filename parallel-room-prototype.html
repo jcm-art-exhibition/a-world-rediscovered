@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Parallel Room — Enūma Eliš / Genesis 1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600&family=Spectral:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ground: #14181C;
+    --ground-deep: #0B0E11;
+    --clay: #C9A876;
+    --clay-deep: #B08F5F;
+    --clay-ink: #2A1F12;
+    --parchment: #DCD2B4;
+    --parchment-deep: #CBBF9E;
+    --parchment-ink: #201B14;
+    --brass: #A6763D;
+    --brass-dim: #6E5330;
+    --whisper: #F2EFE8;
+    --fog: rgba(242,239,232,0.55);
+    --mist: rgba(220,215,205,0.35);
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--ground);
+    color:var(--whisper);
+    font-family:'Spectral', serif;
+    overflow-x:hidden;
+  }
+  svg{display:block;}
+
+  /* ---------- Intro ---------- */
+  .intro{
+    position:relative;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:2rem;
+    background:radial-gradient(circle at var(--mx,50%) var(--my,32%), rgba(166,118,61,0.16), transparent 55%);
+    transition:background 0.4s ease-out;
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    letter-spacing:0.28em;
+    font-size:0.72rem;
+    color:var(--brass);
+    text-transform:uppercase;
+    margin-bottom:1.4rem;
+  }
+  .intro h1{
+    font-family:'Fraunces', serif;
+    font-weight:500;
+    font-optical-sizing:auto;
+    font-size:clamp(2.2rem, 6vw, 4.4rem);
+    line-height:1.05;
+    margin:0 0 1.1rem 0;
+    letter-spacing:-0.01em;
+    position:relative;
+    z-index:1;
+  }
+  .intro h1 em{
+    font-style:italic;
+    font-weight:300;
+    color:var(--fog);
+  }
+  .intro p{
+    max-width:34ch;
+    color:var(--mist);
+    font-size:1rem;
+    line-height:1.6;
+    margin:0;
+    position:relative;
+    z-index:1;
+  }
+  .scroll-cue{
+    margin-top:3.5rem;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.7rem;
+    letter-spacing:0.2em;
+    color:var(--brass-dim);
+    text-transform:uppercase;
+    animation:driftDown 2.2s ease-in-out infinite;
+  }
+  @keyframes driftDown{
+    0%,100%{transform:translateY(0);opacity:0.6;}
+    50%{transform:translateY(6px);opacity:1;}
+  }
+
+  /* ---------- Atmosphere: chaos resolving to order ---------- */
+  #atmosphere{position:fixed; inset:0; z-index:0; pointer-events:none;}
+  #atmosphere-stars circle{fill:var(--whisper);}
+  @keyframes twinkle{0%,100%{opacity:0.14;} 50%{opacity:0.5;}}
+  .star-twinkle{animation:twinkle 5.5s ease-in-out infinite;}
+
+  /* ---------- Room-back link ---------- */
+  .room-back{
+    position:fixed; top:1.4rem; left:1.4rem; z-index:25;
+    font-family:'IBM Plex Mono', monospace; font-size:0.68rem; letter-spacing:0.08em;
+    color:var(--fog); text-decoration:none; text-transform:uppercase;
+    padding:0.5rem 0.8rem; border:1px solid var(--brass-dim); border-radius:2px;
+    background:rgba(11,14,17,0.55); backdrop-filter:blur(4px);
+    transition:border-color 0.3s ease, color 0.3s ease;
+  }
+  .room-back:hover, .room-back:focus-visible{border-color:var(--brass); color:var(--whisper);}
+  @media (max-width:780px){.room-back{font-size:0.6rem; padding:0.4rem 0.6rem; top:1rem; left:1rem;}}
+
+  /* ---------- Entrance plaque ---------- */
+  .plaque{
+    max-width:640px;
+    margin:0 auto;
+    padding:4.5rem 2rem 5.5rem;
+    text-align:center;
+    position:relative;
+  }
+  .plaque::before{
+    content:"";
+    position:absolute; top:1.8rem; left:50%; transform:translateX(-50%);
+    width:36px; height:1px; background:var(--brass-dim);
+  }
+  .plaque-eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.68rem; letter-spacing:0.22em; text-transform:uppercase;
+    color:var(--brass); margin-bottom:1.3rem;
+  }
+  .plaque p{
+    font-family:'Spectral', serif; font-size:1.05rem; line-height:1.8;
+    color:var(--mist); margin:0;
+  }
+  .plaque .key-term{color:var(--brass); font-style:italic;}
+
+  /* ---------- Site line ---------- */
+  .site-line{
+    position:absolute;
+    left:50%;
+    top:0;
+    bottom:0;
+    width:1px;
+    background:linear-gradient(to bottom, transparent, var(--brass-dim) 8%, var(--brass-dim) 92%, transparent);
+    opacity:0.35;
+    z-index:0;
+  }
+  .exhibit{position:relative;}
+
+  /* ---------- Beat sections ---------- */
+  .beat{
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:100vh;
+    padding:5rem 1.5rem;
+    z-index:1;
+  }
+  .beat-inner{
+    position:relative;
+    width:100%;
+    max-width:1100px;
+    display:grid;
+    grid-template-columns:1fr auto 1fr;
+    gap:2.2rem;
+    align-items:stretch;
+  }
+  .stratum-tag{
+    grid-column:2;
+    align-self:center;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.68rem;
+    letter-spacing:0.18em;
+    color:var(--brass);
+    text-transform:uppercase;
+    background:var(--ground);
+    padding:0.6rem 0.3rem;
+    text-align:center;
+    writing-mode:vertical-rl;
+    opacity:0;
+    transition:opacity 1.1s ease 0.9s;
+  }
+  .beat.is-revealed .stratum-tag{opacity:0.8;}
+
+  /* wrapper handles scroll-reveal; button handles hover-tilt */
+  .panel-wrap{
+    display:flex;
+    opacity:0;
+    transform:translateY(28px);
+    transition:opacity 0.9s cubic-bezier(.2,.7,.2,1), transform 0.9s cubic-bezier(.2,.7,.2,1);
+  }
+  .panel-wrap.clay{grid-column:1;}
+  .panel-wrap.parchment{grid-column:3; transition-delay:0.28s;}
+  .beat.is-revealed .panel-wrap{opacity:1; transform:translateY(0);}
+
+  .panel{
+    position:relative;
+    width:100%;
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    text-align:left;
+    font:inherit;
+    border:none;
+    border-radius:2px;
+    padding:2.4rem 2.2rem 2.6rem;
+    cursor:pointer;
+    overflow:hidden;
+    --rx:0deg; --ry:0deg; --gx:50%; --gy:50%;
+    transform:perspective(900px) rotateX(var(--rx)) rotateY(var(--ry));
+    transition:transform 0.2s ease-out, box-shadow 0.2s ease-out;
+    box-shadow:0 30px 60px -25px rgba(0,0,0,0.55);
+  }
+  .panel::after{
+    content:"";
+    position:absolute; inset:0;
+    background:radial-gradient(circle at var(--gx) var(--gy), rgba(255,255,255,0.35), transparent 55%);
+    opacity:0;
+    transition:opacity 0.25s ease;
+    mix-blend-mode:overlay;
+    pointer-events:none;
+  }
+  .panel:hover::after, .panel:focus-visible::after{opacity:0.6;}
+  .panel:focus-visible{outline:2px solid var(--brass); outline-offset:3px;}
+
+  .panel.clay{background:linear-gradient(155deg, var(--clay) 0%, var(--clay-deep) 100%); color:var(--clay-ink);}
+  .panel.parchment{background:linear-gradient(155deg, var(--parchment) 0%, var(--parchment-deep) 100%); color:var(--parchment-ink);}
+
+  .panel .icon{width:34px; height:34px; opacity:0.55; margin-bottom:1rem;}
+  .panel .source{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.68rem;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    opacity:0.6;
+    margin-bottom:1.1rem;
+    display:block;
+  }
+  .panel p{font-family:'Spectral', serif; font-size:1.14rem; line-height:1.68; margin:0;}
+  .panel.parchment p{font-style:italic;}
+  .panel .examine{
+    display:inline-block;
+    margin-top:auto;
+    padding-top:1.4rem;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.66rem;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    opacity:0.55;
+  }
+
+  /* ---------- Trace words + connecting thread ---------- */
+  .trace-word{
+    border-bottom:1px dotted currentColor;
+    opacity:0.92;
+    padding:0 1px;
+    transition:background 0.35s ease, color 0.2s ease, border-color 0.35s ease;
+  }
+  .trace-word.is-traced{
+    background:rgba(166,118,61,0.4);
+    border-bottom-style:solid;
+    border-bottom-color:var(--brass);
+  }
+  #traceOverlay{position:fixed; inset:0; pointer-events:none; z-index:15;}
+  #tracePath{stroke:var(--brass); stroke-width:1.6; fill:none; opacity:0; filter:drop-shadow(0 0 3px rgba(166,118,61,0.55));}
+
+  /* ---------- Rest beat: hushed treatment ---------- */
+  .beat.is-hush .panel{transition-duration:2.4s; box-shadow:0 20px 50px -30px rgba(0,0,0,0.4);}
+  .beat.is-hush .panel.clay, .beat.is-hush .panel.parchment{
+    background:linear-gradient(155deg, var(--whisper), var(--mist));
+    color:var(--ground-deep);
+  }
+  .beat.is-hush .panel p{font-size:1.05rem; opacity:0.85;}
+
+  /* ---------- Stratum rail ---------- */
+  .stratum-rail{
+    position:fixed; right:1.6rem; top:50%; transform:translateY(-50%);
+    display:flex; flex-direction:column; gap:0.9rem; z-index:20;
+  }
+  .stratum-rail button{
+    width:26px; height:26px; border-radius:50%;
+    border:1px solid var(--brass-dim); background:transparent; color:var(--brass-dim);
+    font-family:'IBM Plex Mono', monospace; font-size:0.64rem;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; transition:all 0.3s ease;
+  }
+  .stratum-rail button.active{background:var(--brass); color:var(--ground-deep); border-color:var(--brass);}
+  .stratum-rail button:focus-visible{outline:2px solid var(--whisper); outline-offset:2px;}
+
+  /* ---------- Artifact modal ---------- */
+  .artifact-modal{
+    position:fixed; inset:0; z-index:50;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(11,14,17,0.82);
+    opacity:0; pointer-events:none;
+    transition:opacity 0.3s ease;
+    padding:1.5rem;
+  }
+  .artifact-modal.is-open{opacity:1; pointer-events:auto;}
+  .artifact-card{
+    background:var(--whisper); color:var(--ground-deep);
+    max-width:480px; width:100%;
+    padding:2.4rem 2.2rem;
+    border-radius:3px;
+    position:relative;
+    transform:translateY(16px) scale(0.98);
+    transition:transform 0.35s cubic-bezier(.2,.7,.2,1);
+  }
+  .artifact-modal.is-open .artifact-card{transform:translateY(0) scale(1);}
+  .modal-close{
+    position:absolute; top:1rem; right:1.1rem;
+    background:none; border:none; font-size:1.4rem; line-height:1;
+    color:var(--brass-dim); cursor:pointer; padding:0.3rem;
+  }
+  .modal-close:focus-visible{outline:2px solid var(--brass); outline-offset:2px;}
+  .artifact-card .icon{width:40px; height:40px; opacity:0.7; margin-bottom:1rem;}
+  .artifact-photo{
+    display:none;
+    width:100%; height:220px; object-fit:cover;
+    border-radius:2px; margin-bottom:1.2rem;
+    background:rgba(0,0,0,0.08);
+  }
+  .artifact-photo.is-visible{display:block;}
+  .artifact-photo.is-visible + .icon{display:none;}
+  .photo-credit{
+    font-family:'IBM Plex Mono', monospace; font-size:0.66rem;
+    letter-spacing:0.04em; opacity:0.55; margin:1rem 0 0;
+  }
+  .artifact-card h3{font-family:'Fraunces', serif; font-weight:500; font-size:1.5rem; margin:0 0 0.9rem;}
+  .artifact-card .artifact-quote{font-style:italic; line-height:1.6; margin:0 0 1.5rem; opacity:0.85;}
+  .spec-table{width:100%; border-collapse:collapse; font-family:'IBM Plex Mono', monospace; font-size:0.78rem;}
+  .spec-table th{
+    text-align:left; text-transform:uppercase; letter-spacing:0.08em;
+    color:var(--brass-dim); font-weight:500; padding:0.5rem 0.8rem 0.5rem 0; width:38%;
+    border-top:1px solid rgba(0,0,0,0.12); vertical-align:top;
+  }
+  .spec-table td{padding:0.5rem 0; border-top:1px solid rgba(0,0,0,0.12);}
+
+  /* ---------- Outro ---------- */
+  .outro{
+    min-height:60vh; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; text-align:center;
+    padding:3rem 1.5rem; gap:1.2rem;
+  }
+  .outro .eyebrow{margin-bottom:0;}
+  .outro-link{
+    font-family:'IBM Plex Mono', monospace; font-size:0.75rem; letter-spacing:0.15em;
+    color:var(--fog); text-transform:uppercase;
+    border-bottom:1px solid var(--brass-dim); padding-bottom:4px;
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 780px){
+    .beat-inner{grid-template-columns:1fr; gap:1.4rem;}
+    .stratum-tag{grid-column:1; writing-mode:horizontal-tb; opacity:0.8 !important; order:-1;}
+    .panel-wrap.clay{grid-column:1;}
+    .panel-wrap.parchment{grid-column:1;}
+    .site-line{left:1.4rem;}
+    .panel{padding:2rem 1.6rem;}
+    .stratum-rail{display:none;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{transition-duration:0.01ms !important; animation:none !important;}
+    .panel-wrap{opacity:1; transform:none;}
+    .stratum-tag, .hush-line{opacity:1;}
+    .panel{transform:none !important;}
+  }
+</style>
+</head>
+<body>
+
+  <!-- reusable icon defs -->
+  <svg width="0" height="0" style="position:absolute">
+    <defs>
+      <symbol id="icon-tablet" viewBox="0 0 40 40">
+        <rect x="4" y="6" width="32" height="28" rx="2" fill="none" stroke="currentColor" stroke-width="1.4"/>
+        <line x1="10" y1="13" x2="16" y2="17" stroke="currentColor" stroke-width="1.4"/>
+        <line x1="18" y1="13" x2="24" y2="17" stroke="currentColor" stroke-width="1.4"/>
+        <line x1="26" y1="13" x2="32" y2="17" stroke="currentColor" stroke-width="1.4"/>
+        <line x1="10" y1="21" x2="16" y2="25" stroke="currentColor" stroke-width="1.4"/>
+        <line x1="18" y1="21" x2="24" y2="25" stroke="currentColor" stroke-width="1.4"/>
+        <line x1="26" y1="21" x2="32" y2="25" stroke="currentColor" stroke-width="1.4"/>
+      </symbol>
+      <symbol id="icon-scroll" viewBox="0 0 40 40">
+        <circle cx="8" cy="10" r="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+        <circle cx="32" cy="30" r="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+        <path d="M8 14 L8 30 L32 30 M8 10 L32 10 L32 26" fill="none" stroke="currentColor" stroke-width="1.4"/>
+        <line x1="13" y1="17" x2="27" y2="17" stroke="currentColor" stroke-width="1.2"/>
+        <line x1="13" y1="21" x2="24" y2="21" stroke="currentColor" stroke-width="1.2"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <svg id="traceOverlay"><path id="tracePath" d=""/></svg>
+
+  <svg id="atmosphere" aria-hidden="true">
+    <defs>
+      <linearGradient id="waterGradient" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#12313A" stop-opacity="0.3"/>
+        <stop offset="100%" stop-color="#0B1C21" stop-opacity="0.5"/>
+      </linearGradient>
+    </defs>
+    <g id="atmosphere-stars"></g>
+    <path id="atmosphere-horizon" fill="url(#waterGradient)"/>
+  </svg>
+
+  <a class="room-back" href="parallel-room-hub.html">← Parallel Room</a>
+
+  <div class="intro" id="intro">
+    <div class="eyebrow">Parallel Room · Exhibit I — Creation &amp; Chaos</div>
+    <h1>Enūma Eliš<br><em>&amp;</em><br>Genesis 1</h1>
+    <p>Two accounts of how the world came into order. Read them side by side. No commentary yet — just look.</p>
+    <div class="scroll-cue">Scroll ↓</div>
+  </div>
+
+  <div class="plaque">
+    <div class="plaque-eyebrow">A Note Before You Look</div>
+    <p>Enūma Eliš and Genesis 1 come from the same broad world and window of history — Mesopotamia and the Levant, in the centuries before and after 600 BCE. Scholars in Ancient Near Eastern studies, including John Walton and Michael Heiser, have long noted that Babylonian and Israelite creation accounts share a common shape: <span class="key-term">the waters</span>, <span class="key-term">the split</span>, <span class="key-term">the lights</span>, <span class="key-term">humanity</span>, and <span class="key-term">rest</span> — the same five beats, in the same order. What follows sets two of those accounts side by side, one stratum at a time, so you can see that shape for yourself.</p>
+  </div>
+
+  <nav class="stratum-rail" aria-label="Jump to stratum">
+    <button data-target="1" aria-label="Stratum I — The Waters">I</button>
+    <button data-target="2" aria-label="Stratum II — The Split">II</button>
+    <button data-target="3" aria-label="Stratum III — The Lights">III</button>
+    <button data-target="4" aria-label="Stratum IV — Humanity">IV</button>
+    <button data-target="5" aria-label="Stratum V — Rest">V</button>
+  </nav>
+
+  <div class="exhibit">
+    <div class="site-line" aria-hidden="true"></div>
+
+    <section class="beat" data-beat="1">
+      <div class="beat-inner">
+        <div class="panel-wrap clay">
+          <button type="button" class="panel clay" data-icon="tablet"
+            data-title="Enūma Eliš — Tablet I" data-material="Fired clay" data-script="Akkadian, cuneiform"
+            data-findspot="Library of Ashurbanipal, Nineveh" data-translator="L.W. King, 1902" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Enuma_elish_AN1926.373.jpg" data-photo-credit="Enūma Eliš fragment, AN1926.373 · Ashmolean Museum · CC BY-SA 4.0"
+            data-quote="&quot;When in the height heaven was not named, and the earth beneath did not yet bear a name&hellip; Their waters were mingled together, and no field was formed, no marsh was to be seen.&quot;">
+            <svg class="icon"><use href="#icon-tablet"/></svg>
+            <span class="source">Enūma Eliš · Tablet I · trans. L.W. King, 1902</span>
+            <p>"When in the height heaven was not named, and the earth beneath did not yet bear a name&hellip; Their <span class="trace-word" data-trace="1">waters</span> were mingled together, and no field was formed, no marsh was to be seen."</p>
+            <span class="examine">Examine ↗</span>
+          </button>
+        </div>
+        <div class="stratum-tag">Stratum I — The Waters</div>
+        <div class="panel-wrap parchment">
+          <button type="button" class="panel parchment" data-icon="scroll"
+            data-title="Genesis 1:2" data-material="Ink on parchment (tradition)" data-script="Hebrew"
+            data-findspot="Masoretic textual tradition" data-translator="American Standard Version, 1901" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Leningrad_Codex_Folio_008a.jpg" data-photo-credit="Leningrad Codex, folio 8a · National Library of Russia · Public domain"
+            data-quote="&quot;And the earth was waste and void; and darkness was upon the face of the deep: and the Spirit of God moved upon the face of the waters.&quot;">
+            <svg class="icon"><use href="#icon-scroll"/></svg>
+            <span class="source">Genesis 1:2 · ASV, 1901</span>
+            <p>"And the earth was waste and void; and darkness was upon the face of the deep: and the Spirit of God moved upon the face of the <span class="trace-word" data-trace="1">waters</span>."</p>
+            <span class="examine">Examine ↗</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="beat" data-beat="2">
+      <div class="beat-inner">
+        <div class="panel-wrap clay">
+          <button type="button" class="panel clay" data-icon="tablet"
+            data-title="Enūma Eliš — Tablet IV" data-material="Fired clay" data-script="Akkadian, cuneiform"
+            data-findspot="Library of Ashurbanipal, Nineveh" data-translator="L.W. King, 1902" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Enuma_elish_AN1926.373.jpg" data-photo-credit="Enūma Eliš fragment, AN1926.373 · Ashmolean Museum · CC BY-SA 4.0"
+            data-quote="&quot;He split her like a shellfish into two parts: half of her he set up and ceiled as sky&hellip; the Great Abode, its likeness, he fixed as Esharra, which he made as the firmament.&quot;">
+            <svg class="icon"><use href="#icon-tablet"/></svg>
+            <span class="source">Enūma Eliš · Tablet IV · trans. L.W. King, 1902</span>
+            <p>"He split her like a shellfish into two parts: half of her he set up and ceiled as sky&hellip; the Great Abode, its likeness, he fixed as Esharra, which he made as the <span class="trace-word" data-trace="2">firmament</span>."</p>
+            <span class="examine">Examine ↗</span>
+          </button>
+        </div>
+        <div class="stratum-tag">Stratum II — The Split</div>
+        <div class="panel-wrap parchment">
+          <button type="button" class="panel parchment" data-icon="scroll"
+            data-title="Genesis 1:6–7" data-material="Ink on parchment (tradition)" data-script="Hebrew"
+            data-findspot="Masoretic textual tradition" data-translator="American Standard Version, 1901" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Leningrad_Codex_Folio_008a.jpg" data-photo-credit="Leningrad Codex, folio 8a · National Library of Russia · Public domain"
+            data-quote="&quot;And God said, Let there be a firmament in the midst of the waters, and let it divide the waters from the waters&hellip; and it was so.&quot;">
+            <svg class="icon"><use href="#icon-scroll"/></svg>
+            <span class="source">Genesis 1:6–7 · ASV, 1901</span>
+            <p>"And God said, Let there be a <span class="trace-word" data-trace="2">firmament</span> in the midst of the waters, and let it divide the waters from the waters&hellip; and it was so."</p>
+            <span class="examine">Examine ↗</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="beat" data-beat="3">
+      <div class="beat-inner">
+        <div class="panel-wrap clay">
+          <button type="button" class="panel clay" data-icon="tablet"
+            data-title="Enūma Eliš — Tablet V" data-material="Fired clay" data-script="Akkadian, cuneiform"
+            data-findspot="Library of Ashurbanipal, Nineveh" data-translator="L.W. King, 1902" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Enuma_elish_AN1926.373.jpg" data-photo-credit="Enūma Eliš fragment, AN1926.373 · Ashmolean Museum · CC BY-SA 4.0"
+            data-quote="&quot;He made the stations for the great gods; the stars, their images&hellip; he fixed. He ordained the year and into sections he divided it; for the twelve months he fixed three stars.&quot;">
+            <svg class="icon"><use href="#icon-tablet"/></svg>
+            <span class="source">Enūma Eliš · Tablet V · trans. L.W. King, 1902</span>
+            <p>"He made the stations for the great gods; the stars, their images&hellip; he fixed. He ordained the <span class="trace-word" data-trace="3">year</span> and into sections he divided it; for the twelve months he fixed three stars."</p>
+            <span class="examine">Examine ↗</span>
+          </button>
+        </div>
+        <div class="stratum-tag">Stratum III — The Lights</div>
+        <div class="panel-wrap parchment">
+          <button type="button" class="panel parchment" data-icon="scroll"
+            data-title="Genesis 1:14" data-material="Ink on parchment (tradition)" data-script="Hebrew"
+            data-findspot="Masoretic textual tradition" data-translator="American Standard Version, 1901" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Leningrad_Codex_Folio_008a.jpg" data-photo-credit="Leningrad Codex, folio 8a · National Library of Russia · Public domain"
+            data-quote="&quot;Let there be lights in the firmament of heaven to divide the day from the night; and let them be for signs, and for seasons, and for days and years.&quot;">
+            <svg class="icon"><use href="#icon-scroll"/></svg>
+            <span class="source">Genesis 1:14 · ASV, 1901</span>
+            <p>"Let there be lights in the firmament of heaven to divide the day from the night; and let them be for signs, and for seasons, and for days and <span class="trace-word" data-trace="3">years</span>."</p>
+            <span class="examine">Examine ↗</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="beat" data-beat="4">
+      <div class="beat-inner">
+        <div class="panel-wrap clay">
+          <button type="button" class="panel clay" data-icon="tablet"
+            data-title="Enūma Eliš — Tablet VI" data-material="Fired clay" data-script="Akkadian, cuneiform"
+            data-findspot="Library of Ashurbanipal, Nineveh" data-translator="L.W. King, 1902" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Enuma_elish_AN1926.373.jpg" data-photo-credit="Enūma Eliš fragment, AN1926.373 · Ashmolean Museum · CC BY-SA 4.0"
+            data-quote="&quot;Blood I will mass and cause bones to be. I will establish a savage, man shall be his name&hellip; He shall be charged with the service of the gods, that they might be at ease.&quot;">
+            <svg class="icon"><use href="#icon-tablet"/></svg>
+            <span class="source">Enūma Eliš · Tablet VI · trans. L.W. King, 1902</span>
+            <p>"Blood I will mass and cause bones to be. I will establish a savage, <span class="trace-word" data-trace="4">man</span> shall be his name&hellip; He shall be charged with the service of the gods, that they might be at ease."</p>
+            <span class="examine">Examine ↗</span>
+          </button>
+        </div>
+        <div class="stratum-tag">Stratum IV — Humanity</div>
+        <div class="panel-wrap parchment">
+          <button type="button" class="panel parchment" data-icon="scroll"
+            data-title="Genesis 1:27–28" data-material="Ink on parchment (tradition)" data-script="Hebrew"
+            data-findspot="Masoretic textual tradition" data-translator="American Standard Version, 1901" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Leningrad_Codex_Folio_008a.jpg" data-photo-credit="Leningrad Codex, folio 8a · National Library of Russia · Public domain"
+            data-quote="&quot;And God created man in his own image&hellip; and God blessed them: and God said unto them, Be fruitful, and multiply, and replenish the earth, and subdue it.&quot;">
+            <svg class="icon"><use href="#icon-scroll"/></svg>
+            <span class="source">Genesis 1:27–28 · ASV, 1901</span>
+            <p>"And God created <span class="trace-word" data-trace="4">man</span> in his own image&hellip; and God blessed them: and God said unto them, Be fruitful, and multiply, and replenish the earth, and subdue it."</p>
+            <span class="examine">Examine ↗</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="beat" data-beat="5">
+      <div class="beat-inner">
+        <div class="panel-wrap clay">
+          <button type="button" class="panel clay" data-icon="tablet"
+            data-title="Enūma Eliš — Tablet VI–VII" data-material="Fired clay" data-script="Akkadian, cuneiform (paraphrase)"
+            data-findspot="Library of Ashurbanipal, Nineveh" data-translator="Paraphrase — source pending" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Enuma_elish_AN1926.373.jpg" data-photo-credit="Enūma Eliš fragment, AN1926.373 · Ashmolean Museum · CC BY-SA 4.0"
+            data-quote="The gods built a house for their king &mdash; and there, the work finished, he took his rest.">
+            <svg class="icon"><use href="#icon-tablet"/></svg>
+            <span class="source">Enūma Eliš · Tablet VI–VII · paraphrase, pending source</span>
+            <p>The gods built a house for their king — and there, the work finished, he took his <span class="trace-word" data-trace="5">rest</span>.</p>
+            <span class="examine">Examine ↗</span>
+          </button>
+        </div>
+        <div class="stratum-tag">Stratum V — Rest</div>
+        <div class="panel-wrap parchment">
+          <button type="button" class="panel parchment" data-icon="scroll"
+            data-title="Genesis 2:2–3" data-material="Ink on parchment (tradition)" data-script="Hebrew"
+            data-findspot="Masoretic textual tradition" data-translator="American Standard Version, 1901" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Leningrad_Codex_Folio_008a.jpg" data-photo-credit="Leningrad Codex, folio 8a · National Library of Russia · Public domain"
+            data-quote="&quot;And on the seventh day God finished his work which he had made; and he rested&hellip; and God blessed the seventh day, and hallowed it.&quot;">
+            <svg class="icon"><use href="#icon-scroll"/></svg>
+            <span class="source">Genesis 2:2–3 · ASV, 1901</span>
+            <p>"And on the seventh day God finished his work which he had made; and he <span class="trace-word" data-trace="5">rested</span>&hellip; and God blessed the seventh day, and hallowed it."</p>
+            <span class="examine">Examine ↗</span>
+          </button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="outro">
+    <div class="eyebrow">End of Parallel Room</div>
+    <div class="outro-link">Next → Letters Room</div>
+  </div>
+
+  <!-- artifact modal -->
+  <div class="artifact-modal" id="artifactModal" aria-hidden="true">
+    <div class="artifact-card" role="dialog" aria-modal="true" aria-labelledby="artifactTitle">
+      <button class="modal-close" id="modalClose" aria-label="Close">&times;</button>
+      <img class="artifact-photo" id="modalPhoto" alt="" />
+      <svg class="icon" id="modalIcon"><use id="modalIconUse" href="#icon-tablet"/></svg>
+      <h3 id="artifactTitle"></h3>
+      <p class="artifact-quote" id="modalQuote"></p>
+      <table class="spec-table">
+        <tr><th>Material</th><td id="modalMaterial"></td></tr>
+        <tr><th>Script</th><td id="modalScript"></td></tr>
+        <tr><th>Findspot</th><td id="modalFindspot"></td></tr>
+        <tr><th>Translator</th><td id="modalTranslator"></td></tr>
+      </table>
+      <p class="photo-credit" id="modalPhotoCredit"></p>
+    </div>
+  </div>
+
+<script>
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const beats = document.querySelectorAll('.beat');
+
+  /* scroll reveal + automatic trace */
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting && !entry.target.classList.contains('is-revealed')) {
+        const beatEl = entry.target;
+        beatEl.classList.add('is-revealed');
+        if (beatEl.dataset.beat === '5') beatEl.classList.add('is-hush');
+
+        const revealDelay = reduceMotion ? 200 : 1300;
+        setTimeout(() => {
+          const words = beatEl.querySelectorAll('.trace-word');
+          if (words.length === 2) {
+            words.forEach(w => w.classList.add('is-traced'));
+            drawTrace(words[0], words[1]);
+            setTimeout(() => {
+              words.forEach(w => w.classList.remove('is-traced'));
+              hideTrace();
+            }, reduceMotion ? 0 : 2600);
+          }
+        }, revealDelay);
+      }
+    });
+  }, { threshold: 0.4 });
+  beats.forEach(beat => revealObserver.observe(beat));
+
+  /* stratum rail active state */
+  const railButtons = document.querySelectorAll('.stratum-rail button');
+  const railObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const idx = entry.target.dataset.beat;
+        railButtons.forEach(b => b.classList.toggle('active', b.dataset.target === idx));
+      }
+    });
+  }, { threshold: 0.5 });
+  beats.forEach(beat => railObserver.observe(beat));
+
+  railButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = document.querySelector(`.beat[data-beat="${btn.dataset.target}"]`);
+      if (target) target.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
+    });
+  });
+
+  /* intro ambient glow follows cursor */
+  if (!reduceMotion) {
+    const intro = document.getElementById('intro');
+    intro.addEventListener('mousemove', (e) => {
+      const rect = intro.getBoundingClientRect();
+      intro.style.setProperty('--mx', ((e.clientX - rect.left) / rect.width * 100) + '%');
+      intro.style.setProperty('--my', ((e.clientY - rect.top) / rect.height * 100) + '%');
+    });
+  }
+
+  /* panel tilt + glow */
+  if (!reduceMotion) {
+    document.querySelectorAll('.panel').forEach(panel => {
+      panel.addEventListener('mousemove', (e) => {
+        const rect = panel.getBoundingClientRect();
+        const x = e.clientX - rect.left, y = e.clientY - rect.top;
+        const rx = ((y - rect.height / 2) / (rect.height / 2)) * -4;
+        const ry = ((x - rect.width / 2) / (rect.width / 2)) * 4;
+        panel.style.setProperty('--rx', rx + 'deg');
+        panel.style.setProperty('--ry', ry + 'deg');
+        panel.style.setProperty('--gx', (x / rect.width * 100) + '%');
+        panel.style.setProperty('--gy', (y / rect.height * 100) + '%');
+      });
+      panel.addEventListener('mouseleave', () => {
+        panel.style.setProperty('--rx', '0deg');
+        panel.style.setProperty('--ry', '0deg');
+      });
+    });
+  }
+
+  /* artifact modal */
+  const modal = document.getElementById('artifactModal');
+  const modalClose = document.getElementById('modalClose');
+  let lastFocused = null;
+
+  function openModal(panel) {
+    lastFocused = panel;
+    document.getElementById('artifactTitle').textContent = panel.dataset.title;
+    document.getElementById('modalQuote').innerHTML = panel.dataset.quote;
+    document.getElementById('modalMaterial').textContent = panel.dataset.material;
+    document.getElementById('modalScript').textContent = panel.dataset.script;
+    document.getElementById('modalFindspot').textContent = panel.dataset.findspot;
+    document.getElementById('modalTranslator').textContent = panel.dataset.translator;
+    document.getElementById('modalIconUse').setAttribute('href', '#icon-' + panel.dataset.icon);
+
+    const photo = document.getElementById('modalPhoto');
+    const credit = document.getElementById('modalPhotoCredit');
+    photo.classList.remove('is-visible');
+    credit.textContent = '';
+    if (panel.dataset.photo) {
+      photo.onload = () => photo.classList.add('is-visible');
+      photo.onerror = () => { photo.classList.remove('is-visible'); }; // fall back to icon
+      photo.src = panel.dataset.photo;
+      photo.alt = panel.dataset.title;
+      credit.textContent = panel.dataset.photoCredit || '';
+    } else {
+      photo.removeAttribute('src');
+    }
+
+    modal.classList.add('is-open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    modalClose.focus();
+  }
+  function closeModal() {
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    if (lastFocused) lastFocused.focus();
+  }
+
+  document.querySelectorAll('.panel').forEach(panel => {
+    panel.addEventListener('click', () => openModal(panel));
+  });
+  modalClose.addEventListener('click', closeModal);
+  modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.classList.contains('is-open')) closeModal();
+  });
+
+  /* ---------- Trace: connect matching words across panels ---------- */
+  const traceOverlay = document.getElementById('traceOverlay');
+  const tracePath = document.getElementById('tracePath');
+
+  function sizeOverlay() {
+    traceOverlay.setAttribute('width', window.innerWidth);
+    traceOverlay.setAttribute('height', window.innerHeight);
+  }
+  sizeOverlay();
+  window.addEventListener('resize', sizeOverlay);
+
+  function drawTrace(elA, elB) {
+    const a = elA.getBoundingClientRect();
+    const b = elB.getBoundingClientRect();
+    const x1 = a.left + a.width / 2, y1 = a.top + a.height / 2;
+    const x2 = b.left + b.width / 2, y2 = b.top + b.height / 2;
+    const mx = (x1 + x2) / 2;
+    const my = (y1 + y2) / 2 - Math.min(60, Math.abs(x2 - x1) / 4);
+    tracePath.setAttribute('d', `M ${x1} ${y1} Q ${mx} ${my} ${x2} ${y2}`);
+    if (reduceMotion) { tracePath.style.opacity = 0.9; return; }
+    const len = tracePath.getTotalLength();
+    tracePath.style.transition = 'none';
+    tracePath.style.strokeDasharray = len;
+    tracePath.style.strokeDashoffset = len;
+    tracePath.style.opacity = 1;
+    tracePath.getBoundingClientRect(); // force reflow
+    tracePath.style.transition = 'stroke-dashoffset 0.7s cubic-bezier(.2,.7,.2,1)';
+    tracePath.style.strokeDashoffset = 0;
+  }
+  function hideTrace() {
+    tracePath.style.transition = 'opacity 0.4s ease';
+    tracePath.style.opacity = 0;
+  }
+
+  document.querySelectorAll('.trace-word').forEach(word => {
+    const pairId = word.dataset.trace;
+    const twin = [...document.querySelectorAll(`[data-trace="${pairId}"]`)].find(w => w !== word);
+    word.addEventListener('mouseenter', () => {
+      word.classList.add('is-traced');
+      if (twin) { twin.classList.add('is-traced'); drawTrace(word, twin); }
+    });
+    word.addEventListener('mouseleave', () => {
+      word.classList.remove('is-traced');
+      if (twin) twin.classList.remove('is-traced');
+      hideTrace();
+    });
+  });
+
+  /* ---------- Atmosphere: chaos resolving to order ---------- */
+  (function () {
+    const atmosphereSvg = document.getElementById('atmosphere');
+    const starsG = document.getElementById('atmosphere-stars');
+    const horizonPath = document.getElementById('atmosphere-horizon');
+
+    function sizeAtmosphere() {
+      atmosphereSvg.setAttribute('width', window.innerWidth);
+      atmosphereSvg.setAttribute('height', window.innerHeight);
+    }
+    sizeAtmosphere();
+    window.addEventListener('resize', sizeAtmosphere);
+
+    // scatter a fixed starfield once
+    const starCount = 46;
+    let starsHtml = '';
+    for (let i = 0; i < starCount; i++) {
+      const x = (Math.random() * 100).toFixed(2);
+      const y = (Math.random() * 58).toFixed(2);
+      const r = (Math.random() * 1.3 + 0.6).toFixed(2);
+      const twinkle = Math.random() < 0.18 ? ' class="star-twinkle"' : '';
+      const delay = (Math.random() * 5).toFixed(2);
+      const baseOpacity = (Math.random() * 0.25 + 0.12).toFixed(2);
+      starsHtml += `<circle cx="${x}%" cy="${y}%" r="${r}"${twinkle} style="opacity:${baseOpacity}; animation-delay:${delay}s;"/>`;
+    }
+    starsG.innerHTML = starsHtml;
+
+    function scrollProgress() {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      return max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+    }
+
+    function updateHorizon() {
+      const progress = scrollProgress();
+      const w = window.innerWidth, h = window.innerHeight;
+      const baseY = h * 0.62;
+      const amplitude = reduceMotion ? 0 : (1 - progress) * 26;
+      const segments = 16;
+      let d = `M 0 ${h} L 0 ${baseY.toFixed(1)}`;
+      for (let i = 0; i <= segments; i++) {
+        const x = (w / segments) * i;
+        const y = baseY + Math.sin((i / segments) * Math.PI * 2.4 + progress * 2) * amplitude;
+        d += ` L ${x.toFixed(1)} ${y.toFixed(1)}`;
+      }
+      d += ` L ${w} ${h} Z`;
+      horizonPath.setAttribute('d', d);
+      const blur = reduceMotion ? 0 : (1 - progress) * 4;
+      horizonPath.style.filter = blur > 0.15 ? `blur(${blur.toFixed(1)}px)` : 'none';
+    }
+
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        requestAnimationFrame(() => { updateHorizon(); ticking = false; });
+        ticking = true;
+      }
+    }, { passive: true });
+
+    updateHorizon();
+  })();
+</script>
+
+</body>
+</html>
