@@ -61,7 +61,7 @@
     font-optical-sizing:auto;
     font-size:clamp(2.2rem, 6vw, 4.4rem);
     line-height:1.05;
-    margin:0 0 1.1rem 0;
+    margin:0;
     letter-spacing:-0.01em;
     position:relative;
     z-index:1;
@@ -71,17 +71,8 @@
     font-weight:300;
     color:var(--fog);
   }
-  .intro p{
-    max-width:34ch;
-    color:var(--mist);
-    font-size:1rem;
-    line-height:1.6;
-    margin:0;
-    position:relative;
-    z-index:1;
-  }
   .scroll-cue{
-    margin-top:3.5rem;
+    margin-top:2.6rem;
     font-family:'IBM Plex Mono', monospace;
     font-size:0.7rem;
     letter-spacing:0.2em;
@@ -101,7 +92,7 @@
   #atmosphere-glints circle{fill:var(--whisper);}
   @keyframes glint-shimmer{0%,100%{opacity:0.08;} 50%{opacity:0.4;}}
   .glint-shimmer{animation:glint-shimmer 3.4s ease-in-out infinite;}
-  @keyframes twinkle{0%,100%{opacity:0.14;} 50%{opacity:0.5;}}
+  @keyframes twinkle{0%,100%{opacity:0.1;} 50%{opacity:0.55;}}
   .star-twinkle{animation:twinkle 5.5s ease-in-out infinite;}
 
   /* ---------- Room-back link ---------- */
@@ -115,30 +106,6 @@
   }
   .room-back:hover, .room-back:focus-visible{border-color:var(--brass); color:var(--whisper);}
   @media (max-width:780px){.room-back{font-size:0.6rem; padding:0.4rem 0.6rem; top:1rem; left:1rem;}}
-
-  /* ---------- Entrance plaque ---------- */
-  .plaque{
-    max-width:640px;
-    margin:0 auto;
-    padding:4.5rem 2rem 5.5rem;
-    text-align:center;
-    position:relative;
-  }
-  .plaque::before{
-    content:"";
-    position:absolute; top:1.8rem; left:50%; transform:translateX(-50%);
-    width:36px; height:1px; background:var(--brass-dim);
-  }
-  .plaque-eyebrow{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:0.68rem; letter-spacing:0.22em; text-transform:uppercase;
-    color:var(--brass); margin-bottom:1.3rem;
-  }
-  .plaque p{
-    font-family:'Spectral', serif; font-size:1.05rem; line-height:1.8;
-    color:var(--mist); margin:0;
-  }
-  .plaque .key-term{color:var(--brass); font-style:italic;}
 
   /* ---------- Site line ---------- */
   .site-line{
@@ -410,10 +377,12 @@
       </linearGradient>
     </defs>
     <g id="atmosphere-stars"></g>
-    <path id="water-back" fill="url(#waterGradient)" opacity="0.32"/>
-    <path id="water-mid" fill="url(#waterGradient)" opacity="0.5"/>
-    <path id="water-front" fill="url(#waterGradient)" opacity="0.78"/>
-    <path id="water-crest" fill="none"/>
+    <g id="water-surface">
+      <path id="water-back" fill="url(#waterGradient)" opacity="0.32"/>
+      <path id="water-mid" fill="url(#waterGradient)" opacity="0.5"/>
+      <path id="water-front" fill="url(#waterGradient)" opacity="0.78"/>
+      <path id="water-crest" fill="none"/>
+    </g>
     <g id="atmosphere-glints"></g>
   </svg>
 
@@ -422,13 +391,7 @@
   <div class="intro" id="intro">
     <div class="eyebrow">Parallel Room · Exhibit I — Creation &amp; Chaos</div>
     <h1>Enūma Eliš<br><em>&amp;</em><br>Genesis 1</h1>
-    <p>Two accounts of how the world came into order. Read them side by side. No commentary yet — just look.</p>
     <div class="scroll-cue">Scroll ↓</div>
-  </div>
-
-  <div class="plaque">
-    <div class="plaque-eyebrow">A Note Before You Look</div>
-    <p>Enūma Eliš and Genesis 1 come from the same broad world and window of history — Mesopotamia and the Levant, in the centuries before and after 600 BCE. Scholars in Ancient Near Eastern studies, including John Walton and Michael Heiser, have long noted that Babylonian and Israelite creation accounts share a common shape: <span class="key-term">the waters</span>, <span class="key-term">the split</span>, <span class="key-term">the lights</span>, <span class="key-term">humanity</span>, and <span class="key-term">rest</span> — the same five beats, in the same order. What follows sets two of those accounts side by side, one stratum at a time, so you can see that shape for yourself.</p>
   </div>
 
   <nav class="stratum-rail" aria-label="Jump to stratum">
@@ -788,6 +751,7 @@
     const atmosphereSvg = document.getElementById('atmosphere');
     const starsG = document.getElementById('atmosphere-stars');
     const glintsG = document.getElementById('atmosphere-glints');
+    const waterSurface = document.getElementById('water-surface');
     const waterBack = document.getElementById('water-back');
     const waterMid = document.getElementById('water-mid');
     const waterFront = document.getElementById('water-front');
@@ -807,10 +771,13 @@
       const x = (Math.random() * 100).toFixed(2);
       const y = (Math.random() * 58).toFixed(2);
       const r = (Math.random() * 1.3 + 0.6).toFixed(2);
-      const twinkle = Math.random() < 0.18 ? ' class="star-twinkle"' : '';
-      const delay = (Math.random() * 5).toFixed(2);
+      const isTwinkler = Math.random() < 0.7;
+      const twinkle = isTwinkler ? ' class="star-twinkle"' : '';
+      const delay = (Math.random() * 6).toFixed(2);
+      const duration = (Math.random() * 3 + 4).toFixed(2);
       const baseOpacity = (Math.random() * 0.25 + 0.12).toFixed(2);
-      starsHtml += `<circle cx="${x}%" cy="${y}%" r="${r}"${twinkle} style="opacity:${baseOpacity}; animation-delay:${delay}s;"/>`;
+      const durationStyle = isTwinkler ? ` animation-duration:${duration}s;` : '';
+      starsHtml += `<circle cx="${x}%" cy="${y}%" r="${r}"${twinkle} style="opacity:${baseOpacity}; animation-delay:${delay}s;${durationStyle}"/>`;
     }
     starsG.innerHTML = starsHtml;
 
@@ -860,6 +827,9 @@
       const t = (now || 0) / 1000;
       const progress = scrollProgress();
       const w = window.innerWidth, h = window.innerHeight;
+
+      const swell = reduceMotion ? 0 : Math.sin(t * 0.09) * 5 + Math.sin(t * 0.05 + 1.7) * 3;
+      waterSurface.setAttribute('transform', `translate(0, ${swell.toFixed(2)})`);
 
       const ampBack = reduceMotion ? 0 : restRipple + (1 - progress) * 34;
       const phaseBack = reduceMotion ? 0 : t * 0.12 + progress * 1.6;
