@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Parallel Room</title>
+<title>Lobby</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600&family=Spectral:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -11,10 +11,8 @@
     --ground: #14181C;
     --clay: #C9A876;
     --clay-deep: #B08F5F;
-    --clay-ink: #2A1F12;
     --parchment: #DCD2B4;
     --parchment-deep: #CBBF9E;
-    --parchment-ink: #201B14;
     --brass: #A6763D;
     --brass-dim: #6E5330;
     --whisper: #F2EFE8;
@@ -24,108 +22,117 @@
   *{box-sizing:border-box;}
   body{
     margin:0; min-height:100vh;
-    background:radial-gradient(circle at 50% 22%, rgba(166,118,61,0.14), transparent 55%), var(--ground);
+    background:radial-gradient(circle at 50% 18%, rgba(166,118,61,0.14), transparent 55%), var(--ground);
     color:var(--whisper);
     font-family:'Spectral', serif;
     display:flex; flex-direction:column; align-items:center;
-    padding:5rem 1.5rem 4rem;
+    padding:6rem 1.5rem 4rem;
   }
   .eyebrow{
     font-family:'IBM Plex Mono', monospace; font-size:0.72rem; letter-spacing:0.28em;
-    color:var(--brass); text-transform:uppercase; margin-bottom:1.3rem;
+    color:var(--brass); text-transform:uppercase; margin-bottom:1.6rem;
   }
   h1{
     font-family:'Fraunces', serif; font-weight:500; font-optical-sizing:auto;
-    font-size:clamp(2rem, 5vw, 3.2rem); line-height:1.08; text-align:center;
-    margin:0 0 1.1rem; max-width:16ch;
+    font-size:clamp(2rem, 5.5vw, 3.6rem); line-height:1.12; text-align:center;
+    margin:0 0 1.4rem; max-width:18ch;
   }
-  .hub-intro{
+  h1 .fog-line{color:var(--fog); font-weight:300; font-style:italic;}
+  .mission{
     max-width:52ch; text-align:center; color:var(--mist);
-    font-size:1.02rem; line-height:1.7; margin:0 0 4rem;
+    font-size:1.02rem; line-height:1.7; margin:0 0 4.5rem;
   }
 
-  .exhibit-grid{
-    display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
-    gap:1.6rem; width:100%; max-width:960px;
+  .room-grid{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(230px, 1fr));
+    gap:1.4rem; width:100%; max-width:1080px;
   }
-  .exhibit-card{
+  .room-card{
     position:relative;
     display:flex; flex-direction:column;
-    padding:2.2rem 1.8rem 2rem;
+    padding:2rem 1.7rem 1.8rem;
     border-radius:3px;
     text-decoration:none; color:inherit;
     border:1px solid rgba(242,239,232,0.1);
     transition:transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+    min-height:170px;
   }
-  .exhibit-card.available{
+  .room-card.available{
     background:linear-gradient(155deg, rgba(201,168,118,0.12), rgba(220,211,180,0.06));
     cursor:pointer;
   }
-  .exhibit-card.available:hover, .exhibit-card.available:focus-visible{
+  .room-card.available:hover, .room-card.available:focus-visible{
     transform:translateY(-4px);
     border-color:var(--brass);
     background:linear-gradient(155deg, rgba(201,168,118,0.2), rgba(220,211,180,0.1));
     outline:none;
   }
-  .exhibit-card.locked{
+  .room-card.locked{
     background:rgba(242,239,232,0.03);
-    opacity:0.55;
+    opacity:0.5;
   }
-  .exhibit-index{
-    font-family:'IBM Plex Mono', monospace; font-size:0.7rem; letter-spacing:0.16em;
-    color:var(--brass); margin-bottom:1rem;
+  .room-index{
+    font-family:'IBM Plex Mono', monospace; font-size:0.68rem; letter-spacing:0.16em;
+    color:var(--brass); margin-bottom:0.9rem; text-transform:uppercase;
   }
-  .exhibit-card h2{
-    font-family:'Fraunces', serif; font-weight:500; font-size:1.4rem; margin:0 0 0.5rem;
+  .room-card h2{
+    font-family:'Fraunces', serif; font-weight:500; font-size:1.28rem; margin:0 0 0.5rem;
   }
-  .exhibit-card p{
-    font-family:'Spectral', serif; font-style:italic; font-size:0.92rem;
-    color:var(--mist); margin:0 0 1.6rem; line-height:1.5;
+  .room-card p{
+    font-family:'Spectral', serif; font-style:italic; font-size:0.88rem;
+    color:var(--mist); margin:0 0 1.4rem; line-height:1.5;
   }
-  .exhibit-status{
+  .room-status{
     margin-top:auto;
-    font-family:'IBM Plex Mono', monospace; font-size:0.68rem; letter-spacing:0.1em;
+    font-family:'IBM Plex Mono', monospace; font-size:0.66rem; letter-spacing:0.1em;
     text-transform:uppercase; color:var(--fog);
   }
-  .exhibit-card.available .exhibit-status{color:var(--brass);}
-
-  .hub-footer{margin-top:4rem;}
-  .lobby-link{
-    font-family:'IBM Plex Mono', monospace; font-size:0.72rem; letter-spacing:0.12em;
-    text-transform:uppercase; color:var(--fog); opacity:0.6;
-  }
-  .lobby-link em{font-style:normal; opacity:0.6; margin-left:0.4rem;}
+  .room-card.available .room-status{color:var(--brass);}
 </style>
 </head>
 <body>
 
-  <div class="eyebrow">The Parallel Room</div>
-  <h1>Three ways order answers chaos</h1>
-  <p class="hub-intro">Side-by-side Ancient Near Eastern and biblical texts. No commentary at first — the resemblance speaks before anything gets explained. Choose where to look.</p>
+  <div class="eyebrow">Begin Here</div>
+  <h1>The oldest version of the text.<br><span class="fog-line">The freshest thing you'll read all year.</span></h1>
+  <p class="mission">An exploration of Scripture in the world it was actually written in — not the version handed down through centuries of assumption. Curiosity first. The evidence, then the response. No conclusions handed to you before you've had a chance to look.</p>
 
-  <div class="exhibit-grid">
-    <a class="exhibit-card available" href="parallel-room-prototype.html">
-      <span class="exhibit-index">Exhibit I</span>
-      <h2>Creation &amp; Chaos</h2>
-      <p>Enūma Eliš &amp; Genesis 1</p>
-      <span class="exhibit-status">Enter →</span>
+  <div class="room-grid">
+    <div class="room-card locked" aria-disabled="true">
+      <span class="room-index">Room</span>
+      <h2>Mirror Room</h2>
+      <p>Which lens are you reading through?</p>
+      <span class="room-status">In development</span>
+    </div>
+    <div class="room-card locked" aria-disabled="true">
+      <span class="room-index">Room</span>
+      <h2>Map Room</h2>
+      <p>Where Ur, Ugarit, and Israel actually sit.</p>
+      <span class="room-status">In development</span>
+    </div>
+    <a class="room-card available" href="parallel-room.html">
+      <span class="room-index">Room</span>
+      <h2>Parallel Room</h2>
+      <p>Ancient Near Eastern texts, side by side with Scripture.</p>
+      <span class="room-status">Enter →</span>
     </a>
-    <div class="exhibit-card locked" aria-disabled="true">
-      <span class="exhibit-index">Exhibit II</span>
-      <h2>The Flood</h2>
-      <p>Atrahasis &amp; Genesis 6–9</p>
-      <span class="exhibit-status">In development</span>
+    <div class="room-card locked" aria-disabled="true">
+      <span class="room-index">Room</span>
+      <h2>Letters Room</h2>
+      <p>An imagined letter from the ancient author.</p>
+      <span class="room-status">In development</span>
     </div>
-    <div class="exhibit-card locked" aria-disabled="true">
-      <span class="exhibit-index">Exhibit III</span>
-      <h2>The Covenant Code</h2>
-      <p>Code of Hammurabi &amp; Exodus</p>
-      <span class="exhibit-status">In development</span>
+    <div class="room-card locked" aria-disabled="true">
+      <span class="room-index">Room</span>
+      <h2>Reading Room</h2>
+      <p>The sources, browsable like a shelf.</p>
+      <span class="room-status">In development</span>
     </div>
-  </div>
-
-  <div class="hub-footer">
-    <span class="lobby-link">← Lobby <em>(not yet built)</em></span>
+    <div class="room-card locked" aria-disabled="true">
+      <span class="room-index">Room</span>
+      <h2>Echo Room</h2>
+      <p>Original music and poetry, in response.</p>
+      <span class="room-status">In development</span>
+    </div>
   </div>
 
 </body>

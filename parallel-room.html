@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Parallel Room</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600&family=Spectral:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ground: #14181C;
+    --clay: #C9A876;
+    --clay-deep: #B08F5F;
+    --clay-ink: #2A1F12;
+    --parchment: #DCD2B4;
+    --parchment-deep: #CBBF9E;
+    --parchment-ink: #201B14;
+    --brass: #A6763D;
+    --brass-dim: #6E5330;
+    --whisper: #F2EFE8;
+    --fog: rgba(242,239,232,0.55);
+    --mist: rgba(220,215,205,0.35);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; min-height:100vh;
+    background:radial-gradient(circle at 50% 22%, rgba(166,118,61,0.14), transparent 55%), var(--ground);
+    color:var(--whisper);
+    font-family:'Spectral', serif;
+    display:flex; flex-direction:column; align-items:center;
+    padding:5rem 1.5rem 4rem;
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace; font-size:0.72rem; letter-spacing:0.28em;
+    color:var(--brass); text-transform:uppercase; margin-bottom:1.3rem;
+  }
+  h1{
+    font-family:'Fraunces', serif; font-weight:500; font-optical-sizing:auto;
+    font-size:clamp(2rem, 5vw, 3.2rem); line-height:1.08; text-align:center;
+    margin:0 0 1.1rem; max-width:16ch;
+  }
+  .hub-intro{
+    max-width:52ch; text-align:center; color:var(--mist);
+    font-size:1.02rem; line-height:1.7; margin:0 0 4rem;
+  }
+
+  .exhibit-grid{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
+    gap:1.6rem; width:100%; max-width:960px;
+  }
+  .exhibit-card{
+    position:relative;
+    display:flex; flex-direction:column;
+    padding:2.2rem 1.8rem 2rem;
+    border-radius:3px;
+    text-decoration:none; color:inherit;
+    border:1px solid rgba(242,239,232,0.1);
+    transition:transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+  }
+  .exhibit-card.available{
+    background:linear-gradient(155deg, rgba(201,168,118,0.12), rgba(220,211,180,0.06));
+    cursor:pointer;
+  }
+  .exhibit-card.available:hover, .exhibit-card.available:focus-visible{
+    transform:translateY(-4px);
+    border-color:var(--brass);
+    background:linear-gradient(155deg, rgba(201,168,118,0.2), rgba(220,211,180,0.1));
+    outline:none;
+  }
+  .exhibit-card.locked{
+    background:rgba(242,239,232,0.03);
+    opacity:0.55;
+  }
+  .exhibit-index{
+    font-family:'IBM Plex Mono', monospace; font-size:0.7rem; letter-spacing:0.16em;
+    color:var(--brass); margin-bottom:1rem;
+  }
+  .exhibit-card h2{
+    font-family:'Fraunces', serif; font-weight:500; font-size:1.4rem; margin:0 0 0.5rem;
+  }
+  .exhibit-card p{
+    font-family:'Spectral', serif; font-style:italic; font-size:0.92rem;
+    color:var(--mist); margin:0 0 1.6rem; line-height:1.5;
+  }
+  .exhibit-status{
+    margin-top:auto;
+    font-family:'IBM Plex Mono', monospace; font-size:0.68rem; letter-spacing:0.1em;
+    text-transform:uppercase; color:var(--fog);
+  }
+  .exhibit-card.available .exhibit-status{color:var(--brass);}
+
+  .hub-footer{margin-top:4rem;}
+  .lobby-link{
+    font-family:'IBM Plex Mono', monospace; font-size:0.72rem; letter-spacing:0.12em;
+    text-transform:uppercase; color:var(--fog); opacity:0.6;
+    text-decoration:none; transition:opacity 0.25s ease, color 0.25s ease;
+  }
+  .lobby-link:hover, .lobby-link:focus-visible{opacity:1; color:var(--brass);}
+</style>
+</head>
+<body>
+
+  <div class="eyebrow">The Parallel Room</div>
+  <h1>Three ways order answers chaos</h1>
+  <p class="hub-intro">Side-by-side Ancient Near Eastern and biblical texts. No commentary at first — the resemblance speaks before anything gets explained. Choose where to look.</p>
+
+  <div class="exhibit-grid">
+    <a class="exhibit-card available" href="parallel-room-prototype.html">
+      <span class="exhibit-index">Exhibit I</span>
+      <h2>Creation &amp; Chaos</h2>
+      <p>Enūma Eliš &amp; Genesis 1</p>
+      <span class="exhibit-status">Enter →</span>
+    </a>
+    <div class="exhibit-card locked" aria-disabled="true">
+      <span class="exhibit-index">Exhibit II</span>
+      <h2>The Flood</h2>
+      <p>Atrahasis &amp; Genesis 6–9</p>
+      <span class="exhibit-status">In development</span>
+    </div>
+    <div class="exhibit-card locked" aria-disabled="true">
+      <span class="exhibit-index">Exhibit III</span>
+      <h2>The Covenant Code</h2>
+      <p>Code of Hammurabi &amp; Exodus</p>
+      <span class="exhibit-status">In development</span>
+    </div>
+  </div>
+
+  <div class="hub-footer">
+    <a class="lobby-link" href="index.html">← Lobby</a>
+  </div>
+
+</body>
+</html>
