@@ -1,0 +1,25 @@
+/* ============================================================
+   Shared atmosphere: drifting dust motes
+   Used by: index.html (Lobby), parallel-room.html (Parallel Room hub)
+   Requires: <div class="dust-layer" id="dustLayer" aria-hidden="true"></div>
+             in the HTML body, plus atmosphere.js loaded before </body>.
+   Requires CSS variable --whisper to be defined (design tokens).
+   ============================================================ */
+
+.dust-layer{position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden;}
+.dust-mote{position:absolute; border-radius:50%; background:var(--whisper); opacity:var(--mote-op, 0.16);}
+
+@keyframes motefloat{
+  0%, 100%{transform:translateY(0) translateX(0);}
+  50%{transform:translateY(-24px) translateX(var(--drift-x, 12px));}
+}
+.dust-mote.is-drifting{
+  animation-name:motefloat;
+  animation-duration:var(--dur, 16s);
+  animation-timing-function:ease-in-out;
+  animation-iteration-count:infinite;
+  animation-delay:var(--delay, 0s);
+}
+@media (prefers-reduced-motion: reduce){
+  .dust-mote.is-drifting{animation:none;}
+}
