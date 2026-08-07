@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Substrata</title>
+<title>Passages</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600&family=Spectral:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -22,11 +22,50 @@
   *{box-sizing:border-box;}
   body{
     margin:0; min-height:100vh;
-    background:radial-gradient(circle at 50% 18%, rgba(166,118,61,0.14), transparent 55%), var(--ground);
+    background:var(--ground);
     color:var(--whisper);
     font-family:'Spectral', serif;
+    position:relative;
+    overflow-x:hidden;
+  }
+  .page-content{
+    position:relative; z-index:1;
     display:flex; flex-direction:column; align-items:center;
     padding:6rem 1.5rem 4rem;
+  }
+
+  /* ---------- Door background ---------- */
+  .door-bg{
+    position:absolute; top:0; left:50%; transform:translateX(-50%);
+    width:min(70vw, 560px); height:680px;
+    pointer-events:none; z-index:0;
+    opacity:0.16;
+    -webkit-mask-image:linear-gradient(to bottom, black 0%, black 55%, transparent 92%);
+    mask-image:linear-gradient(to bottom, black 0%, black 55%, transparent 92%);
+  }
+  .door-glow{
+    position:absolute; top:0; left:50%; transform:translateX(-50%);
+    width:900px; height:680px;
+    pointer-events:none; z-index:0;
+    background:
+      radial-gradient(circle at 50% 46%, rgba(166,118,61,0.16), transparent 40%),
+      radial-gradient(ellipse at 50% 88%, rgba(166,118,61,0.14), transparent 42%);
+    -webkit-mask-image:linear-gradient(to bottom, black 0%, black 55%, transparent 92%);
+    mask-image:linear-gradient(to bottom, black 0%, black 55%, transparent 92%);
+  }
+
+  /* ---------- Dust motes ---------- */
+  .dust-layer{position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden;}
+  .dust-mote{position:absolute; border-radius:50%; background:var(--whisper);}
+  @keyframes motefloat{
+    0%{transform:translateY(0) translateX(0); opacity:0;}
+    12%{opacity:var(--mote-op, 0.22);}
+    88%{opacity:var(--mote-op, 0.22);}
+    100%{transform:translateY(-70px) translateX(var(--drift-x, 12px)); opacity:0;}
+  }
+  .dust-mote.is-drifting{animation:motefloat var(--dur, 16s) ease-in-out infinite; animation-delay:var(--delay, 0s);}
+  @media (prefers-reduced-motion: reduce){
+    .dust-mote.is-drifting{animation:none; opacity:var(--mote-op, 0.16);}
   }
   .eyebrow{
     font-family:'IBM Plex Mono', monospace; font-size:0.72rem; letter-spacing:0.28em;
@@ -61,6 +100,21 @@
     border:1px solid rgba(242,239,232,0.1);
     transition:transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
     min-height:170px;
+  }
+  .card-knob{
+    position:absolute; right:12px; top:50%; transform:translateY(-50%);
+    width:15px; height:32px;
+    stroke:var(--brass-dim);
+    transition:stroke 0.3s ease, filter 0.3s ease;
+  }
+  .card-knob .knob-boss{fill:var(--brass-dim); stroke:none; transition:fill 0.3s ease;}
+  .room-card.available .card-knob{
+    stroke:var(--brass);
+    filter:drop-shadow(0 0 4px rgba(166,118,61,0.55));
+  }
+  .room-card.available .card-knob .knob-boss{fill:var(--brass);}
+  .room-card.available:hover .card-knob, .room-card.available:focus-visible .card-knob{
+    filter:drop-shadow(0 0 8px rgba(166,118,61,0.9));
   }
   .room-card.available{
     background:linear-gradient(155deg, rgba(201,168,118,0.12), rgba(220,211,180,0.06));
@@ -97,10 +151,47 @@
 </head>
 <body>
 
+  <svg width="0" height="0" style="position:absolute">
+    <defs>
+      <symbol id="icon-knob" viewBox="0 0 24 52">
+        <path d="M12 2 L18 6 L20 12 L20 40 L18 46 L12 50 L6 46 L4 40 L4 12 L6 6 Z" fill="none" stroke-width="1.4"/>
+        <circle cx="12" cy="16" r="6" fill="none" stroke-width="1.3"/>
+        <circle cx="12" cy="16" r="3.2" fill="none" stroke-width="1"/>
+        <circle class="knob-boss" cx="12" cy="16" r="1.3"/>
+        <circle class="knob-boss" cx="12" cy="35" r="1.8"/>
+        <path class="knob-boss" d="M10.6 36 L13.4 36 L12.7 41 L11.3 41 Z" stroke="none"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <div class="door-glow" aria-hidden="true"></div>
+  <div class="dust-layer" id="dustLayer" aria-hidden="true"></div>
+  <svg class="door-bg" viewBox="0 0 300 700" aria-hidden="true">
+    <rect x="20" y="10" width="260" height="680" rx="3" fill="none" stroke="var(--brass-dim)" stroke-width="2"/>
+    <rect x="34" y="24" width="232" height="652" rx="2" fill="none" stroke="var(--brass-dim)" stroke-width="1"/>
+    <!-- upper panels -->
+    <rect x="52" y="48" width="88" height="255" fill="none" stroke="var(--brass-dim)" stroke-width="1.4"/>
+    <rect x="64" y="60" width="64" height="231" fill="none" stroke="var(--brass-dim)" stroke-width="1"/>
+    <rect x="160" y="48" width="88" height="255" fill="none" stroke="var(--brass-dim)" stroke-width="1.4"/>
+    <rect x="172" y="60" width="64" height="231" fill="none" stroke="var(--brass-dim)" stroke-width="1"/>
+    <!-- lower panels -->
+    <rect x="52" y="335" width="88" height="300" fill="none" stroke="var(--brass-dim)" stroke-width="1.4"/>
+    <rect x="64" y="347" width="64" height="276" fill="none" stroke="var(--brass-dim)" stroke-width="1"/>
+    <rect x="160" y="335" width="88" height="300" fill="none" stroke="var(--brass-dim)" stroke-width="1.4"/>
+    <rect x="172" y="347" width="64" height="276" fill="none" stroke="var(--brass-dim)" stroke-width="1"/>
+    <!-- knob plate + knob -->
+    <circle cx="248" cy="358" r="10" fill="none" stroke="var(--brass)" stroke-width="1.6"/>
+    <circle cx="248" cy="358" r="2.4" fill="var(--brass)"/>
+    <!-- keyhole -->
+    <circle cx="248" cy="385" r="3" fill="var(--brass)"/>
+    <rect x="246.3" y="386" width="3.4" height="8" fill="var(--brass)"/>
+  </svg>
+
+  <div class="page-content">
   <div class="eyebrow">An Online Exhibition</div>
-  <h1>Substrata</h1>
-  <p class="subheading">An immersive journey beneath the surface of the biblical world</p>
-  <p class="mission">Substrata explores some of the earliest foundations of the biblical world. Each room descends into another layer of the Bible's ancient setting—its stories, symbols, languages, cultures, and neighboring literature. Scripture and ancient Near Eastern texts are brought into conversation, not to erase their differences or prescribe a conclusion, but to reveal the rich historical ground beneath them.</p>
+  <h1>Passages</h1>
+  <p class="subheading">Step through, room by room, into the world the Bible actually came from</p>
+  <p class="mission">Passages is a museum built from rooms, not chapters — each door opening onto another piece of the biblical world's ancient setting: its stories, symbols, languages, cultures, and neighboring literature. Scripture and ancient Near Eastern texts are brought into conversation, not to erase their differences or prescribe a conclusion, but to reveal the world that actually surrounded them.</p>
   <p class="mission">You are invited to look closely, engage with evidence from the cultures surrounding the biblical texts, and consider a more expansive understanding of the world their authors inhabited. Every interpretation presented here is connected to named scholars and traceable sources, allowing curiosity—not certainty—to lead the way.</p>
 
   <div class="room-grid">
@@ -109,50 +200,90 @@
       <h2>Mirror Room</h2>
       <p>Which lens are you reading through?</p>
       <span class="room-status">In development</span>
+      <svg class="card-knob"><use href="#icon-knob"/></svg>
     </div>
     <div class="room-card locked" aria-disabled="true">
       <span class="room-index">Room</span>
       <h2>Map Room</h2>
       <p>Where Ur, Ugarit, and Israel actually sit.</p>
       <span class="room-status">In development</span>
+      <svg class="card-knob"><use href="#icon-knob"/></svg>
     </div>
     <a class="room-card available" href="parallel-room.html">
       <span class="room-index">Room</span>
       <h2>Parallel Room</h2>
       <p>Ancient Near Eastern texts, side by side with Scripture.</p>
       <span class="room-status">Enter →</span>
+      <svg class="card-knob"><use href="#icon-knob"/></svg>
     </a>
     <div class="room-card locked" aria-disabled="true">
       <span class="room-index">Room</span>
       <h2>Letters Room</h2>
       <p>An imagined letter from the ancient author.</p>
       <span class="room-status">In development</span>
+      <svg class="card-knob"><use href="#icon-knob"/></svg>
     </div>
     <div class="room-card locked" aria-disabled="true">
       <span class="room-index">Room</span>
       <h2>Reading Room</h2>
       <p>The sources, browsable like a shelf.</p>
       <span class="room-status">In development</span>
+      <svg class="card-knob"><use href="#icon-knob"/></svg>
     </div>
     <div class="room-card locked" aria-disabled="true">
       <span class="room-index">Room</span>
       <h2>Echo Room</h2>
       <p>Original music and poetry, in response.</p>
       <span class="room-status">In development</span>
+      <svg class="card-knob"><use href="#icon-knob"/></svg>
     </div>
     <div class="room-card locked" aria-disabled="true">
       <span class="room-index">Room</span>
       <h2>Tension Room</h2>
       <p>Where even the experts don't agree.</p>
       <span class="room-status">In development</span>
+      <svg class="card-knob"><use href="#icon-knob"/></svg>
     </div>
     <div class="room-card locked" aria-disabled="true">
       <span class="room-index">Room</span>
       <h2>Quiz Room</h2>
       <p>How much of this world can you place?</p>
       <span class="room-status">In development</span>
+      <svg class="card-knob"><use href="#icon-knob"/></svg>
     </div>
   </div>
+  </div>
+
+<script>
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const dustLayer = document.getElementById('dustLayer');
+
+  // seeded PRNG so the mote arrangement is identical on every load, every browser
+  function mulberry32(seed) {
+    return function () {
+      seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+      let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  const rand = mulberry32(1337);
+
+  const moteCount = 26;
+  let html = '';
+  for (let i = 0; i < moteCount; i++) {
+    const x = (rand() * 100).toFixed(2);
+    const y = (rand() * 100).toFixed(2);
+    const size = (rand() * 2 + 1).toFixed(2);
+    const op = (rand() * 0.2 + 0.1).toFixed(2);
+    const dur = (rand() * 10 + 12).toFixed(1);
+    const delay = (rand() * 14).toFixed(1);
+    const driftX = (rand() * 24 - 12).toFixed(1);
+    const driftClass = reduceMotion ? '' : ' is-drifting';
+    html += `<div class="dust-mote${driftClass}" style="left:${x}%; top:${y}%; width:${size}px; height:${size}px; --mote-op:${op}; --dur:${dur}s; --delay:${delay}s; --drift-x:${driftX}px;"></div>`;
+  }
+  dustLayer.innerHTML = html;
+</script>
 
 </body>
 </html>
