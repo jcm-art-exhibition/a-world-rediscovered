@@ -309,6 +309,20 @@
     border-top:1px solid rgba(0,0,0,0.12); vertical-align:top;
   }
   .spec-table td{padding:0.5rem 0; border-top:1px solid rgba(0,0,0,0.12);}
+  .word-history{
+    display:none;
+    margin-top:1.3rem; padding:1rem 1.1rem;
+    background:rgba(166,118,61,0.08); border-left:2px solid var(--brass);
+    border-radius:0 2px 2px 0;
+  }
+  .word-history.is-visible{display:block;}
+  .word-history-label{
+    display:block; font-family:'IBM Plex Mono', monospace; font-size:0.66rem;
+    letter-spacing:0.1em; text-transform:uppercase; color:var(--brass-dim); margin-bottom:0.4rem;
+  }
+  .word-history p{
+    margin:0; font-family:'Spectral', serif; font-size:0.86rem; line-height:1.55; color:var(--ground-deep);
+  }
 
   /* ---------- Outro ---------- */
   .outro{
@@ -411,6 +425,7 @@
           <button type="button" class="panel clay" data-icon="tablet"
             data-title="Enūma Eliš — Tablet I" data-material="Fired clay" data-script="Akkadian, cuneiform"
             data-findspot="Library of Ashurbanipal, Nineveh" data-translator="L.W. King, 1902" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Enuma_elish_AN1926.373.jpg" data-photo-credit="Enūma Eliš Tablet I fragment (Kish, 1924) · Ashmolean Museum, AN1926.373 · CC BY-SA 4.0 — shown for illustration" data-photo-position="20% 15%"
+            data-wordhistory="Tiamat's name is Akkadian tiāmtu, &quot;sea.&quot; Many scholars connect it to a shared Semitic root with Hebrew tehom, &quot;the deep&quot; — the word used two lines into Genesis 1."
             data-quote="&quot;When in the height heaven was not named, and the earth beneath did not yet bear a name&hellip; Their waters were mingled together, and no field was formed, no marsh was to be seen.&quot;">
             <svg class="icon"><use href="#icon-tablet"/></svg>
             <span class="source">Enūma Eliš · Tablet I · trans. L.W. King, 1902</span>
@@ -423,6 +438,7 @@
           <button type="button" class="panel parchment" data-icon="scroll"
             data-title="Genesis 1:2" data-material="Ink on parchment (tradition)" data-script="Hebrew"
             data-findspot="Masoretic textual tradition" data-translator="American Standard Version, 1901" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Leningrad_Codex_Folio_008a.jpg" data-photo-credit="Leningrad Codex, folio 8a · National Library of Russia · Public domain"
+            data-wordhistory="Hebrew tehom (&quot;the deep,&quot; v.2) shares a common Semitic root with Akkadian tiāmtu — the word behind Tiamat's name. Scholars are divided on whether one borrows from the other, or both descend from an older shared word for the depths."
             data-quote="&quot;And the earth was waste and void; and darkness was upon the face of the deep: and the Spirit of God moved upon the face of the waters.&quot;">
             <svg class="icon"><use href="#icon-scroll"/></svg>
             <span class="source">Genesis 1:2 · ASV, 1901</span>
@@ -565,6 +581,10 @@
         <tr><th>Findspot</th><td id="modalFindspot"></td></tr>
         <tr><th>Translator</th><td id="modalTranslator"></td></tr>
       </table>
+      <div class="word-history" id="modalWordHistory">
+        <span class="word-history-label">Word History</span>
+        <p id="modalWordHistoryText"></p>
+      </div>
       <p class="photo-credit" id="modalPhotoCredit"></p>
     </div>
   </div>
@@ -672,6 +692,14 @@
     document.getElementById('modalFindspot').textContent = panel.dataset.findspot;
     document.getElementById('modalTranslator').textContent = panel.dataset.translator;
     document.getElementById('modalIconUse').setAttribute('href', '#icon-' + panel.dataset.icon);
+
+    const wordHistory = document.getElementById('modalWordHistory');
+    if (panel.dataset.wordhistory) {
+      document.getElementById('modalWordHistoryText').textContent = panel.dataset.wordhistory;
+      wordHistory.classList.add('is-visible');
+    } else {
+      wordHistory.classList.remove('is-visible');
+    }
 
     const photo = document.getElementById('modalPhoto');
     const credit = document.getElementById('modalPhotoCredit');

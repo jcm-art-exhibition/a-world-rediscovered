@@ -309,6 +309,20 @@
     border-top:1px solid rgba(0,0,0,0.12); vertical-align:top;
   }
   .spec-table td{padding:0.5rem 0; border-top:1px solid rgba(0,0,0,0.12);}
+  .word-history{
+    display:none;
+    margin-top:1.3rem; padding:1rem 1.1rem;
+    background:rgba(166,118,61,0.08); border-left:2px solid var(--brass);
+    border-radius:0 2px 2px 0;
+  }
+  .word-history.is-visible{display:block;}
+  .word-history-label{
+    display:block; font-family:'IBM Plex Mono', monospace; font-size:0.66rem;
+    letter-spacing:0.1em; text-transform:uppercase; color:var(--brass-dim); margin-bottom:0.4rem;
+  }
+  .word-history p{
+    margin:0; font-family:'Spectral', serif; font-size:0.86rem; line-height:1.55; color:var(--ground-deep);
+  }
 
   /* ---------- Outro ---------- */
   .outro{
@@ -395,7 +409,7 @@
   </div>
 
   <nav class="stratum-rail" aria-label="Jump to stratum">
-    <button data-target="1" aria-label="Stratum I — The Warning">I</button>
+    <button data-target="1" aria-label="Stratum I — The Sealing">I</button>
     <button data-target="2" aria-label="Stratum II — The Boarding">II</button>
     <button data-target="3" aria-label="Stratum III — The Storm">III</button>
     <button data-target="4" aria-label="Stratum IV — The Dove">IV</button>
@@ -411,22 +425,24 @@
           <button type="button" class="panel clay" data-icon="tablet"
             data-title="Gilgamesh XI — The Flood Tablet" data-material="Fired clay" data-script="Akkadian, cuneiform"
             data-findspot="Library of Ashurbanipal, Nineveh" data-translator="R. Campbell Thompson, 1928" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/British_Museum_Flood_Tablet_1.jpg" data-photo-credit="The Flood Tablet, K.3375 · British Museum · Photo: Mike Peel · CC BY-SA 4.0" data-photo-position="20% 15%"
-            data-quote="&quot;&hellip;a dwelling pull down, and fashion a vessel therewith; abandon possessions, life do thou seek, and thy hoard disregard, and save life; every creature make to embark in the vessel.&quot;">
+            data-wordhistory="Akkadian kupru — &quot;bitumen, pitch&quot; — is the term standard Assyriology lexicons cross-reference directly to the Hebrew word used for Noah's pitch."
+            data-quote="&quot;&hellip;the hull with six shar of bitumen smear&rsquo;d I, and three shar of pitch did I smear on the inside.&quot;">
             <svg class="icon"><use href="#icon-tablet"/></svg>
             <span class="source">Gilgamesh XI · Flood Tablet, K.3375 · trans. R. Campbell Thompson, 1928</span>
-            <p>"&hellip;a dwelling pull down, and fashion a vessel therewith; abandon possessions, <span class="trace-word" data-trace="1">life</span> do thou seek, and thy hoard disregard, and save life; every creature make to embark in the vessel."</p>
+            <p>"&hellip;the hull with six shar of bitumen smear'd I, and three shar of <span class="trace-word" data-trace="1">pitch</span> did I smear on the inside."</p>
             <span class="examine">Examine ↗</span>
           </button>
         </div>
-        <div class="stratum-tag">Stratum I — The Warning</div>
+        <div class="stratum-tag">Stratum I — The Sealing</div>
         <div class="panel-wrap parchment">
           <button type="button" class="panel parchment" data-icon="scroll"
-            data-title="Genesis 6:19" data-material="Ink on parchment (tradition)" data-script="Hebrew"
+            data-title="Genesis 6:14" data-material="Ink on parchment (tradition)" data-script="Hebrew"
             data-findspot="Masoretic textual tradition" data-translator="American Standard Version, 1901" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Leningrad_Codex_Folio_025a.jpg" data-photo-credit="Leningrad Codex, folio 25a · National Library of Russia · Public domain"
-            data-quote="&quot;And of every living thing of all flesh, two of every sort shalt thou bring into the ark, to keep them alive with thee; they shall be male and female.&quot;">
+            data-wordhistory="Hebrew kopher (&quot;pitch&quot;) is cross-referenced in standard lexicons (BDB, Strong's) to Akkadian kupru — quite possibly the very same word, borrowed, used to seal both vessels."
+            data-quote="&quot;Make thee an ark of gopher wood; rooms shalt thou make in the ark, and shalt pitch it within and without with pitch.&quot;">
             <svg class="icon"><use href="#icon-scroll"/></svg>
-            <span class="source">Genesis 6:19 · ASV, 1901</span>
-            <p>"And of every living thing of all flesh, two of every sort shalt thou bring into the ark, to keep them <span class="trace-word" data-trace="1">alive</span> with thee; they shall be male and female."</p>
+            <span class="source">Genesis 6:14 · ASV, 1901</span>
+            <p>"Make thee an ark of gopher wood; rooms shalt thou make in the ark, and shalt pitch it within and without with <span class="trace-word" data-trace="1">pitch</span>."</p>
             <span class="examine">Examine ↗</span>
           </button>
         </div>
@@ -565,6 +581,10 @@
         <tr><th>Findspot</th><td id="modalFindspot"></td></tr>
         <tr><th>Translator</th><td id="modalTranslator"></td></tr>
       </table>
+      <div class="word-history" id="modalWordHistory">
+        <span class="word-history-label">Word History</span>
+        <p id="modalWordHistoryText"></p>
+      </div>
       <p class="photo-credit" id="modalPhotoCredit"></p>
     </div>
   </div>
@@ -672,6 +692,14 @@
     document.getElementById('modalFindspot').textContent = panel.dataset.findspot;
     document.getElementById('modalTranslator').textContent = panel.dataset.translator;
     document.getElementById('modalIconUse').setAttribute('href', '#icon-' + panel.dataset.icon);
+
+    const wordHistory = document.getElementById('modalWordHistory');
+    if (panel.dataset.wordhistory) {
+      document.getElementById('modalWordHistoryText').textContent = panel.dataset.wordhistory;
+      wordHistory.classList.add('is-visible');
+    } else {
+      wordHistory.classList.remove('is-visible');
+    }
 
     const photo = document.getElementById('modalPhoto');
     const credit = document.getElementById('modalPhotoCredit');
