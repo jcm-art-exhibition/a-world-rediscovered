@@ -211,14 +211,24 @@
   #passage{height:340vh;}
   .passage-veil{ position:absolute; inset:0; z-index:2; pointer-events:none; background:var(--ground); opacity:0; }
   .passage-copy{
-    position:absolute; z-index:5; left:50%; top:42%; transform:translate(-50%,-50%);
-    text-align:center; padding:0 1.5rem; width:100%; max-width:36rem;
+    position:absolute; z-index:5; left:50%; top:50%; transform:translate(-50%,-50%);
+    display:grid; text-align:center; padding:0 1.5rem; width:100%; max-width:40rem;
   }
-  .passage-copy .hero-eyebrow{ opacity:0; margin-bottom:1rem; }
   .passage-blurb{
-    position:absolute; left:0; right:0; top:1.8rem; margin:0 auto;
-    font-family:'Instrument Sans', sans-serif; font-style:italic; color:var(--bone-dim);
-    font-size:clamp(0.92rem, 1.6vw, 1.05rem); line-height:1.8; opacity:0;
+    grid-area:1 / 1; margin:0 auto;
+    font-family:'Instrument Sans', sans-serif; font-style:normal; font-weight:400; color:var(--bone-dim);
+    font-size:clamp(0.88rem, 1.5vw, 1rem); line-height:1.7; opacity:0;
+  }
+  .passage-blurb p{ margin:0 0 0.85em; }
+  .passage-blurb p:last-child{ margin-bottom:0; }
+  .passage-blurb h3{
+    font-family:'Fraunces', serif; font-style:normal; font-weight:600;
+    font-size:clamp(1.4rem, 3vw, 1.9rem); line-height:1.15;
+    color:var(--bone); margin:0 0 1.1rem;
+  }
+  .passage-signature{
+    display:block; height:2.6rem; width:auto; margin:1.4rem auto 0;
+    filter:drop-shadow(0 1px 4px rgba(0,0,0,0.5));
   }
 
   /* ============================================================
@@ -267,6 +277,11 @@
     font-family:'Fraunces', serif; font-weight:600; font-size:clamp(2rem, 5vw, 3.2rem);
     margin:0; color:var(--bone);
   }
+  .lobby-head p{
+    font-family:'Instrument Sans', sans-serif; font-size:clamp(0.92rem, 1.6vw, 1.05rem);
+    line-height:1.6; color:var(--bone-dim); margin:1.1rem 0 0;
+  }
+  .lobby-head p + p{ margin-top:0.85rem; }
   .corridor-track{
     position:absolute; top:0; left:0; width:100%; height:100%; z-index:2; opacity:0;
     display:flex; align-items:center; padding:5vh 10vw 5vh 55vw; gap:8vw; will-change:transform, opacity;
@@ -394,13 +409,13 @@
      size. Deliberately narrow: a single rotated label, not a full
      card with its own chip/heading/copy/button. */
   .room-panel-end{
-    width:5.6rem;
+    width:4.6rem;
     aspect-ratio:auto;
-    height:calc(min(66vw, 380px) * 0.75);
+    height:calc(min(66vw, 380px) * 0.62);
   }
   .room-panel-end-link{
     display:flex; align-items:center; justify-content:center;
-    padding:1.6rem 0;
+    padding:1.3rem 0;
     border-radius:20px 0 0 20px;
     background:rgba(175,157,46,0.16);
     border:1px solid rgba(175,157,46,0.3);
@@ -416,15 +431,15 @@
     writing-mode:vertical-rl;
     text-orientation:mixed;
     font-family:'IBM Plex Mono', monospace;
-    font-weight:600; font-size:0.72rem; letter-spacing:0.18em;
+    font-weight:600; font-size:0.66rem; letter-spacing:0.16em;
     text-transform:uppercase;
     color:var(--ochre);
     text-shadow:0 1px 4px rgba(0,0,0,0.5);
     white-space:nowrap;
   }
   @media (max-width:640px){
-    .room-panel-end{ width:4.4rem; }
-    .room-panel-end-label{ font-size:0.64rem; letter-spacing:0.14em; }
+    .room-panel-end{ width:3.7rem; }
+    .room-panel-end-label{ font-size:0.58rem; letter-spacing:0.12em; }
   }
 
   .corridor-hud{
@@ -503,16 +518,12 @@
       </button>
       <h3 id="creditsTitle">Credits</h3>
       <section>
+        <div class="credits-label">Made by</div>
+        <p>Jarrett Michael</p>
+      </section>
+      <section>
         <div class="credits-label">Photography</div>
-        <p>[Photographer credit goes here]</p>
-      </section>
-      <section>
-        <div class="credits-label">Built by</div>
-        <p>[Site builder credit goes here]</p>
-      </section>
-      <section>
-        <div class="credits-label">Made with</div>
-        <p>[Tools/stack credit goes here]</p>
+        <p>Photography courtesy of contributors on Unsplash.<br><br>Roberto Catarinicchia<br>Drew Coffman<br>Taylor Flowe<br>Vladimir Kramer<br>Volodymyr Leush<br>Parastoo Maleki<br>Zoltan Tasi<br>Drew Walker</p>
       </section>
     </div>
   </div>
@@ -545,9 +556,18 @@
       <img class="passage-img" id="passageImg" src="img-cave.jpg" alt="" aria-hidden="true" style="opacity:0">
       <div class="passage-veil" id="passageVeil" style="opacity:1"></div>
       <div class="passage-copy">
-        <p class="hero-eyebrow" id="passageEyebrow">The Passage</p>
-        <p class="passage-blurb" id="blurb1">A World Rediscovered is built in layers, not chapters — each exhibit a stratum uncovered, opening onto another piece of the ancient setting behind Scripture: its stories, symbols, languages, cultures, and neighboring literature. Scripture and Ancient Near Eastern texts are brought into conversation, not to erase their differences or prescribe a conclusion, but to reveal the world that actually surrounded them.</p>
-        <p class="passage-blurb" id="blurb2">You are invited to look closely, engage with evidence from the cultures surrounding the biblical texts, and consider a more expansive understanding of the world their authors inhabited. Every interpretation presented here is connected to named scholars and traceable sources, allowing curiosity—not certainty—to lead the way.</p>
+        <div class="passage-blurb" id="blurb1">
+          <h3>The Worlds Behind the Text</h3>
+          <p>To understand an ancient text, we have to learn to see an ancient world.</p>
+          <p>The Bible emerged from worlds very different from our own. Its authors and earliest audiences lived among cultures with their own assumptions about gods, kings, temples, creation, identity, law, land, death, and even the structure of the cosmos. Much of what would have been familiar to them is foreign to us.</p>
+          <p><em>A World Rediscovered</em> is an attempt to close some of that distance.</p>
+        </div>
+        <div class="passage-blurb" id="blurb2">
+          <p>The journey begins primarily in the world of ancient Israel and the Hebrew Bible, while following those ideas wherever the evidence leads—from the cultures of the ancient Near East into the literature and thought of the Second Temple period and, at times, the New Testament itself.</p>
+          <p>The question is not simply what these texts mean to us, but what they may have communicated within the worlds in which they were written, preserved, edited, heard, and received.</p>
+          <p>The goal is not to tell you what to believe. It is to give the ancient world room to be ancient—and to consider what changes when we begin reading these texts on their own terms.</p>
+          <img class="passage-signature" src="signature_jcm.png" alt="Jarrett Michael signature">
+        </div>
       </div>
     </div>
   </section>
@@ -569,8 +589,8 @@
       <div class="dust-layer corridor-dust" id="corridorDust" aria-hidden="true"></div>
 
       <div class="lobby-head" id="lobbyHead">
-        <p class="lobby-eyebrow">The Lobby</p>
-        <h2>Choose Where to Begin</h2>
+        <h2>Eight paths into the worlds behind the Bible.</h2>
+        <p>Each exhibit opens a different window into the places, stories, beliefs, cultures, and ideas that shaped the biblical world. There is no single path through the collection — begin wherever your curiosity pulls you, and follow the evidence from there.</p>
       </div>
 
       <div class="corridor-track" id="corridorTrack">
@@ -613,7 +633,7 @@
             <div class="room-panel-body">
               <span class="room-panel-eyebrow">Exhibit</span>
               <h3>The Parallel Exhibit</h3>
-              <p>Ancient Near Eastern texts, side by side with Scripture. Three rooms pairing biblical passages with the literature — Enūma Eliš, Gilgamesh, Hammurabi — that surrounded them.</p>
+              <p>Set biblical stories beside their ancient Near Eastern parallels and a larger conversation comes into view. The similarities reveal a shared cultural world; the places where the biblical writers diverge can reveal what they wanted their audiences to notice.</p>
               <span class="room-panel-status">Enter <span class="status-arrow">→</span></span>
             </div>
           </a>
@@ -730,7 +750,6 @@
     const heroText = document.getElementById('heroText');
     const passageImg = document.getElementById('passageImg');
     const passageVeil = document.getElementById('passageVeil');
-    const passageEyebrow = document.getElementById('passageEyebrow');
     const blurb1 = document.getElementById('blurb1');
     const blurb2 = document.getElementById('blurb2');
 
@@ -839,12 +858,6 @@
           ? 1 - mapRange(pProgress, 0, CAVE_FADE_END, 0, 1)
           : mapRange(pProgress, DARK_START, 1, 0, 1)
       );
-
-      const eyebrowOpacity =
-        pProgress < 0.26 ? mapRange(pProgress, 0.2, 0.26, 0, 1)
-        : pProgress < DARK_START ? 1
-        : 1 - mapRange(pProgress, DARK_START, 1, 0, 1);
-      passageEyebrow.style.opacity = String(eyebrowOpacity);
 
       const b1op = beatOpacity(pProgress, 0.2, 0.26, 0.4, 0.46);
       const b2op = beatOpacity(pProgress, 0.52, 0.58, 0.74, 0.8);
