@@ -3,11 +3,29 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+  // Arriving here with a URL fragment (e.g. #corridor-cards-start, used
+  // by the Mirror page's "Return to Entrance" link) would otherwise be
+  // animated by the `scroll-behavior:smooth` rule below — since the
+  // corridor's scroll-linked visuals are driven directly by scrollY,
+  // that animated jump plays the entire descent/passage/corridor
+  // sequence as it flies past on the way to the target. Force an
+  // instant jump for the initial load, then restore smooth scrolling
+  // for any in-page navigation after that.
+  (function () {
+    var root = document.documentElement;
+    root.style.scrollBehavior = 'auto';
+    window.addEventListener('load', function () {
+      setTimeout(function () { root.style.scrollBehavior = ''; }, 0);
+    });
+  })();
+</script>
 <title>A World Rediscovered</title>
 <meta name="description" content="An archaeological descent into the ancient world behind Scripture — excavate exhibits of Ancient Near Eastern texts, artifacts, and biblical parallels.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="atmosphere.css">
+<link rel="stylesheet" href="chrome.css">
 <style>
   /* ============================================================
      A World Rediscovered — Lobby
@@ -46,12 +64,12 @@
     z-index:50; display:flex; flex-direction:column; align-items:center; gap:0.5rem;
     font-family:'Instrument Sans', sans-serif; font-size:0.68rem; letter-spacing:0.18em;
     text-transform:uppercase; color:var(--bone-dim); pointer-events:none;
-    padding:0.55rem 0.9rem; border-radius:2px;
-    background:rgba(24,8,1,0.32); backdrop-filter:blur(6px);
+    text-shadow:0 1px 4px rgba(0,0,0,0.5);
     transition:opacity .3s ease;
   }
   .scroll-notice .chevron{
     width:15px; height:10px; display:block;
+    filter:drop-shadow(0 1px 4px rgba(0,0,0,0.5));
     animation:scrollNoticeBounce 1.7s cubic-bezier(0.37,0,0.63,1) infinite;
   }
   @keyframes scrollNoticeBounce{
@@ -60,85 +78,9 @@
   }
   @media (prefers-reduced-motion: reduce){ .scroll-notice .chevron{ animation:none; } }
 
-  /* Background-music toggle — bottom right, out of the way of the
-     scroll notice (bottom center) and depth gauge (side, mid-height). */
-  .audio-toggle{
-    position:fixed; right:1.6rem; bottom:1.6rem; z-index:50;
-    width:2.6rem; height:2.6rem; border-radius:50%;
-    display:flex; align-items:center; justify-content:center;
-    background:rgba(24,8,1,0.42); backdrop-filter:blur(6px);
-    border:1px solid rgba(237,230,216,0.14);
-    color:var(--bone-dim); cursor:pointer; padding:0;
-    transition:background .2s ease, color .2s ease, border-color .2s ease;
-  }
-  .audio-toggle:hover, .audio-toggle:focus-visible{
-    background:rgba(24,8,1,0.65); color:var(--ochre); border-color:rgba(175,157,46,0.4);
-    outline:none;
-  }
-  .audio-toggle .audio-icon{ width:18px; height:18px; }
-  @media (max-width:640px){
-    .audio-toggle{ right:1rem; bottom:1rem; width:2.3rem; height:2.3rem; }
-  }
-
-  /* Text link next to the audio toggle, opening the credits popup. */
-  .credits-toggle{
-    position:fixed; right:5.2rem; bottom:1.6rem; z-index:50;
-    display:flex; align-items:center; height:2.6rem;
-    font-family:'Instrument Sans', sans-serif; font-size:0.74rem; letter-spacing:0.03em;
-    color:var(--bone-dim); background:none; border:none; cursor:pointer; padding:0 0.2rem;
-    text-decoration:underline; text-underline-offset:3px; text-decoration-color:rgba(237,230,216,0.32);
-    transition:color .2s ease, text-decoration-color .2s ease;
-  }
-  .credits-toggle:hover, .credits-toggle:focus-visible{
-    color:var(--bone); text-decoration-color:var(--ochre); outline:none;
-  }
-  @media (max-width:640px){
-    .credits-toggle{ right:4rem; bottom:1rem; height:2.3rem; font-size:0.66rem; }
-  }
-
-  /* Credits popup — a simple dismissible overlay, closable via the X,
-     a click outside the panel, or Escape. */
-  .credits-overlay{
-    position:fixed; inset:0; z-index:60;
-    background:rgba(8,3,1,0.72); backdrop-filter:blur(3px);
-    display:flex; align-items:center; justify-content:center; padding:1.5rem;
-    opacity:0; visibility:hidden; pointer-events:none;
-    transition:opacity .25s ease, visibility 0s linear .25s;
-  }
-  .credits-overlay.is-open{
-    opacity:1; visibility:visible; pointer-events:auto;
-    transition:opacity .25s ease, visibility 0s linear 0s;
-  }
-  .credits-modal{
-    position:relative; max-width:30rem; width:100%; max-height:80vh; overflow-y:auto;
-    background:var(--umber); border:1px solid rgba(175,157,46,0.3);
-    border-radius:16px; padding:2.4rem 2.2rem;
-    box-shadow:0 2rem 5rem rgba(0,0,0,0.6);
-    transform:translateY(12px); transition:transform .25s ease;
-  }
-  .credits-overlay.is-open .credits-modal{ transform:translateY(0); }
-  .credits-modal h3{
-    font-family:'Fraunces', serif; font-weight:600; font-size:1.3rem; margin:0 0 1.3rem; color:var(--bone);
-  }
-  .credits-modal section{ margin-bottom:1.3rem; }
-  .credits-modal section:last-of-type{ margin-bottom:0; }
-  .credits-label{
-    font-family:'IBM Plex Mono', monospace; font-size:0.62rem; letter-spacing:0.16em;
-    text-transform:uppercase; color:var(--ochre); margin-bottom:0.5rem;
-  }
-  .credits-modal p{
-    font-family:'Instrument Sans', sans-serif; font-size:0.9rem; line-height:1.6; color:var(--bone-dim); margin:0;
-  }
-  .credits-close{
-    position:absolute; top:1.1rem; right:1.1rem; width:2rem; height:2rem; border-radius:50%;
-    display:flex; align-items:center; justify-content:center;
-    background:rgba(237,230,216,0.08); border:1px solid rgba(237,230,216,0.14);
-    color:var(--bone-dim); cursor:pointer; padding:0;
-    transition:background .2s ease, color .2s ease;
-  }
-  .credits-close:hover, .credits-close:focus-visible{
-    background:rgba(237,230,216,0.16); color:var(--bone); outline:none;
-  }
+  /* Audio toggle, credits toggle/popup, cross-page fade transition,
+     and the on-load [data-reveal] utility now live in chrome.css
+     (shared across every page). */
 
   /* ============================================================
      Shared pinned-scroll mechanics
@@ -223,8 +165,12 @@
   .passage-blurb p:last-child{ margin-bottom:0; }
   .passage-blurb h3{
     font-family:'Fraunces', serif; font-style:normal; font-weight:600;
-    font-size:clamp(1.4rem, 3vw, 1.9rem); line-height:1.15;
-    color:var(--bone); margin:0 0 1.1rem;
+    font-size:clamp(1.7rem, 3.6vw, 2.3rem); line-height:1.15;
+    color:var(--bone); margin:0 0 1.5rem; position:relative; padding-bottom:1.1rem;
+  }
+  .passage-blurb h3::after{
+    content:''; position:absolute; left:50%; bottom:0; transform:translateX(-50%);
+    width:2.6rem; height:1px; background:var(--ochre); opacity:0.6;
   }
   .passage-signature{
     display:block; height:2.6rem; width:auto; margin:1.4rem auto 0;
@@ -359,8 +305,8 @@
      Enter button as the primary action. */
   .room-panel-eyebrow{
     display:inline-flex; align-items:center;
-    font-family:'IBM Plex Mono', monospace; font-size:0.6rem;
-    letter-spacing:0.18em; text-transform:uppercase; color:var(--ochre);
+    font-family:'Instrument Sans', sans-serif; font-weight:600; font-size:0.66rem;
+    letter-spacing:0.1em; text-transform:uppercase; color:var(--ochre);
     text-shadow:none;
     background:rgba(24,8,1,0.6);
     border:1px solid rgba(175,157,46,0.35);
@@ -484,7 +430,8 @@
   }
 </style>
 </head>
-<body>
+<body class="page-transition">
+<noscript><style>body.page-transition{opacity:1 !important;}</style></noscript>
 
   <div class="dust-layer" id="dustLayer" aria-hidden="true"></div>
   <div class="scroll-notice" id="scrollNotice" aria-hidden="true">
@@ -595,7 +542,7 @@
 
       <div class="corridor-track" id="corridorTrack">
         <article class="room-panel" data-tilt="-1.2">
-          <a class="room-panel-link" href="#" data-coming-soon aria-label="The Mirror Exhibit — coming soon">
+          <a class="room-panel-link" href="mirror.html" aria-label="The Mirror Exhibit">
             <img class="room-panel-image" src="cards/mirror.jpg" alt="" aria-hidden="true" loading="lazy">
             <div class="room-panel-fade" aria-hidden="true"></div>
             <div class="room-panel-glow" aria-hidden="true"></div>
@@ -618,7 +565,7 @@
             <div class="room-panel-body">
               <span class="room-panel-eyebrow">Exhibit</span>
               <h3>The Map Exhibit</h3>
-              <p>Where Ur, Ugarit, and Israel actually sit. A geographic grounding for the ancient Near East — the routes, borders, and neighboring peoples that shaped the world Scripture was written in.</p>
+              <p>Trace the discoveries that reshaped our understanding of the biblical world. Explore where and when ancient texts, artifacts, and archaeological sites were uncovered—and how each discovery changed what scholars could see in the Bible.</p>
               <span class="room-panel-status">Enter <span class="status-arrow">→</span></span>
             </div>
           </a>
@@ -974,95 +921,10 @@
     });
   })();
 
-  /* Background music. No browser allows audible autoplay before the
-     visitor has interacted with the page at all — that's a hard,
-     universal policy, not something any code here can override. The
-     closest real equivalent, and what this does: start the track
-     muted immediately on landing (muted autoplay IS allowed
-     everywhere), then unmute the instant the first interaction of
-     any kind happens — including the very first scroll, which on
-     this page usually happens within a second of landing. So sound
-     effectively begins "on landing" for all practical purposes. The
-     toggle button lets the visitor turn it off at any time. */
-  (function () {
-    const audio = document.getElementById('bgAudio');
-    const toggle = document.getElementById('audioToggle');
-    if (!audio || !toggle) return;
-    const iconOn = toggle.querySelector('.audio-icon-on');
-    const iconOff = toggle.querySelector('.audio-icon-off');
-    audio.volume = 0.35;
-    let enabled = true;
-    let revealed = false;
-
-    function syncIcon() {
-      iconOn.style.display = enabled ? 'block' : 'none';
-      iconOff.style.display = enabled ? 'none' : 'block';
-      toggle.setAttribute('aria-pressed', String(!enabled));
-      toggle.setAttribute('aria-label', enabled ? 'Mute background music' : 'Play background music');
-    }
-
-    // Muted autoplay is permitted by every major browser, so this
-    // succeeds immediately on page load.
-    audio.muted = true;
-    audio.play().catch(function () { /* extremely rare even muted; the interaction listeners below cover it too */ });
-
-    function reveal() {
-      if (!enabled || revealed) return;
-      revealed = true;
-      audio.muted = false;
-      audio.play().catch(function () { revealed = false; });
-    }
-    ['pointerdown', 'keydown', 'scroll', 'touchstart', 'wheel'].forEach(function (evt) {
-      window.addEventListener(evt, reveal, { passive: true });
-    });
-
-    toggle.addEventListener('click', function () {
-      enabled = !enabled;
-      if (enabled) {
-        revealed = true;
-        audio.muted = false;
-        audio.play().catch(function () {});
-      } else {
-        audio.pause();
-      }
-      syncIcon();
-    });
-
-    syncIcon();
-  })();
-
-  /* Credits popup — opens from the text link next to the audio
-     toggle, closes via the X button, a click on the dark backdrop,
-     or Escape at any time. */
-  (function () {
-    const toggle = document.getElementById('creditsToggle');
-    const overlay = document.getElementById('creditsOverlay');
-    const closeBtn = document.getElementById('creditsClose');
-    if (!toggle || !overlay || !closeBtn) return;
-    let lastFocused = null;
-
-    function onKeydown(e) {
-      if (e.key === 'Escape') close();
-    }
-    function open() {
-      lastFocused = document.activeElement;
-      overlay.classList.add('is-open');
-      closeBtn.focus();
-      document.addEventListener('keydown', onKeydown);
-    }
-    function close() {
-      overlay.classList.remove('is-open');
-      document.removeEventListener('keydown', onKeydown);
-      if (lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
-    }
-
-    toggle.addEventListener('click', open);
-    closeBtn.addEventListener('click', close);
-    overlay.addEventListener('click', function (e) {
-      if (e.target === overlay) close();
-    });
-  })();
+  /* Audio toggle, credits popup, and the cross-page fade transition
+     now live in chrome.js (shared across every page). */
   </script>
+<script src="chrome.js"></script>
 
 </body>
 </html>

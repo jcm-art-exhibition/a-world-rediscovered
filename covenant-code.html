@@ -6,6 +6,7 @@
 <title>Parallel Room — Code of Hammurabi / Exodus</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="chrome.css">
 <style>
   :root{
     --ground: #14181C;
@@ -357,7 +358,42 @@
   }
 </style>
 </head>
-<body>
+<body class="page-transition">
+<noscript><style>body.page-transition{opacity:1 !important;}</style></noscript>
+
+  <button class="audio-toggle" id="audioToggle" type="button" aria-pressed="false" aria-label="Mute background music">
+    <svg class="audio-icon audio-icon-on" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/>
+      <path d="M16.3 8.7a5 5 0 0 1 0 6.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      <path d="M19 6a8.7 8.7 0 0 1 0 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity="0.55"/>
+    </svg>
+    <svg class="audio-icon audio-icon-off" viewBox="0 0 24 24" fill="none" aria-hidden="true" style="display:none">
+      <path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/>
+      <path d="M15.5 9.5l5 5M20.5 9.5l-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+    </svg>
+  </button>
+  <audio id="bgAudio" src="Buried%20Chambers.mp3" loop preload="auto" muted></audio>
+
+  <button class="credits-toggle" id="creditsToggle" type="button" aria-haspopup="dialog" aria-controls="creditsModal">Credits</button>
+
+  <div class="credits-overlay" id="creditsOverlay">
+    <div class="credits-modal" id="creditsModal" role="dialog" aria-modal="true" aria-labelledby="creditsTitle">
+      <button class="credits-close" id="creditsClose" type="button" aria-label="Close credits">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M1 1L13 13M13 1L1 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <h3 id="creditsTitle">Credits</h3>
+      <section>
+        <div class="credits-label">Made by</div>
+        <p>Jarrett Michael</p>
+      </section>
+      <section>
+        <div class="credits-label">Photography</div>
+        <p>Photography courtesy of contributors on Unsplash.<br><br>Roberto Catarinicchia<br>Drew Coffman<br>Taylor Flowe<br>Vladimir Kramer<br>Volodymyr Leush<br>Parastoo Maleki<br>Zoltan Tasi<br>Drew Walker</p>
+      </section>
+    </div>
+  </div>
 
   <!-- reusable icon defs -->
   <svg width="0" height="0" style="position:absolute">
@@ -913,6 +949,7 @@
     window.addEventListener('scroll', () => { if (reduceMotion) frame(0); }, { passive: true });
   })();
 </script>
+<script src="chrome.js"></script>
 
 </body>
 </html>
