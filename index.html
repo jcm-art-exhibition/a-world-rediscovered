@@ -6,7 +6,7 @@
 <title>A World Rediscovered</title>
 <meta name="description" content="An archaeological descent into the ancient world behind Scripture — excavate exhibits of Ancient Near Eastern texts, artifacts, and biblical parallels.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Source+Sans+Pro:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="atmosphere.css">
 <style>
   /* ============================================================
@@ -30,7 +30,7 @@
   html{scroll-behavior:smooth;}
   body{
     margin:0; background:var(--ground); color:var(--bone);
-    font-family:'Source Sans Pro', sans-serif; position:relative; overflow-x:hidden;
+    font-family:'Instrument Sans', sans-serif; position:relative; overflow-x:hidden;
   }
   img{display:block; max-width:none; user-select:none; -webkit-user-drag:none;}
   h1,h2,h3,p{margin:0;}
@@ -44,18 +44,101 @@
   .scroll-notice{
     position:fixed; left:50%; bottom:1.6rem; transform:translateX(-50%);
     z-index:50; display:flex; flex-direction:column; align-items:center; gap:0.5rem;
-    font-family:'IBM Plex Mono', monospace; font-size:0.62rem; letter-spacing:0.18em;
+    font-family:'Instrument Sans', sans-serif; font-size:0.68rem; letter-spacing:0.18em;
     text-transform:uppercase; color:var(--bone-dim); pointer-events:none;
     padding:0.55rem 0.9rem; border-radius:2px;
     background:rgba(24,8,1,0.32); backdrop-filter:blur(6px);
     transition:opacity .3s ease;
   }
   .scroll-notice .chevron{
-    width:11px; height:7px; display:block;
-    animation:scrollNoticeBounce 1.8s ease-in-out infinite;
+    width:15px; height:10px; display:block;
+    animation:scrollNoticeBounce 1.7s cubic-bezier(0.37,0,0.63,1) infinite;
   }
-  @keyframes scrollNoticeBounce{0%,100%{transform:translateY(0);}50%{transform:translateY(4px);}}
+  @keyframes scrollNoticeBounce{
+    0%, 100%{ transform:translateY(0); }
+    50%{ transform:translateY(10px); }
+  }
   @media (prefers-reduced-motion: reduce){ .scroll-notice .chevron{ animation:none; } }
+
+  /* Background-music toggle — bottom right, out of the way of the
+     scroll notice (bottom center) and depth gauge (side, mid-height). */
+  .audio-toggle{
+    position:fixed; right:1.6rem; bottom:1.6rem; z-index:50;
+    width:2.6rem; height:2.6rem; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(24,8,1,0.42); backdrop-filter:blur(6px);
+    border:1px solid rgba(237,230,216,0.14);
+    color:var(--bone-dim); cursor:pointer; padding:0;
+    transition:background .2s ease, color .2s ease, border-color .2s ease;
+  }
+  .audio-toggle:hover, .audio-toggle:focus-visible{
+    background:rgba(24,8,1,0.65); color:var(--ochre); border-color:rgba(175,157,46,0.4);
+    outline:none;
+  }
+  .audio-toggle .audio-icon{ width:18px; height:18px; }
+  @media (max-width:640px){
+    .audio-toggle{ right:1rem; bottom:1rem; width:2.3rem; height:2.3rem; }
+  }
+
+  /* Text link next to the audio toggle, opening the credits popup. */
+  .credits-toggle{
+    position:fixed; right:5.2rem; bottom:1.6rem; z-index:50;
+    display:flex; align-items:center; height:2.6rem;
+    font-family:'Instrument Sans', sans-serif; font-size:0.74rem; letter-spacing:0.03em;
+    color:var(--bone-dim); background:none; border:none; cursor:pointer; padding:0 0.2rem;
+    text-decoration:underline; text-underline-offset:3px; text-decoration-color:rgba(237,230,216,0.32);
+    transition:color .2s ease, text-decoration-color .2s ease;
+  }
+  .credits-toggle:hover, .credits-toggle:focus-visible{
+    color:var(--bone); text-decoration-color:var(--ochre); outline:none;
+  }
+  @media (max-width:640px){
+    .credits-toggle{ right:4rem; bottom:1rem; height:2.3rem; font-size:0.66rem; }
+  }
+
+  /* Credits popup — a simple dismissible overlay, closable via the X,
+     a click outside the panel, or Escape. */
+  .credits-overlay{
+    position:fixed; inset:0; z-index:60;
+    background:rgba(8,3,1,0.72); backdrop-filter:blur(3px);
+    display:flex; align-items:center; justify-content:center; padding:1.5rem;
+    opacity:0; visibility:hidden; pointer-events:none;
+    transition:opacity .25s ease, visibility 0s linear .25s;
+  }
+  .credits-overlay.is-open{
+    opacity:1; visibility:visible; pointer-events:auto;
+    transition:opacity .25s ease, visibility 0s linear 0s;
+  }
+  .credits-modal{
+    position:relative; max-width:30rem; width:100%; max-height:80vh; overflow-y:auto;
+    background:var(--umber); border:1px solid rgba(175,157,46,0.3);
+    border-radius:16px; padding:2.4rem 2.2rem;
+    box-shadow:0 2rem 5rem rgba(0,0,0,0.6);
+    transform:translateY(12px); transition:transform .25s ease;
+  }
+  .credits-overlay.is-open .credits-modal{ transform:translateY(0); }
+  .credits-modal h3{
+    font-family:'Fraunces', serif; font-weight:600; font-size:1.3rem; margin:0 0 1.3rem; color:var(--bone);
+  }
+  .credits-modal section{ margin-bottom:1.3rem; }
+  .credits-modal section:last-of-type{ margin-bottom:0; }
+  .credits-label{
+    font-family:'IBM Plex Mono', monospace; font-size:0.62rem; letter-spacing:0.16em;
+    text-transform:uppercase; color:var(--ochre); margin-bottom:0.5rem;
+  }
+  .credits-modal p{
+    font-family:'Instrument Sans', sans-serif; font-size:0.9rem; line-height:1.6; color:var(--bone-dim); margin:0;
+  }
+  .credits-close{
+    position:absolute; top:1.1rem; right:1.1rem; width:2rem; height:2rem; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(237,230,216,0.08); border:1px solid rgba(237,230,216,0.14);
+    color:var(--bone-dim); cursor:pointer; padding:0;
+    transition:background .2s ease, color .2s ease;
+  }
+  .credits-close:hover, .credits-close:focus-visible{
+    background:rgba(237,230,216,0.16); color:var(--bone); outline:none;
+  }
 
   /* ============================================================
      Shared pinned-scroll mechanics
@@ -95,7 +178,7 @@
   .depth-gauge{
     position:absolute; right:1.6rem; top:50%; transform:translateY(-50%);
     z-index:5; display:flex; flex-direction:column; align-items:center; gap:0.6rem;
-    font-family:'IBM Plex Mono', monospace; color:var(--bone-dim);
+    font-family:'Instrument Sans', sans-serif; color:var(--bone-dim);
   }
   .depth-gauge .g-label{font-size:0.6rem; letter-spacing:0.2em; text-transform:uppercase;}
   .depth-gauge .g-track{width:2px; height:34vh; background:rgba(237,230,216,0.18); position:relative; border-radius:2px;}
@@ -109,7 +192,7 @@
     text-transform:uppercase; color:var(--ochre); margin-bottom:1.1rem;
   }
   .hero-text h1{
-    font-family:'Playfair Display', serif; font-weight:700;
+    font-family:'Fraunces', serif; font-weight:700;
     font-size:clamp(2.8rem, 8vw, 6rem); line-height:0.98; margin:0 0 1rem;
     color:var(--bone); letter-spacing:-0.01em;
     text-shadow:
@@ -118,7 +201,7 @@
       0 12px 34px rgba(0,0,0,0.55);
   }
   .hero-text .subheading{
-    font-family:'Source Sans Pro', sans-serif; font-style:italic; font-weight:400;
+    font-family:'Instrument Sans', sans-serif; font-style:italic; font-weight:400;
     font-size:clamp(1rem, 2.2vw, 1.28rem); color:var(--bone-dim);
   }
   /* ---------- Passage (cave mouth) ---------- */
@@ -134,7 +217,7 @@
   .passage-copy .hero-eyebrow{ opacity:0; margin-bottom:1rem; }
   .passage-blurb{
     position:absolute; left:0; right:0; top:1.8rem; margin:0 auto;
-    font-family:'Source Sans Pro', sans-serif; font-style:italic; color:var(--bone-dim);
+    font-family:'Instrument Sans', sans-serif; font-style:italic; color:var(--bone-dim);
     font-size:clamp(0.92rem, 1.6vw, 1.05rem); line-height:1.8; opacity:0;
   }
 
@@ -181,158 +264,178 @@
     text-transform:uppercase; color:var(--ochre); margin-bottom:0.9rem;
   }
   .lobby-head h2{
-    font-family:'Playfair Display', serif; font-weight:600; font-size:clamp(2rem, 5vw, 3.2rem);
+    font-family:'Fraunces', serif; font-weight:600; font-size:clamp(2rem, 5vw, 3.2rem);
     margin:0; color:var(--bone);
   }
   .corridor-track{
-    position:absolute; top:13%; left:0; height:74%; z-index:2; opacity:0;
-    display:flex; align-items:stretch; padding:0 10vw 0 55vw; gap:7vw; will-change:transform, opacity;
+    position:absolute; top:0; left:0; width:100%; height:100%; z-index:2; opacity:0;
+    display:flex; align-items:center; padding:5vh 10vw 5vh 55vw; gap:8vw; will-change:transform, opacity;
   }
   /* Cards are solid, lifted objects — filled panels floating in front of
-     the cave wall, not text washed over it. Landscape-proportioned
-     (width drives size, height follows a fixed 3:2 ratio) and kept
-     inside a vertical band well clear of the top/bottom edges — never
-     flush against the screen borders. Width + vertical alignment vary
-     per room so the row reads as an uneven, editorial rhythm (echoing
-     the tilted/offset cards on unseen.co), and JS layers a
-     scale/lift/rotate "settle into focus" motion on top as each card
-     nears center. */
+     the cave wall, not text washed over it. Every card is now the same
+     fixed size and always shown in its active "Enter" state, riding
+     vertically centered in the pinned viewport with clear breathing
+     room above and below the row. Each card also tilts in 3D toward
+     the pointer on hover, with a glow that tracks the same pointer
+     position — see the pointermove JS near the end of the script. */
   .room-panel{
-    /* Now just an invisible sizing/positioning/perspective host — it
-       carries no background, border or shadow of its own. All of the
-       card's actual visible chrome lives on .room-panel-link/-face
-       (below), which is what rotates: putting the paint on the SAME
-       element that tilts is what makes the whole card visibly turn,
-       instead of only the text/icons inside it moving while a
-       static-looking box sits underneath. This element still takes
-       JS's scroll-driven translate/scale/rotate every frame (see
-       update() in the script) — a completely different property
-       (perspective, not transform) than the one JS writes, so the
-       two never fight. */
-    position:relative; flex:0 0 auto; width:min(58vw, 380px); aspect-ratio:3 / 2;
-    align-self:flex-end;
+    position:relative; flex:0 0 auto;
+    width:min(66vw, 380px); aspect-ratio:2 / 3;
     will-change:transform;
-    perspective:700px;
   }
-  .room-panel.size-sm{ width:min(58vw, 360px); }
-  .room-panel.size-md{ width:min(68vw, 460px); }
-  .room-panel.size-lg,
-  .room-panel.available{ width:min(82vw, 580px); }
-  .room-panel.align-top{ align-self:flex-start; }
-  .room-panel.align-mid{ align-self:center; }
-  .room-panel.align-base{ align-self:flex-end; }
-  /* .room-panel-link (available card, an <a>) and .room-panel-face
-     (locked cards, a plain div) are the same role — this IS the card,
-     visually: its own background/texture/border/shadow, sized to fill
-     .room-panel exactly, and the element that slowly turns in 3D
-     within the parent's perspective. Each card gets its own
-     duration/delay/angle (set as inline custom properties, see the
-     HTML) so the row doesn't pulse in unison. */
-  .room-panel-link,
-  .room-panel-face{
+  /* .room-panel-link is the card itself — an <a>, since every card is
+     clickable now — sized to fill .room-panel exactly. Image + fade
+     sit inside it, clipped by its rounded corners. transform-style
+     and the transform transition (reset target) support the 3D tilt. */
+  .room-panel-link{
     position:relative;
-    display:flex; align-items:flex-end; width:100%; height:100%;
-    padding:1.6rem 1.6rem;
-    border-radius:3px;
+    display:block; width:100%; height:100%;
+    border-radius:20px; overflow:hidden;
+    text-decoration:none; color:inherit; cursor:pointer;
     background-color:var(--ground);
-    /* faint sediment/strata hatching — reads as excavated stone rather
-       than a flat UI card, visible on close look without competing
-       with the content on top of it */
-    background-image:repeating-linear-gradient(135deg, rgba(237,230,216,0.03) 0px, rgba(237,230,216,0.03) 1px, transparent 1px, transparent 9px);
-    border:1px solid rgba(237,230,216,0.09);
-    box-shadow:0 1.4rem 3.2rem rgba(0,0,0,0.48), inset 0 1px 0 rgba(237,230,216,0.06);
-    transition:box-shadow .3s ease;
-    animation:cardTilt var(--tilt-dur, 11s) ease-in-out infinite;
-    animation-delay:var(--tilt-delay, 0s);
+    border:1px solid rgba(175,157,46,0.22);
+    box-shadow:0 1.6rem 4rem rgba(0,0,0,0.55), 0 0 0 1px rgba(175,157,46,0.1), inset 0 1px 0 rgba(237,230,216,0.08);
+    transition:box-shadow .3s ease, transform .5s ease;
+    will-change:transform;
   }
-  .room-panel-link{ text-decoration:none; color:inherit; }
-  @keyframes cardTilt{
-    0%, 100%{ transform:rotateY(0deg) rotateX(0deg); }
-    50%{ transform:rotateY(var(--tilt-y, 10deg)) rotateX(calc(var(--tilt-y, 10deg) * -0.25)); }
+  .room-panel-link.is-tilting{ transition:box-shadow .3s ease, transform .08s linear; }
+  .room-panel-link.is-tilting .room-panel-glow{ opacity:1; }
+  /* Photo fills the whole card; a single continuous gradient — not a
+     hard image edge — darkens it gradually from about the midpoint
+     down, so the image itself dissolves into the content area rather
+     than stopping and handing off to a flat-color panel underneath. */
+  .room-panel-image{
+    position:absolute; inset:0; width:100%; height:100%; z-index:0;
+    object-fit:cover;
   }
-  @media (prefers-reduced-motion: reduce){
-    .room-panel-link, .room-panel-face{ animation:none; }
+  .room-panel-fade{
+    position:absolute; inset:0; z-index:1; pointer-events:none;
+    background:linear-gradient(to bottom,
+      rgba(24,8,1,0) 0%,
+      rgba(24,8,1,0.02) 38%,
+      rgba(24,8,1,0.18) 52%,
+      rgba(24,8,1,0.55) 66%,
+      rgba(24,8,1,0.88) 80%,
+      var(--ground) 92%);
   }
-  /* Focus dimming (scroll-driven, set as --focus by JS) is applied only
-     to the content, never to .room-panel itself — the card's own fill
-     stays fully opaque at all times, so it never reads as see-through
-     even when its content has faded for being off-center. */
-  .room-panel-index, .room-panel-body, .room-panel-mark{
-    opacity:calc(0.4 + var(--focus, 1) * 0.6);
-    transition:opacity .2s linear;
+  /* Dynamic-light glow — a radial highlight that tracks the pointer
+     (--mx/--my set by JS on pointermove), sitting above everything
+     else on the card including the text, to read as light reflecting
+     off the surface. Invisible until the tilt JS below turns it on. */
+  .room-panel-glow{
+    position:absolute; inset:0; z-index:3; pointer-events:none;
+    background:radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,0.4), transparent 58%);
+    opacity:0; mix-blend-mode:overlay;
+    transition:opacity .3s ease;
   }
   .room-panel-index{
-    position:absolute; top:1.5rem; left:1.7rem; z-index:1;
-    font-family:'Playfair Display', serif; font-weight:400; font-size:2.2rem; line-height:1;
-    color:rgba(237,230,216,0.16);
+    position:absolute; top:1.3rem; left:1.5rem; z-index:2;
+    font-family:'Fraunces', serif; font-weight:400; font-size:2.4rem; line-height:1;
+    color:rgba(175,157,46,0.55);
+    text-shadow:0 2px 10px rgba(0,0,0,0.6);
   }
-  .room-panel.size-lg .room-panel-index,
-  .room-panel.available .room-panel-index{ font-size:2.7rem; }
-  .room-panel.available .room-panel-index{ color:rgba(175,157,46,0.4); }
-  .room-panel-body{ position:relative; z-index:1; max-width:26rem; }
+  .room-panel-body{
+    position:absolute; left:0; right:0; bottom:0; z-index:2; padding:0 1.5rem 1.7rem;
+    text-shadow:0 1px 4px rgba(0,0,0,0.55);
+  }
+  /* Filled chip, same treatment as the CTA (pill shape, mono label
+     type) but a quieter tone — keeps "Exhibit" reliably legible no
+     matter what's behind it in the image, without competing with the
+     Enter button as the primary action. */
   .room-panel-eyebrow{
-    display:block; font-family:'IBM Plex Mono', monospace; font-size:0.64rem;
-    letter-spacing:0.2em; text-transform:uppercase; color:var(--ochre); margin-bottom:0.5rem;
+    display:inline-flex; align-items:center;
+    font-family:'IBM Plex Mono', monospace; font-size:0.6rem;
+    letter-spacing:0.18em; text-transform:uppercase; color:var(--ochre);
+    text-shadow:none;
+    background:rgba(24,8,1,0.6);
+    border:1px solid rgba(175,157,46,0.35);
+    padding:0.35rem 0.75rem;
+    border-radius:999px;
+    margin-bottom:0.7rem;
+    backdrop-filter:blur(3px);
   }
-  .room-panel h3{ font-family:'Playfair Display', serif; font-weight:600; font-size:clamp(1.2rem, 2.2vw, 1.9rem); margin:0 0 0.5rem; }
-  .room-panel p{ font-family:'Source Sans Pro', sans-serif; font-style:italic; color:var(--bone-dim); font-size:0.86rem; line-height:1.45; margin:0 0 0.9rem; }
+  .room-panel h3{ font-family:'Fraunces', serif; font-weight:600; font-size:clamp(1.15rem, 2vw, 1.6rem); margin:0 0 0.5rem; }
+  .room-panel p{ font-family:'Instrument Sans', sans-serif; font-style:italic; color:var(--bone-dim); font-size:0.86rem; line-height:1.45; margin:0 0 1rem; }
+  /* The "Enter" button — a solid filled chip with its own weight,
+     shadow and hover lift — appears on every card now that all eight
+     are shown in the active state. */
   .room-panel-status{
     display:inline-flex; align-items:center; gap:0.4em;
-    font-family:'IBM Plex Mono', monospace; font-size:0.64rem; letter-spacing:0.1em;
-    text-transform:uppercase; color:rgba(237,230,216,0.5);
-  }
-  .room-panel-status .status-lock{ width:11px; height:11px; flex:none; color:rgba(237,230,216,0.4); }
-  /* The one card that's actually clickable gets a real button, not
-     just colored text — a solid filled chip with its own weight,
-     shadow and hover lift, so it reads as "press this" at a glance
-     rather than blending in with the plain status labels on the
-     locked cards. */
-  .room-panel.available .room-panel-status{
-    margin-top:0.5rem;
-    padding:0.6rem 1.15rem;
-    border-radius:2px;
+    padding:0.7rem 1.4rem;
+    border-radius:999px;
     background:var(--ochre);
     color:var(--ground);
-    font-weight:600; font-size:0.68rem; letter-spacing:0.14em;
+    text-shadow:none;
+    font-family:'IBM Plex Mono', monospace;
+    font-weight:600; font-size:0.68rem; letter-spacing:0.14em; text-transform:uppercase;
     box-shadow:0 0.5rem 1.1rem rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
     transition:background .2s ease, box-shadow .2s ease, transform .2s ease;
   }
-  .room-panel.available:hover .room-panel-status,
-  .room-panel.available:focus-within .room-panel-status{
+  .room-panel-link:hover .room-panel-status,
+  .room-panel-link:focus-visible .room-panel-status{
     background:#c4b154;
     box-shadow:0 0.7rem 1.5rem rgba(0,0,0,0.48), inset 0 1px 0 rgba(255,255,255,0.25);
     transform:translateY(-2px);
   }
   .status-arrow{ display:inline-block; transition:transform .25s ease; }
-  .room-panel.available:hover .status-arrow,
-  .room-panel.available:focus-within .status-arrow{ transform:translateX(4px); }
-  .room-panel.available .room-panel-link{
-    cursor:pointer;
-    background-color:var(--umber);
-    border-color:rgba(175,157,46,0.38);
-    box-shadow:0 1.6rem 4rem rgba(0,0,0,0.55), 0 0 0 1px rgba(175,157,46,0.14), inset 0 1px 0 rgba(237,230,216,0.08);
-  }
-  .room-panel.locked{ filter:saturate(0.7); }
-  .room-panel-mark{ position:absolute; right:1.3rem; bottom:1.5rem; width:13px; height:27px; color:var(--clay); z-index:1; }
-  .room-panel.available .room-panel-mark{ color:var(--ochre); }
-  .room-panel.available:hover .room-panel-link,
-  .room-panel.available:focus-within .room-panel-link{
+  .room-panel-link:hover .status-arrow,
+  .room-panel-link:focus-visible .status-arrow{ transform:translateX(4px); }
+  .room-panel-link:hover,
+  .room-panel-link:focus-visible{
     box-shadow:0 1.6rem 4.4rem rgba(0,0,0,0.6), 0 0 0 1px rgba(175,157,46,0.28), inset 0 1px 0 rgba(237,230,216,0.1);
   }
-  .room-panel.available:hover .room-panel-index,
-  .room-panel.available:focus-within .room-panel-index{ color:rgba(175,157,46,0.65); }
-  .room-panel.available:focus-within .room-panel-link{ outline:1px solid var(--ochre); outline-offset:-1px; }
+  .room-panel-link:hover .room-panel-index,
+  .room-panel-link:focus-visible .room-panel-index{ color:rgba(175,157,46,0.8); }
+  .room-panel-link:focus-visible{ outline:1px solid var(--ochre); outline-offset:-1px; }
+
+  /* Trailing element after the last exhibit — a simple vertical tab
+     rather than a 9th exhibit card, so it's excluded from the JS
+     focus/grow effect (see roomPanels selector) and stays a steady
+     size. Deliberately narrow: a single rotated label, not a full
+     card with its own chip/heading/copy/button. */
+  .room-panel-end{
+    width:5.6rem;
+    aspect-ratio:auto;
+    height:calc(min(66vw, 380px) * 0.75);
+  }
+  .room-panel-end-link{
+    display:flex; align-items:center; justify-content:center;
+    padding:1.6rem 0;
+    border-radius:20px 0 0 20px;
+    background:rgba(175,157,46,0.16);
+    border:1px solid rgba(175,157,46,0.3);
+    backdrop-filter:blur(4px);
+    transition:background .2s ease, border-color .2s ease;
+  }
+  .room-panel-end-link:hover,
+  .room-panel-end-link:focus-visible{
+    background:rgba(175,157,46,0.28);
+    border-color:rgba(175,157,46,0.5);
+  }
+  .room-panel-end-label{
+    writing-mode:vertical-rl;
+    text-orientation:mixed;
+    font-family:'IBM Plex Mono', monospace;
+    font-weight:600; font-size:0.72rem; letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--ochre);
+    text-shadow:0 1px 4px rgba(0,0,0,0.5);
+    white-space:nowrap;
+  }
+  @media (max-width:640px){
+    .room-panel-end{ width:4.4rem; }
+    .room-panel-end-label{ font-size:0.64rem; letter-spacing:0.14em; }
+  }
 
   .corridor-hud{
     position:absolute; left:2.1rem; bottom:2.1rem; z-index:3; opacity:0;
     display:flex; align-items:center; gap:0.7rem;
-    font-family:'IBM Plex Mono', monospace; font-size:0.62rem; letter-spacing:0.14em;
+    font-family:'Instrument Sans', sans-serif; font-size:0.68rem; letter-spacing:0.1em;
     text-transform:uppercase; color:var(--bone-dim);
   }
   .corridor-hud .bar{ width:60px; height:2px; background:rgba(237,230,216,0.18); position:relative; border-radius:2px; }
   .corridor-hud .bar-fill{ position:absolute; left:0; top:0; height:100%; width:0%; background:var(--ochre); border-radius:2px; }
   @media (max-width:640px){
-    .room-panel-link, .room-panel-face{ padding:1.5rem 1.3rem; }
     .corridor-hud{ font-size:0.58rem; }
   }
 
@@ -348,13 +451,20 @@
       margin:6rem auto 3rem; padding:0 1.5rem;
     }
     .corridor-track{
-      position:static; flex-wrap:wrap; padding:2rem 1.5rem 5rem; gap:1.4rem;
+      position:static; flex-wrap:wrap; padding:2rem 1.5rem 5rem; gap:2rem;
       justify-content:center; opacity:1 !important;
     }
-    .room-panel, .room-panel.size-sm, .room-panel.size-md, .room-panel.size-lg,
-    .room-panel.available{
-      width:min(100%, 340px); height:auto; align-self:auto !important;
+    .room-panel{
+      width:min(100%, 360px); height:auto; aspect-ratio:2 / 3;
       opacity:1 !important; transform:none !important;
+    }
+    .room-panel-link{ transform:none !important; }
+    .room-panel-glow{ display:none; }
+    .room-panel-end{
+      width:min(100%, 360px); height:auto; aspect-ratio:2 / 3;
+    }
+    .room-panel-end-label{
+      writing-mode:horizontal-tb;
     }
   }
 </style>
@@ -369,22 +479,43 @@
     </svg>
   </div>
 
-  <svg width="0" height="0" style="position:absolute">
-    <defs>
-      <symbol id="icon-strata" viewBox="0 0 24 40">
-        <rect x="2" y="2" width="20" height="8" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/>
-        <rect x="4" y="14" width="16" height="8" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/>
-        <rect x="6" y="26" width="12" height="8" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/>
-        <circle cx="12" cy="30" r="1.4" fill="currentColor" stroke="none"/>
-      </symbol>
+  <button class="audio-toggle" id="audioToggle" type="button" aria-pressed="false" aria-label="Mute background music">
+    <svg class="audio-icon audio-icon-on" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/>
+      <path d="M16.3 8.7a5 5 0 0 1 0 6.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      <path d="M19 6a8.7 8.7 0 0 1 0 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity="0.55"/>
+    </svg>
+    <svg class="audio-icon audio-icon-off" viewBox="0 0 24 24" fill="none" aria-hidden="true" style="display:none">
+      <path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/>
+      <path d="M15.5 9.5l5 5M20.5 9.5l-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+    </svg>
+  </button>
+  <audio id="bgAudio" src="Buried%20Chambers.mp3" loop preload="auto" muted></audio>
 
-      <symbol id="icon-lock" viewBox="0 0 24 24">
-        <rect x="5" y="10" width="14" height="10" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.3"/>
-        <path d="M8 10V7a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-        <circle cx="12" cy="15" r="1.1" fill="currentColor" stroke="none"/>
-      </symbol>
-    </defs>
-  </svg>
+  <button class="credits-toggle" id="creditsToggle" type="button" aria-haspopup="dialog" aria-controls="creditsModal">Credits</button>
+
+  <div class="credits-overlay" id="creditsOverlay">
+    <div class="credits-modal" id="creditsModal" role="dialog" aria-modal="true" aria-labelledby="creditsTitle">
+      <button class="credits-close" id="creditsClose" type="button" aria-label="Close credits">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M1 1L13 13M13 1L1 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <h3 id="creditsTitle">Credits</h3>
+      <section>
+        <div class="credits-label">Photography</div>
+        <p>[Photographer credit goes here]</p>
+      </section>
+      <section>
+        <div class="credits-label">Built by</div>
+        <p>[Site builder credit goes here]</p>
+      </section>
+      <section>
+        <div class="credits-label">Made with</div>
+        <p>[Tools/stack credit goes here]</p>
+      </section>
+    </div>
+  </div>
 
   <!-- ================= Descent: hero -> down the ladder shaft ================= -->
   <section class="pin-section" id="descent" aria-label="Descent into the excavation">
@@ -424,6 +555,13 @@
   <!-- ================= Lobby + Corridor: cave wall reveal, then the
        horizontal walk past the rooms — one continuous pinned beat ================= -->
   <section class="pin-section" id="corridor" aria-label="The Lobby and the exhibits">
+    <!-- Scroll anchor for the "Return to Entrance" tab: sits at the
+         scroll depth where the card row settles into its resting
+         position (just past INTRO_END in the JS below), so jumping
+         here lands right at the start of the first card rather than
+         the very top of the page. Tied to #corridor's height (560vh)
+         and INTRO_END (0.18) — update this if either changes. -->
+    <div id="corridor-cards-start" style="position:absolute; top:92vh; left:0; width:1px; height:1px;" aria-hidden="true"></div>
     <div class="pin-sticky corridor-sticky">
       <img class="corridor-bg" id="corridorBg" src="img-cave-wall.jpg" alt="" aria-hidden="true">
       <div class="corridor-scrim" aria-hidden="true"></div>
@@ -436,108 +574,130 @@
       </div>
 
       <div class="corridor-track" id="corridorTrack">
-        <article class="room-panel locked size-sm align-base" data-tilt="-1.2" aria-disabled="true">
-          <div class="room-panel-face" style="--tilt-y:-10deg; --tilt-dur:11s; --tilt-delay:0s;">
+        <article class="room-panel" data-tilt="-1.2">
+          <a class="room-panel-link" href="#" data-coming-soon aria-label="The Mirror Exhibit — coming soon">
+            <img class="room-panel-image" src="cards/mirror.jpg" alt="" aria-hidden="true" loading="lazy">
+            <div class="room-panel-fade" aria-hidden="true"></div>
+            <div class="room-panel-glow" aria-hidden="true"></div>
             <span class="room-panel-index">01</span>
             <div class="room-panel-body">
               <span class="room-panel-eyebrow">Exhibit</span>
               <h3>The Mirror Exhibit</h3>
-              <p>Which lens are you reading through?</p>
-              <span class="room-panel-status"><svg class="status-lock" aria-hidden="true"><use href="#icon-lock"/></svg>Not Yet Unearthed</span>
+              <p>Every reader brings assumptions to a text without realizing it. This exhibit surfaces the interpretive lens you didn't know you were using, and asks what changes when you try on another culture's own.</p>
+              <span class="room-panel-status">Enter <span class="status-arrow">→</span></span>
             </div>
-            <svg class="room-panel-mark"><use href="#icon-strata"/></svg>
-          </div>
+          </a>
         </article>
 
-        <article class="room-panel locked size-lg align-top" data-tilt="0.8" aria-disabled="true">
-          <div class="room-panel-face" style="--tilt-y:9deg; --tilt-dur:12.5s; --tilt-delay:0.8s;">
+        <article class="room-panel" data-tilt="0.8">
+          <a class="room-panel-link" href="#" data-coming-soon aria-label="The Map Exhibit — coming soon">
+            <img class="room-panel-image" src="cards/map.jpg" alt="" aria-hidden="true" loading="lazy">
+            <div class="room-panel-fade" aria-hidden="true"></div>
+            <div class="room-panel-glow" aria-hidden="true"></div>
             <span class="room-panel-index">02</span>
             <div class="room-panel-body">
               <span class="room-panel-eyebrow">Exhibit</span>
               <h3>The Map Exhibit</h3>
-              <p>Where Ur, Ugarit, and Israel actually sit.</p>
-              <span class="room-panel-status"><svg class="status-lock" aria-hidden="true"><use href="#icon-lock"/></svg>Not Yet Unearthed</span>
+              <p>Where Ur, Ugarit, and Israel actually sit. A geographic grounding for the ancient Near East — the routes, borders, and neighboring peoples that shaped the world Scripture was written in.</p>
+              <span class="room-panel-status">Enter <span class="status-arrow">→</span></span>
             </div>
-            <svg class="room-panel-mark"><use href="#icon-strata"/></svg>
-          </div>
+          </a>
         </article>
 
-        <article class="room-panel available size-lg align-mid" data-tilt="0">
-          <a class="room-panel-link" href="parallel-room.html" style="--tilt-y:-9deg; --tilt-dur:10s; --tilt-delay:0.3s;">
+        <article class="room-panel" data-tilt="0">
+          <a class="room-panel-link" href="parallel-room.html">
+            <img class="room-panel-image" src="cards/parallel.jpg" alt="" aria-hidden="true" loading="lazy">
+            <div class="room-panel-fade" aria-hidden="true"></div>
+            <div class="room-panel-glow" aria-hidden="true"></div>
             <span class="room-panel-index">03</span>
             <div class="room-panel-body">
               <span class="room-panel-eyebrow">Exhibit</span>
               <h3>The Parallel Exhibit</h3>
-              <p>Ancient Near Eastern texts, side by side with Scripture.</p>
+              <p>Ancient Near Eastern texts, side by side with Scripture. Three rooms pairing biblical passages with the literature — Enūma Eliš, Gilgamesh, Hammurabi — that surrounded them.</p>
               <span class="room-panel-status">Enter <span class="status-arrow">→</span></span>
             </div>
-            <svg class="room-panel-mark"><use href="#icon-strata"/></svg>
           </a>
         </article>
 
-        <article class="room-panel locked size-md align-mid" data-tilt="-0.6" aria-disabled="true">
-          <div class="room-panel-face" style="--tilt-y:10deg; --tilt-dur:12s; --tilt-delay:1.4s;">
+        <article class="room-panel" data-tilt="-0.6">
+          <a class="room-panel-link" href="#" data-coming-soon aria-label="The Letters Exhibit — coming soon">
+            <img class="room-panel-image" src="cards/letters.jpg" alt="" aria-hidden="true" loading="lazy">
+            <div class="room-panel-fade" aria-hidden="true"></div>
+            <div class="room-panel-glow" aria-hidden="true"></div>
             <span class="room-panel-index">04</span>
             <div class="room-panel-body">
               <span class="room-panel-eyebrow">Exhibit</span>
               <h3>The Letters Exhibit</h3>
-              <p>An imagined letter from the ancient author.</p>
-              <span class="room-panel-status"><svg class="status-lock" aria-hidden="true"><use href="#icon-lock"/></svg>Not Yet Unearthed</span>
+              <p>An imagined letter from the ancient author. A first-person window into the world a biblical writer actually inhabited — its politics, worries, and everyday concerns.</p>
+              <span class="room-panel-status">Enter <span class="status-arrow">→</span></span>
             </div>
-            <svg class="room-panel-mark"><use href="#icon-strata"/></svg>
-          </div>
+          </a>
         </article>
 
-        <article class="room-panel locked size-md align-top" data-tilt="1.4" aria-disabled="true">
-          <div class="room-panel-face" style="--tilt-y:-8deg; --tilt-dur:10.5s; --tilt-delay:2s;">
+        <article class="room-panel" data-tilt="1.4">
+          <a class="room-panel-link" href="#" data-coming-soon aria-label="The Reading Exhibit — coming soon">
+            <img class="room-panel-image" src="cards/reading.jpg" alt="" aria-hidden="true" loading="lazy">
+            <div class="room-panel-fade" aria-hidden="true"></div>
+            <div class="room-panel-glow" aria-hidden="true"></div>
             <span class="room-panel-index">05</span>
             <div class="room-panel-body">
               <span class="room-panel-eyebrow">Exhibit</span>
               <h3>The Reading Exhibit</h3>
-              <p>The sources, browsable like a shelf.</p>
-              <span class="room-panel-status"><svg class="status-lock" aria-hidden="true"><use href="#icon-lock"/></svg>Not Yet Unearthed</span>
+              <p>The sources, browsable like a shelf. Every named scholar and traceable text referenced throughout this project, gathered in one place for further study.</p>
+              <span class="room-panel-status">Enter <span class="status-arrow">→</span></span>
             </div>
-            <svg class="room-panel-mark"><use href="#icon-strata"/></svg>
-          </div>
+          </a>
         </article>
 
-        <article class="room-panel locked size-sm align-base" data-tilt="-1.8" aria-disabled="true">
-          <div class="room-panel-face" style="--tilt-y:11deg; --tilt-dur:9s; --tilt-delay:1.1s;">
+        <article class="room-panel" data-tilt="-1.8">
+          <a class="room-panel-link" href="#" data-coming-soon aria-label="The Echo Exhibit — coming soon">
+            <img class="room-panel-image" src="cards/echo.jpg" alt="" aria-hidden="true" loading="lazy" style="transform:rotate(3deg) scale(1.12); object-position:43% 45%;">
+            <div class="room-panel-fade" aria-hidden="true"></div>
+            <div class="room-panel-glow" aria-hidden="true"></div>
             <span class="room-panel-index">06</span>
             <div class="room-panel-body">
               <span class="room-panel-eyebrow">Exhibit</span>
               <h3>The Echo Exhibit</h3>
-              <p>Original music and poetry, in response.</p>
-              <span class="room-panel-status"><svg class="status-lock" aria-hidden="true"><use href="#icon-lock"/></svg>Not Yet Unearthed</span>
+              <p>Original music and poetry, in response. Creative work composed for this project that responds to the ancient material rather than simply explaining it.</p>
+              <span class="room-panel-status">Enter <span class="status-arrow">→</span></span>
             </div>
-            <svg class="room-panel-mark"><use href="#icon-strata"/></svg>
-          </div>
+          </a>
         </article>
 
-        <article class="room-panel locked size-lg align-mid" data-tilt="1" aria-disabled="true">
-          <div class="room-panel-face" style="--tilt-y:-10deg; --tilt-dur:14s; --tilt-delay:0.5s;">
+        <article class="room-panel" data-tilt="1">
+          <a class="room-panel-link" href="#" data-coming-soon aria-label="The Tension Exhibit — coming soon">
+            <img class="room-panel-image" src="cards/tension.jpg" alt="" aria-hidden="true" loading="lazy" style="transform:rotate(-6deg) scale(1.16);">
+            <div class="room-panel-fade" aria-hidden="true"></div>
+            <div class="room-panel-glow" aria-hidden="true"></div>
             <span class="room-panel-index">07</span>
             <div class="room-panel-body">
               <span class="room-panel-eyebrow">Exhibit</span>
               <h3>The Tension Exhibit</h3>
-              <p>Where even the experts don't agree.</p>
-              <span class="room-panel-status"><svg class="status-lock" aria-hidden="true"><use href="#icon-lock"/></svg>Not Yet Unearthed</span>
+              <p>Where even the experts don't agree. A look at the open questions and competing interpretations serious scholars are still actively debating.</p>
+              <span class="room-panel-status">Enter <span class="status-arrow">→</span></span>
             </div>
-            <svg class="room-panel-mark"><use href="#icon-strata"/></svg>
-          </div>
+          </a>
         </article>
 
-        <article class="room-panel locked size-sm align-base" data-tilt="-1" aria-disabled="true">
-          <div class="room-panel-face" style="--tilt-y:9deg; --tilt-dur:11.5s; --tilt-delay:1.6s;">
+        <article class="room-panel" data-tilt="-1">
+          <a class="room-panel-link" href="#" data-coming-soon aria-label="The Quiz Exhibit — coming soon">
+            <img class="room-panel-image" src="cards/quiz.jpg" alt="" aria-hidden="true" loading="lazy" style="transform:rotate(4deg) scale(1.13);">
+            <div class="room-panel-fade" aria-hidden="true"></div>
+            <div class="room-panel-glow" aria-hidden="true"></div>
             <span class="room-panel-index">08</span>
             <div class="room-panel-body">
               <span class="room-panel-eyebrow">Exhibit</span>
               <h3>The Quiz Exhibit</h3>
-              <p>How much of this world can you place?</p>
-              <span class="room-panel-status"><svg class="status-lock" aria-hidden="true"><use href="#icon-lock"/></svg>Not Yet Unearthed</span>
+              <p>How much of this world can you place? A short interactive quiz testing what you've picked up about the ancient Near East and its biblical parallels.</p>
+              <span class="room-panel-status">Enter <span class="status-arrow">→</span></span>
             </div>
-            <svg class="room-panel-mark"><use href="#icon-strata"/></svg>
-          </div>
+          </a>
+        </article>
+
+        <article class="room-panel room-panel-end" data-tilt="0">
+          <a class="room-panel-link room-panel-end-link" href="#corridor-cards-start" aria-label="Return to the first exhibit">
+            <span class="room-panel-end-label">Return to Entrance</span>
+          </a>
         </article>
       </div>
 
@@ -586,7 +746,10 @@
     const corridorHud = document.getElementById('corridorHud');
     const hudFill = document.getElementById('hudFill');
     const hudIndex = document.getElementById('hudIndex');
-    const roomPanels = corridorTrack ? Array.from(corridorTrack.querySelectorAll('.room-panel')) : [];
+    // The trailing "Return to the Entrance" panel is an exit, not an
+    // exhibit, so it's excluded here — it keeps the "01 / 08" HUD count
+    // accurate and stays a steady size instead of growing into focus.
+    const roomPanels = corridorTrack ? Array.from(corridorTrack.querySelectorAll('.room-panel:not(.room-panel-end)')) : [];
 
     function clamp01(v) { return Math.min(1, Math.max(0, v)); }
     function mapRange(v, inMin, inMax, outMin, outMax) {
@@ -731,20 +894,6 @@
         if (!reduceMotion) {
           const travel = Math.max(0, corridorTrack.scrollWidth - corridorSticky.clientWidth);
           corridorTrack.style.transform = 'translateX(' + (-cardProgress * travel) + 'px)';
-
-          const viewportCenter = window.innerWidth / 2;
-          roomPanels.forEach(function (panel) {
-            const r = panel.getBoundingClientRect();
-            const dist = Math.abs((r.left + r.width / 2) - viewportCenter);
-            const focus = clamp01(1 - dist / (window.innerWidth * 0.68));
-            const tilt = parseFloat(panel.dataset.tilt || '0');
-            const scale = 0.89 + focus * 0.13;
-            const lift = -focus * 16;
-            const rotate = tilt * (1 - focus * 0.75);
-            panel.style.setProperty('--focus', focus.toFixed(3));
-            panel.style.transform =
-              'translateY(' + lift + 'px) scale(' + scale + ') rotate(' + rotate + 'deg)';
-          });
         }
         if (hudFill) hudFill.style.width = (cardProgress * 100).toFixed(1) + '%';
         if (hudIndex && roomPanels.length) {
@@ -760,6 +909,145 @@
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onScroll);
     update();
+  })();
+
+  /* Exhibit cards whose destination page isn't built yet still show
+     the full active "Enter" state (per design), but their href="#"
+     shouldn't actually jump the page to the top when clicked. */
+  document.querySelectorAll('.room-panel-link[data-coming-soon]').forEach(function (link) {
+    link.addEventListener('click', function (e) { e.preventDefault(); });
+  });
+
+  /* 3D tilt + dynamic glow, replacing the old scroll-driven grow/focus
+     effect entirely. Pointer position relative to each card's own
+     center drives rotateX/rotateY (plus a touch of scale), and a
+     radial-gradient glow tracks that same position to mimic a light
+     reflecting off the card's surface as the pointer moves across it.
+     Both reset smoothly on pointer leave. Skipped under
+     prefers-reduced-motion and on touch/coarse-pointer devices, where
+     there's no hover to drive it. */
+  (function () {
+    const canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    const reduceMotionTilt = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!canHover || reduceMotionTilt) return;
+
+    function clamp01(v) { return Math.min(1, Math.max(0, v)); }
+    const MAX_TILT = 12; // degrees, at the card's edge
+    document.querySelectorAll('.room-panel-link:not(.room-panel-end-link)').forEach(function (card) {
+      const glow = card.querySelector('.room-panel-glow');
+
+      function onMove(e) {
+        const r = card.getBoundingClientRect();
+        const px = clamp01((e.clientX - r.left) / r.width);
+        const py = clamp01((e.clientY - r.top) / r.height);
+        const rx = (0.5 - py) * MAX_TILT * 2;
+        const ry = (px - 0.5) * MAX_TILT * 2;
+        card.classList.add('is-tilting');
+        card.style.transform =
+          'perspective(900px) rotateX(' + rx.toFixed(2) + 'deg) rotateY(' + ry.toFixed(2) + 'deg) scale3d(1.03, 1.03, 1.03)';
+        if (glow) {
+          glow.style.setProperty('--mx', (px * 100).toFixed(1) + '%');
+          glow.style.setProperty('--my', (py * 100).toFixed(1) + '%');
+        }
+      }
+      function onLeave() {
+        card.classList.remove('is-tilting');
+        card.style.transform = '';
+      }
+
+      card.addEventListener('pointermove', onMove);
+      card.addEventListener('pointerleave', onLeave);
+      card.addEventListener('pointercancel', onLeave);
+    });
+  })();
+
+  /* Background music. No browser allows audible autoplay before the
+     visitor has interacted with the page at all — that's a hard,
+     universal policy, not something any code here can override. The
+     closest real equivalent, and what this does: start the track
+     muted immediately on landing (muted autoplay IS allowed
+     everywhere), then unmute the instant the first interaction of
+     any kind happens — including the very first scroll, which on
+     this page usually happens within a second of landing. So sound
+     effectively begins "on landing" for all practical purposes. The
+     toggle button lets the visitor turn it off at any time. */
+  (function () {
+    const audio = document.getElementById('bgAudio');
+    const toggle = document.getElementById('audioToggle');
+    if (!audio || !toggle) return;
+    const iconOn = toggle.querySelector('.audio-icon-on');
+    const iconOff = toggle.querySelector('.audio-icon-off');
+    audio.volume = 0.35;
+    let enabled = true;
+    let revealed = false;
+
+    function syncIcon() {
+      iconOn.style.display = enabled ? 'block' : 'none';
+      iconOff.style.display = enabled ? 'none' : 'block';
+      toggle.setAttribute('aria-pressed', String(!enabled));
+      toggle.setAttribute('aria-label', enabled ? 'Mute background music' : 'Play background music');
+    }
+
+    // Muted autoplay is permitted by every major browser, so this
+    // succeeds immediately on page load.
+    audio.muted = true;
+    audio.play().catch(function () { /* extremely rare even muted; the interaction listeners below cover it too */ });
+
+    function reveal() {
+      if (!enabled || revealed) return;
+      revealed = true;
+      audio.muted = false;
+      audio.play().catch(function () { revealed = false; });
+    }
+    ['pointerdown', 'keydown', 'scroll', 'touchstart', 'wheel'].forEach(function (evt) {
+      window.addEventListener(evt, reveal, { passive: true });
+    });
+
+    toggle.addEventListener('click', function () {
+      enabled = !enabled;
+      if (enabled) {
+        revealed = true;
+        audio.muted = false;
+        audio.play().catch(function () {});
+      } else {
+        audio.pause();
+      }
+      syncIcon();
+    });
+
+    syncIcon();
+  })();
+
+  /* Credits popup — opens from the text link next to the audio
+     toggle, closes via the X button, a click on the dark backdrop,
+     or Escape at any time. */
+  (function () {
+    const toggle = document.getElementById('creditsToggle');
+    const overlay = document.getElementById('creditsOverlay');
+    const closeBtn = document.getElementById('creditsClose');
+    if (!toggle || !overlay || !closeBtn) return;
+    let lastFocused = null;
+
+    function onKeydown(e) {
+      if (e.key === 'Escape') close();
+    }
+    function open() {
+      lastFocused = document.activeElement;
+      overlay.classList.add('is-open');
+      closeBtn.focus();
+      document.addEventListener('keydown', onKeydown);
+    }
+    function close() {
+      overlay.classList.remove('is-open');
+      document.removeEventListener('keydown', onKeydown);
+      if (lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
+    }
+
+    toggle.addEventListener('click', open);
+    closeBtn.addEventListener('click', close);
+    overlay.addEventListener('click', function (e) {
+      if (e.target === overlay) close();
+    });
   })();
   </script>
 
