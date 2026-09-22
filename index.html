@@ -1,250 +1,668 @@
 <!DOCTYPE html>
-<!-- branch-deploy-test --> v2
-
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Passages</title>
+<title>A World Rediscovered</title>
+<meta name="description" content="An archaeological descent into the ancient world behind Scripture — excavate rooms of Ancient Near Eastern texts, artifacts, and biblical parallels.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600&family=Spectral:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="atmosphere.css">
 <style>
+  /* ============================================================
+     A World Rediscovered — Lobby
+     Visual language: excavation / stratigraphy, replacing the old
+     "museum doors" language used under the Passages name.
+     Palette source: Jarrett, Sep 2026 (5 tones, ground -> ochre).
+     ============================================================ */
   :root{
-    --ground: #14181C;
-    --clay: #C9A876;
-    --clay-deep: #B08F5F;
-    --parchment: #DCD2B4;
-    --parchment-deep: #CBBF9E;
-    --brass: #A6763D;
-    --brass-dim: #6E5330;
-    --whisper: #F2EFE8;
-    --fog: rgba(242,239,232,0.55);
-    --mist: rgba(220,215,205,0.35);
+    --ground:#180801;
+    --ground-rgb:24,8,1;
+    --umber:#2F150A;
+    --rust:#5E250C;
+    --clay:#64463A;
+    --ochre:#AF9D2E;
+    --bone:#EDE6D8;
+    --whisper:#EDE6D8; /* consumed by atmosphere.css dust layer */
+    --bone-dim:rgba(237,230,216,0.62);
   }
   *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
   body{
-    margin:0; min-height:100vh;
+    margin:0; background:var(--ground); color:var(--bone);
+    font-family:'Spectral', serif; position:relative; overflow-x:hidden;
+  }
+  img{display:block; max-width:none; user-select:none; -webkit-user-drag:none;}
+  h1,h2,h3,p{margin:0;}
+  a{color:inherit;}
+
+  /* ---------- persistent "keep scrolling" affordance ----------
+     Stays on screen for the whole page (not just the hero), fading
+     only once there's nothing left below to scroll to. Bounces gently
+     to read as motion, not decoration; drops the bounce under
+     prefers-reduced-motion but stays visible as a static cue. */
+  .scroll-notice{
+    position:fixed; left:50%; bottom:1.6rem; transform:translateX(-50%);
+    z-index:50; display:flex; flex-direction:column; align-items:center; gap:0.5rem;
+    font-family:'IBM Plex Mono', monospace; font-size:0.62rem; letter-spacing:0.18em;
+    text-transform:uppercase; color:var(--bone-dim); pointer-events:none;
+    padding:0.55rem 0.9rem; border-radius:2px;
+    background:rgba(24,8,1,0.32); backdrop-filter:blur(6px);
+    transition:opacity .3s ease;
+  }
+  .scroll-notice .chevron{
+    width:11px; height:7px; display:block;
+    animation:scrollNoticeBounce 1.8s ease-in-out infinite;
+  }
+  @keyframes scrollNoticeBounce{0%,100%{transform:translateY(0);}50%{transform:translateY(4px);}}
+  @media (prefers-reduced-motion: reduce){ .scroll-notice .chevron{ animation:none; } }
+
+  /* ============================================================
+     Shared pinned-scroll mechanics
+     A tall wrapper (.pin-section) creates scroll distance; its
+     .pin-sticky child stays glued to the viewport via `sticky`.
+     Progress (0-1) is computed from native scrollY in JS below —
+     no scroll-jacking, so back button / keyboard / screen readers
+     keep working exactly as on any other page.
+     ============================================================ */
+  .pin-section{position:relative; width:100%;}
+  .pin-sticky{
+    position:sticky; top:0; height:100vh; overflow:hidden;
+    display:flex; align-items:center; justify-content:center;
     background:var(--ground);
-    color:var(--whisper);
-    font-family:'Spectral', serif;
-    position:relative;
-    overflow-x:hidden;
-  }
-  .page-content{
-    position:relative; z-index:1;
-    display:flex; flex-direction:column; align-items:center;
-    padding:6rem 1.5rem 4rem;
   }
 
-  /* ---------- Door background ---------- */
-  .door-bg{
-    position:absolute; top:0; left:50%; transform:translateX(-50%);
-    width:min(70vw, 560px); height:680px;
-    pointer-events:none; z-index:0;
-    opacity:0.16;
-    -webkit-mask-image:linear-gradient(to bottom, black 0%, black 55%, transparent 92%);
-    mask-image:linear-gradient(to bottom, black 0%, black 55%, transparent 92%);
+  /* ---------- Descent (ladder shaft) ---------- */
+  #descent{height:380vh;}
+  .descent-img{
+    position:absolute; top:0; left:0; width:100vw; height:234vw;
+    object-fit:cover; z-index:1; will-change:transform;
   }
-  .door-glow{
-    position:absolute; top:0; left:50%; transform:translateX(-50%);
-    width:900px; height:680px;
-    pointer-events:none; z-index:0;
-    background:
-      radial-gradient(circle at 50% 46%, rgba(166,118,61,0.16), transparent 40%),
-      radial-gradient(ellipse at 50% 88%, rgba(166,118,61,0.14), transparent 42%);
-    -webkit-mask-image:linear-gradient(to bottom, black 0%, black 55%, transparent 92%);
-    mask-image:linear-gradient(to bottom, black 0%, black 55%, transparent 92%);
+  /* Cave photo is a proper 16:9 landscape shot, so a plain cover fill
+     works edge to edge with no crop trade-off. */
+  .passage-img{
+    position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+  }
+  .descent-veil{
+    position:absolute; inset:0; z-index:2; pointer-events:none;
+    background:var(--ground); opacity:0;
+  }
+  .vignette{
+    position:absolute; inset:0; z-index:4; pointer-events:none;
+    box-shadow: inset 0 0 16vw 4vw rgba(var(--ground-rgb),0.8);
   }
 
-  .eyebrow{
-    font-family:'IBM Plex Mono', monospace; font-size:0.72rem; letter-spacing:0.28em;
-    color:var(--brass); text-transform:uppercase; margin-bottom:0.8rem;
+  .depth-gauge{
+    position:absolute; right:1.6rem; top:50%; transform:translateY(-50%);
+    z-index:5; display:flex; flex-direction:column; align-items:center; gap:0.6rem;
+    font-family:'IBM Plex Mono', monospace; color:var(--bone-dim);
   }
-  h1{
+  .depth-gauge .g-label{font-size:0.6rem; letter-spacing:0.2em; text-transform:uppercase;}
+  .depth-gauge .g-track{width:2px; height:34vh; background:rgba(237,230,216,0.18); position:relative; border-radius:2px;}
+  .depth-gauge .g-fill{position:absolute; left:0; top:0; width:100%; background:var(--ochre); border-radius:2px; height:0%;}
+  .depth-gauge .g-depth{font-size:0.68rem; letter-spacing:0.06em; color:var(--ochre);}
+  @media (max-width:640px){ .depth-gauge{right:0.9rem;} .depth-gauge .g-track{height:26vh;} }
+
+  .hero-text{ position:relative; z-index:5; text-align:center; padding:0 1.5rem; max-width:44rem; }
+  .hero-eyebrow{
+    font-family:'IBM Plex Mono', monospace; font-size:0.72rem; letter-spacing:0.32em;
+    text-transform:uppercase; color:var(--ochre); margin-bottom:1.1rem;
+  }
+  .hero-text h1{
     font-family:'Fraunces', serif; font-weight:500; font-optical-sizing:auto;
-    font-size:clamp(2.6rem, 8vw, 5.2rem); line-height:1; text-align:center;
-    margin:0 0 1.3rem; letter-spacing:-0.01em;
+    font-size:clamp(2.8rem, 8vw, 6rem); line-height:0.98; margin:0 0 1rem;
+    color:var(--bone); letter-spacing:-0.01em;
+    text-shadow:
+      0 1px 0 rgba(255,255,255,0.07),
+      0 2px 4px rgba(0,0,0,0.55),
+      0 12px 34px rgba(0,0,0,0.55);
   }
-  .subheading{
-    font-family:'Spectral', serif; font-style:italic; font-weight:300;
-    color:var(--fog); font-size:1.15rem; text-align:center;
-    margin:0 0 2.2rem; max-width:34ch;
+  .hero-text .subheading{
+    font-family:'Spectral', serif; font-style:italic; font-weight:400;
+    font-size:clamp(1rem, 2.2vw, 1.28rem); color:var(--bone-dim);
   }
-  .mission{
-    max-width:68ch; text-align:center; color:var(--mist);
-    font-size:1.02rem; line-height:1.7; margin:0 0 1.4rem;
+  /* ---------- Passage (cave mouth) ---------- */
+  /* Taller than before — this section now carries two readable
+     blurbs of copy, not just a one-line cue, so it needs real scroll
+     distance to give each one room to breathe. */
+  #passage{height:340vh;}
+  .passage-veil{ position:absolute; inset:0; z-index:2; pointer-events:none; background:var(--ground); opacity:0; }
+  .passage-copy{
+    position:absolute; z-index:5; left:50%; top:42%; transform:translate(-50%,-50%);
+    text-align:center; padding:0 1.5rem; width:100%; max-width:36rem;
   }
-  .mission:last-of-type{margin-bottom:4.5rem;}
+  .passage-copy .hero-eyebrow{ opacity:0; margin-bottom:1rem; }
+  .passage-blurb{
+    position:absolute; left:0; right:0; top:1.8rem; margin:0 auto;
+    font-family:'Spectral', serif; font-style:italic; color:var(--bone-dim);
+    font-size:clamp(0.92rem, 1.6vw, 1.05rem); line-height:1.8; opacity:0;
+  }
 
-  .room-grid{
-    display:grid; grid-template-columns:repeat(auto-fit, minmax(230px, 1fr));
-    gap:1.4rem; width:100%; max-width:1080px;
+  /* ---------- Lobby (normal flow) ---------- */
+  .lobby{
+    position:relative; z-index:2; background:var(--ground); overflow:hidden;
+    padding:7rem 1.5rem 6rem; display:flex; flex-direction:column; align-items:center;
   }
-  .room-card{
-    position:relative;
-    display:flex; flex-direction:column;
-    padding:2rem 1.7rem 1.8rem;
+  /* Holds still — no pan, no rise — and simply dissolves into view as
+     the section scrolls into frame, picking up where the passage's cave
+     image fades to black. Edge to edge, full-bleed cover. Progress is
+     still read continuously off scroll position in JS below, just
+     applied to opacity only now. */
+  .lobby-bg{
+    position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+    z-index:0; opacity:0; will-change:opacity;
+  }
+  /* warm light source, as if a lamp sits just above the room grid —
+     echoes the old brass door-glow, recolored to the new ochre accent */
+  .lobby-glow{
+    position:absolute; inset:0; z-index:1; pointer-events:none;
+    background:radial-gradient(ellipse 60% 42% at 50% 18%, rgba(175,157,46,0.24), transparent 62%);
+  }
+  /* scrim: fades to solid ground at the top/bottom seams (matches the
+     passage section above and whatever follows) and darkens the
+     middle enough to keep body copy and card text legible */
+  .lobby-scrim{
+    position:absolute; inset:0; z-index:1; pointer-events:none;
+    background:linear-gradient(to bottom,
+      var(--ground) 0%, rgba(var(--ground-rgb),0.35) 10%,
+      rgba(var(--ground-rgb),0.6) 45%, rgba(var(--ground-rgb),0.6) 70%,
+      var(--ground) 100%);
+  }
+  .lobby-head{ position:relative; z-index:2; max-width:46rem; text-align:center; margin-bottom:4rem; }
+  .lobby-eyebrow{
+    font-family:'IBM Plex Mono', monospace; font-size:0.7rem; letter-spacing:0.28em;
+    text-transform:uppercase; color:var(--ochre); margin-bottom:0.9rem;
+  }
+  .lobby-head h2{
+    font-family:'Fraunces', serif; font-weight:500; font-size:clamp(2rem, 5vw, 3.2rem);
+    margin:0 0 1.4rem; color:var(--bone);
+  }
+  /* ============================================================
+     Room corridor — a pinned horizontal gallery. Vertical scroll
+     still drives everything (same sectionProgress/translate pattern
+     as the descent and passage above), so it stays native: no wheel
+     hijacking, works with touch and keyboard, and degrades to a
+     plain wrapped grid under prefers-reduced-motion below.
+     ============================================================ */
+  #corridor{ height:440vh; }
+  .corridor-sticky{ display:block; }
+  .corridor-bg{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0.2; z-index:0; }
+  .corridor-scrim{
+    position:absolute; inset:0; z-index:1; pointer-events:none;
+    background:linear-gradient(to bottom, var(--ground) 0%, transparent 16%, transparent 80%, var(--ground) 100%);
+  }
+  .corridor-track{
+    position:absolute; top:0; left:0; height:100%; z-index:2;
+    display:flex; align-items:stretch; padding:0 10vw; gap:7vw; will-change:transform;
+  }
+  /* Cards are solid, lifted objects — filled panels floating in front of
+     the cave wall, not text washed over it. Kept short and set well
+     apart, with a lot of bare cave wall breathing between them, so the
+     walk down the corridor reads as passing niches in a tunnel rather
+     than flipping through a deck of full-height slides. Height +
+     vertical alignment vary per room so the row reads as an uneven,
+     editorial rhythm (echoing the tilted/offset cards on unseen.co),
+     and JS layers a scale/lift/rotate "settle into focus" motion on top
+     as each card nears center. */
+  .room-panel{
+    position:relative; flex:0 0 auto; width:min(66vw, 320px); height:42%;
+    align-self:flex-end;
+    display:flex; align-items:flex-end;
+    padding:1.8rem 1.7rem;
     border-radius:3px;
-    text-decoration:none; color:inherit;
-    border:1px solid rgba(242,239,232,0.1);
-    transition:transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
-    min-height:170px;
+    background:var(--ground);
+    border:1px solid rgba(237,230,216,0.09);
+    box-shadow:0 1.4rem 3.2rem rgba(0,0,0,0.48), inset 0 1px 0 rgba(237,230,216,0.06);
+    transition:box-shadow .3s ease;
+    will-change:transform;
   }
-  .card-knob{
-    position:absolute; right:12px; top:50%; transform:translateY(-50%);
-    width:15px; height:32px;
-    stroke:var(--brass-dim);
-    transition:stroke 0.3s ease, filter 0.3s ease;
+  .room-panel.size-sm{ width:min(56vw, 268px); height:34%; }
+  .room-panel.size-md{ width:min(66vw, 330px); height:46%; }
+  .room-panel.size-lg{ width:min(76vw, 400px); height:56%; }
+  .room-panel.size-xl,
+  .room-panel.available{ width:min(90vw, 560px); height:66%; }
+  .room-panel.align-top{ align-self:flex-start; }
+  .room-panel.align-mid{ align-self:center; }
+  .room-panel.align-base{ align-self:flex-end; }
+  .room-panel-link{ display:flex; align-items:flex-end; width:100%; height:100%; text-decoration:none; color:inherit; }
+  /* Focus dimming (scroll-driven, set as --focus by JS) is applied only
+     to the content, never to .room-panel itself — the card's own fill
+     stays fully opaque at all times, so it never reads as see-through
+     even when its content has faded for being off-center. */
+  .room-panel-index, .room-panel-body, .room-panel-mark{
+    opacity:calc(0.4 + var(--focus, 1) * 0.6);
+    transition:opacity .2s linear;
   }
-  .card-knob .knob-boss{fill:var(--brass-dim); stroke:none; transition:fill 0.3s ease;}
-  .room-card.available .card-knob{
-    stroke:var(--brass);
-    filter:drop-shadow(0 0 4px rgba(166,118,61,0.55));
+  .room-panel-index{
+    position:absolute; top:2rem; left:1.9rem; z-index:1;
+    font-family:'Fraunces', serif; font-weight:300; font-size:2.6rem; line-height:1;
+    color:rgba(237,230,216,0.16);
   }
-  .room-card.available .card-knob .knob-boss{fill:var(--brass);}
-  .room-card.available:hover .card-knob, .room-card.available:focus-visible .card-knob{
-    filter:drop-shadow(0 0 8px rgba(166,118,61,0.9));
+  .room-panel.size-lg .room-panel-index,
+  .room-panel.size-xl .room-panel-index,
+  .room-panel.available .room-panel-index{ font-size:3.2rem; }
+  .room-panel.available .room-panel-index{ color:rgba(175,157,46,0.4); }
+  .room-panel-body{ position:relative; z-index:1; max-width:26rem; }
+  .room-panel-eyebrow{
+    display:block; font-family:'IBM Plex Mono', monospace; font-size:0.64rem;
+    letter-spacing:0.2em; text-transform:uppercase; color:var(--ochre); margin-bottom:0.7rem;
   }
-  .room-card.available{
-    background:linear-gradient(155deg, rgba(201,168,118,0.12), rgba(220,211,180,0.06));
+  .room-panel h3{ font-family:'Fraunces', serif; font-weight:500; font-size:clamp(1.3rem, 2.4vw, 2.1rem); margin:0 0 0.7rem; }
+  .room-panel p{ font-family:'Spectral', serif; font-style:italic; color:var(--bone-dim); font-size:0.9rem; line-height:1.55; margin:0 0 1.5rem; }
+  .room-panel-status{ font-family:'IBM Plex Mono', monospace; font-size:0.64rem; letter-spacing:0.1em; text-transform:uppercase; color:rgba(237,230,216,0.5); }
+  .room-panel.available .room-panel-status{ color:var(--ochre); }
+  .room-panel.available{
     cursor:pointer;
+    background:var(--umber);
+    border-color:rgba(175,157,46,0.38);
+    box-shadow:0 1.6rem 4rem rgba(0,0,0,0.55), 0 0 0 1px rgba(175,157,46,0.14), inset 0 1px 0 rgba(237,230,216,0.08);
   }
-  .room-card.available:hover, .room-card.available:focus-visible{
-    transform:translateY(-4px);
-    border-color:var(--brass);
-    background:linear-gradient(155deg, rgba(201,168,118,0.2), rgba(220,211,180,0.1));
-    outline:none;
+  .room-panel.locked{ filter:saturate(0.7); }
+  .room-panel-mark{ position:absolute; right:1.5rem; bottom:1.9rem; width:14px; height:30px; color:var(--clay); z-index:1; }
+  .room-panel.available .room-panel-mark{ color:var(--ochre); }
+  .room-panel.available:hover,
+  .room-panel.available:focus-within{ box-shadow:0 1.6rem 4.4rem rgba(0,0,0,0.6), 0 0 0 1px rgba(175,157,46,0.28), inset 0 1px 0 rgba(237,230,216,0.1); }
+  .room-panel.available:hover .room-panel-index,
+  .room-panel.available:focus-within .room-panel-index{ color:rgba(175,157,46,0.65); }
+  .room-panel.available:focus-within{ outline:1px solid var(--ochre); outline-offset:-1px; }
+
+  .corridor-hud{
+    position:absolute; left:2.1rem; bottom:2.1rem; z-index:3;
+    display:flex; align-items:center; gap:0.7rem;
+    font-family:'IBM Plex Mono', monospace; font-size:0.62rem; letter-spacing:0.14em;
+    text-transform:uppercase; color:var(--bone-dim);
   }
-  .room-card.locked{
-    background:rgba(242,239,232,0.03);
-    opacity:0.5;
+  .corridor-hud .bar{ width:60px; height:2px; background:rgba(237,230,216,0.18); position:relative; border-radius:2px; }
+  .corridor-hud .bar-fill{ position:absolute; left:0; top:0; height:100%; width:0%; background:var(--ochre); border-radius:2px; }
+  @media (max-width:640px){
+    .room-panel{ padding:1.5rem 1.3rem; }
+    .corridor-hud{ font-size:0.58rem; }
   }
-  .room-index{
-    font-family:'IBM Plex Mono', monospace; font-size:0.68rem; letter-spacing:0.16em;
-    color:var(--brass); margin-bottom:0.9rem; text-transform:uppercase;
+
+  /* Reduced motion: drop the pin/translate entirely and fall back to
+     a plain wrapped grid so every room stays reachable by ordinary
+     scrolling, with nothing sliding or pinning. */
+  @media (prefers-reduced-motion: reduce){
+    #corridor{ height:auto; }
+    .corridor-sticky{ position:static; height:auto; overflow:visible; }
+    .corridor-bg, .corridor-scrim, .corridor-hud{ display:none; }
+    .corridor-track{
+      position:static; flex-wrap:wrap; padding:5rem 1.5rem; gap:1.4rem; justify-content:center;
+    }
+    .room-panel, .room-panel.size-sm, .room-panel.size-md, .room-panel.size-lg,
+    .room-panel.size-xl, .room-panel.available{
+      width:min(100%, 340px); height:auto; align-self:auto !important;
+      opacity:1 !important; transform:none !important;
+    }
   }
-  .room-card h2{
-    font-family:'Fraunces', serif; font-weight:500; font-size:1.28rem; margin:0 0 0.5rem;
-  }
-  .room-card p{
-    font-family:'Spectral', serif; font-style:italic; font-size:0.88rem;
-    color:var(--mist); margin:0 0 1.4rem; line-height:1.5;
-  }
-  .room-status{
-    margin-top:auto;
-    font-family:'IBM Plex Mono', monospace; font-size:0.66rem; letter-spacing:0.1em;
-    text-transform:uppercase; color:var(--fog);
-  }
-  .room-card.available .room-status{color:var(--brass);}
 </style>
 </head>
 <body>
 
+  <div class="dust-layer" id="dustLayer" aria-hidden="true"></div>
+  <div class="scroll-notice" id="scrollNotice" aria-hidden="true">
+    <span>Scroll</span>
+    <svg class="chevron" viewBox="0 0 11 7" fill="none">
+      <path d="M1 1L5.5 6L10 1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+
   <svg width="0" height="0" style="position:absolute">
     <defs>
-      <symbol id="icon-knob" viewBox="0 0 24 52">
-        <path d="M12 2 L18 6 L20 12 L20 40 L18 46 L12 50 L6 46 L4 40 L4 12 L6 6 Z" fill="none" stroke-width="1.4"/>
-        <circle cx="12" cy="16" r="6" fill="none" stroke-width="1.3"/>
-        <circle cx="12" cy="16" r="3.2" fill="none" stroke-width="1"/>
-        <circle class="knob-boss" cx="12" cy="16" r="1.3"/>
-        <circle class="knob-boss" cx="12" cy="35" r="1.8"/>
-        <path class="knob-boss" d="M10.6 36 L13.4 36 L12.7 41 L11.3 41 Z" stroke="none"/>
+      <symbol id="icon-strata" viewBox="0 0 24 40">
+        <rect x="2" y="2" width="20" height="8" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/>
+        <rect x="4" y="14" width="16" height="8" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/>
+        <rect x="6" y="26" width="12" height="8" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/>
+        <circle cx="12" cy="30" r="1.4" fill="currentColor" stroke="none"/>
       </symbol>
     </defs>
   </svg>
 
-  <div class="door-glow" aria-hidden="true"></div>
-  <div class="dust-layer" id="dustLayer" aria-hidden="true"></div>
-  <svg class="door-bg" viewBox="0 0 300 700" aria-hidden="true">
-    <rect x="20" y="10" width="260" height="680" rx="3" fill="none" stroke="var(--brass-dim)" stroke-width="2"/>
-    <rect x="34" y="24" width="232" height="652" rx="2" fill="none" stroke="var(--brass-dim)" stroke-width="1"/>
-    <!-- upper panels -->
-    <rect x="52" y="48" width="88" height="255" fill="none" stroke="var(--brass-dim)" stroke-width="1.4"/>
-    <rect x="64" y="60" width="64" height="231" fill="none" stroke="var(--brass-dim)" stroke-width="1"/>
-    <rect x="160" y="48" width="88" height="255" fill="none" stroke="var(--brass-dim)" stroke-width="1.4"/>
-    <rect x="172" y="60" width="64" height="231" fill="none" stroke="var(--brass-dim)" stroke-width="1"/>
-    <!-- lower panels -->
-    <rect x="52" y="335" width="88" height="300" fill="none" stroke="var(--brass-dim)" stroke-width="1.4"/>
-    <rect x="64" y="347" width="64" height="276" fill="none" stroke="var(--brass-dim)" stroke-width="1"/>
-    <rect x="160" y="335" width="88" height="300" fill="none" stroke="var(--brass-dim)" stroke-width="1.4"/>
-    <rect x="172" y="347" width="64" height="276" fill="none" stroke="var(--brass-dim)" stroke-width="1"/>
-    <!-- knob plate + knob -->
-    <circle cx="248" cy="358" r="10" fill="none" stroke="var(--brass)" stroke-width="1.6"/>
-    <circle cx="248" cy="358" r="2.4" fill="var(--brass)"/>
-    <!-- keyhole -->
-    <circle cx="248" cy="385" r="3" fill="var(--brass)"/>
-    <rect x="246.3" y="386" width="3.4" height="8" fill="var(--brass)"/>
-  </svg>
+  <!-- ================= Descent: hero -> down the ladder shaft ================= -->
+  <section class="pin-section" id="descent" aria-label="Descent into the excavation">
+    <div class="pin-sticky">
+      <img class="descent-img" id="descentImg" src="img-ladder.jpg" alt="" aria-hidden="true">
+      <div class="descent-veil" id="descentVeil"></div>
+      <div class="vignette" aria-hidden="true"></div>
 
-  <div class="page-content">
-  <div class="eyebrow">An Online Exhibition</div>
-  <h1>Passages</h1>
-  <p class="subheading">Step through, room by room, into the world the Bible actually came from</p>
-  <p class="mission">Passages is a museum built from rooms, not chapters — each door opening onto another piece of the biblical world's ancient setting: its stories, symbols, languages, cultures, and neighboring literature. Scripture and ancient Near Eastern texts are brought into conversation, not to erase their differences or prescribe a conclusion, but to reveal the world that actually surrounded them.</p>
-  <p class="mission">You are invited to look closely, engage with evidence from the cultures surrounding the biblical texts, and consider a more expansive understanding of the world their authors inhabited. Every interpretation presented here is connected to named scholars and traceable sources, allowing curiosity—not certainty—to lead the way.</p>
+      <div class="depth-gauge" id="depthGauge" aria-hidden="true">
+        <span class="g-label">Surface</span>
+        <div class="g-track"><div class="g-fill" id="gaugeFill"></div></div>
+        <span class="g-depth" id="gaugeDepth">0m</span>
+      </div>
 
-  <div class="room-grid">
-    <div class="room-card locked" aria-disabled="true">
-      <span class="room-index">Room</span>
-      <h2>Mirror Room</h2>
-      <p>Which lens are you reading through?</p>
-      <span class="room-status">In development</span>
-      <svg class="card-knob"><use href="#icon-knob"/></svg>
-    </div>
-    <div class="room-card locked" aria-disabled="true">
-      <span class="room-index">Room</span>
-      <h2>Map Room</h2>
-      <p>Where Ur, Ugarit, and Israel actually sit.</p>
-      <span class="room-status">In development</span>
-      <svg class="card-knob"><use href="#icon-knob"/></svg>
-    </div>
-    <a class="room-card available" href="parallel-room.html">
-      <span class="room-index">Room</span>
-      <h2>Parallel Room</h2>
-      <p>Ancient Near Eastern texts, side by side with Scripture.</p>
-      <span class="room-status">Enter →</span>
-      <svg class="card-knob"><use href="#icon-knob"/></svg>
-    </a>
-    <div class="room-card locked" aria-disabled="true">
-      <span class="room-index">Room</span>
-      <h2>Letters Room</h2>
-      <p>An imagined letter from the ancient author.</p>
-      <span class="room-status">In development</span>
-      <svg class="card-knob"><use href="#icon-knob"/></svg>
-    </div>
-    <div class="room-card locked" aria-disabled="true">
-      <span class="room-index">Room</span>
-      <h2>Reading Room</h2>
-      <p>The sources, browsable like a shelf.</p>
-      <span class="room-status">In development</span>
-      <svg class="card-knob"><use href="#icon-knob"/></svg>
-    </div>
-    <div class="room-card locked" aria-disabled="true">
-      <span class="room-index">Room</span>
-      <h2>Echo Room</h2>
-      <p>Original music and poetry, in response.</p>
-      <span class="room-status">In development</span>
-      <svg class="card-knob"><use href="#icon-knob"/></svg>
-    </div>
-    <div class="room-card locked" aria-disabled="true">
-      <span class="room-index">Room</span>
-      <h2>Tension Room</h2>
-      <p>Where even the experts don't agree.</p>
-      <span class="room-status">In development</span>
-      <svg class="card-knob"><use href="#icon-knob"/></svg>
-    </div>
-    <div class="room-card locked" aria-disabled="true">
-      <span class="room-index">Room</span>
-      <h2>Quiz Room</h2>
-      <p>How much of this world can you place?</p>
-      <span class="room-status">In development</span>
-      <svg class="card-knob"><use href="#icon-knob"/></svg>
-    </div>
-  </div>
-  </div>
+      <div class="hero-text" id="heroText">
+        <p class="hero-eyebrow">Begin the Descent</p>
+        <h1>A World<br>Rediscovered</h1>
+        <p class="subheading">Finding New Meaning in Ancient Stories</p>
+      </div>
 
-<script src="atmosphere.js"></script>
+    </div>
+  </section>
+
+  <!-- ================= Passage: arrival at the cave mouth, moving inward ================= -->
+  <section class="pin-section" id="passage" aria-label="Entering the passage">
+    <div class="pin-sticky">
+      <img class="passage-img" id="passageImg" src="img-cave.jpg" alt="" aria-hidden="true" style="opacity:0">
+      <div class="passage-veil" id="passageVeil" style="opacity:1"></div>
+      <div class="passage-copy">
+        <p class="hero-eyebrow" id="passageEyebrow">The Passage</p>
+        <p class="passage-blurb" id="blurb1">A World Rediscovered is built in layers, not chapters — each room a stratum uncovered, opening onto another piece of the ancient setting behind Scripture: its stories, symbols, languages, cultures, and neighboring literature. Scripture and Ancient Near Eastern texts are brought into conversation, not to erase their differences or prescribe a conclusion, but to reveal the world that actually surrounded them.</p>
+        <p class="passage-blurb" id="blurb2">You are invited to look closely, engage with evidence from the cultures surrounding the biblical texts, and consider a more expansive understanding of the world their authors inhabited. Every interpretation presented here is connected to named scholars and traceable sources, allowing curiosity—not certainty—to lead the way.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= Lobby: choose a room ================= -->
+  <section class="lobby" id="lobby">
+    <img class="lobby-bg" id="lobbyBg" src="img-cave-wall.jpg" alt="" aria-hidden="true">
+    <div class="lobby-glow" aria-hidden="true"></div>
+    <div class="lobby-scrim" aria-hidden="true"></div>
+    <div class="lobby-head">
+      <p class="lobby-eyebrow">The Lobby</p>
+      <h2>Choose Where to Begin</h2>
+    </div>
+  </section>
+
+  <!-- ================= Corridor: horizontal walk past the rooms ================= -->
+  <section class="pin-section" id="corridor" aria-label="The rooms">
+    <div class="pin-sticky corridor-sticky">
+      <img class="corridor-bg" src="img-cave-wall.jpg" alt="" aria-hidden="true">
+      <div class="corridor-scrim" aria-hidden="true"></div>
+
+      <div class="corridor-track" id="corridorTrack">
+        <article class="room-panel locked size-sm align-base" data-tilt="-1.2" aria-disabled="true">
+          <span class="room-panel-index">01</span>
+          <div class="room-panel-body">
+            <span class="room-panel-eyebrow">Room</span>
+            <h3>Mirror Room</h3>
+            <p>Which lens are you reading through?</p>
+            <span class="room-panel-status">In development</span>
+          </div>
+          <svg class="room-panel-mark"><use href="#icon-strata"/></svg>
+        </article>
+
+        <article class="room-panel locked size-lg align-top" data-tilt="0.8" aria-disabled="true">
+          <span class="room-panel-index">02</span>
+          <div class="room-panel-body">
+            <span class="room-panel-eyebrow">Room</span>
+            <h3>Map Room</h3>
+            <p>Where Ur, Ugarit, and Israel actually sit.</p>
+            <span class="room-panel-status">In development</span>
+          </div>
+          <svg class="room-panel-mark"><use href="#icon-strata"/></svg>
+        </article>
+
+        <article class="room-panel available size-xl align-mid" data-tilt="0">
+          <a class="room-panel-link" href="parallel-room.html">
+            <span class="room-panel-index">03</span>
+            <div class="room-panel-body">
+              <span class="room-panel-eyebrow">Room</span>
+              <h3>Parallel Room</h3>
+              <p>Ancient Near Eastern texts, side by side with Scripture.</p>
+              <span class="room-panel-status">Enter →</span>
+            </div>
+            <svg class="room-panel-mark"><use href="#icon-strata"/></svg>
+          </a>
+        </article>
+
+        <article class="room-panel locked size-sm align-mid" data-tilt="-0.6" aria-disabled="true">
+          <span class="room-panel-index">04</span>
+          <div class="room-panel-body">
+            <span class="room-panel-eyebrow">Room</span>
+            <h3>Letters Room</h3>
+            <p>An imagined letter from the ancient author.</p>
+            <span class="room-panel-status">In development</span>
+          </div>
+          <svg class="room-panel-mark"><use href="#icon-strata"/></svg>
+        </article>
+
+        <article class="room-panel locked size-md align-top" data-tilt="1.4" aria-disabled="true">
+          <span class="room-panel-index">05</span>
+          <div class="room-panel-body">
+            <span class="room-panel-eyebrow">Room</span>
+            <h3>Reading Room</h3>
+            <p>The sources, browsable like a shelf.</p>
+            <span class="room-panel-status">In development</span>
+          </div>
+          <svg class="room-panel-mark"><use href="#icon-strata"/></svg>
+        </article>
+
+        <article class="room-panel locked size-sm align-base" data-tilt="-1.8" aria-disabled="true">
+          <span class="room-panel-index">06</span>
+          <div class="room-panel-body">
+            <span class="room-panel-eyebrow">Room</span>
+            <h3>Echo Room</h3>
+            <p>Original music and poetry, in response.</p>
+            <span class="room-panel-status">In development</span>
+          </div>
+          <svg class="room-panel-mark"><use href="#icon-strata"/></svg>
+        </article>
+
+        <article class="room-panel locked size-lg align-mid" data-tilt="1" aria-disabled="true">
+          <span class="room-panel-index">07</span>
+          <div class="room-panel-body">
+            <span class="room-panel-eyebrow">Room</span>
+            <h3>Tension Room</h3>
+            <p>Where even the experts don't agree.</p>
+            <span class="room-panel-status">In development</span>
+          </div>
+          <svg class="room-panel-mark"><use href="#icon-strata"/></svg>
+        </article>
+
+        <article class="room-panel locked size-md align-base" data-tilt="-1" aria-disabled="true">
+          <span class="room-panel-index">08</span>
+          <div class="room-panel-body">
+            <span class="room-panel-eyebrow">Room</span>
+            <h3>Quiz Room</h3>
+            <p>How much of this world can you place?</p>
+            <span class="room-panel-status">In development</span>
+          </div>
+          <svg class="room-panel-mark"><use href="#icon-strata"/></svg>
+        </article>
+      </div>
+
+      <div class="corridor-hud" id="corridorHud" aria-hidden="true">
+        <span id="hudIndex">01 / 08</span>
+        <div class="bar"><div class="bar-fill" id="hudFill"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <script src="atmosphere.js"></script>
+  <script>
+  /* ============================================================
+     Scroll-progress engine for the two pinned sections.
+     Pure scrollY math (no preventDefault / no scroll-jacking):
+     native scroll, back button, keyboard nav and screen readers
+     all keep working. Respects prefers-reduced-motion by skipping
+     transform-based travel/scale and keeping only simple crossfades.
+     ============================================================ */
+  (function () {
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const descentSection = document.getElementById('descent');
+    const passageSection  = document.getElementById('passage');
+    const descentImg = document.getElementById('descentImg');
+    const descentVeil = document.getElementById('descentVeil');
+    const depthGauge = document.getElementById('depthGauge');
+    const gaugeFill = document.getElementById('gaugeFill');
+    const gaugeDepth = document.getElementById('gaugeDepth');
+    const heroText = document.getElementById('heroText');
+    const passageImg = document.getElementById('passageImg');
+    const passageVeil = document.getElementById('passageVeil');
+    const passageEyebrow = document.getElementById('passageEyebrow');
+    const blurb1 = document.getElementById('blurb1');
+    const blurb2 = document.getElementById('blurb2');
+
+    const scrollNotice = document.getElementById('scrollNotice');
+
+    const lobbySection = document.getElementById('lobby');
+    const lobbyBg = document.getElementById('lobbyBg');
+
+    const corridorSection = document.getElementById('corridor');
+    const corridorSticky = corridorSection ? corridorSection.querySelector('.corridor-sticky') : null;
+    const corridorTrack = document.getElementById('corridorTrack');
+    const hudFill = document.getElementById('hudFill');
+    const hudIndex = document.getElementById('hudIndex');
+    const roomPanels = corridorTrack ? Array.from(corridorTrack.querySelectorAll('.room-panel')) : [];
+
+    function clamp01(v) { return Math.min(1, Math.max(0, v)); }
+    function mapRange(v, inMin, inMax, outMin, outMax) {
+      const t = clamp01((v - inMin) / (inMax - inMin));
+      return outMin + t * (outMax - outMin);
+    }
+    /* A "beat" of copy: invisible, fades in, holds, fades out,
+       invisible — used for the two passage blurbs so each gets its
+       own independent in/hold/out window within the section. beatY
+       mirrors the same phases so the text settles in from a slight
+       drift and continues drifting as it fades back out. */
+    function beatOpacity(p, inStart, inEnd, outStart, outEnd) {
+      if (p < inStart) return 0;
+      if (p < inEnd) return mapRange(p, inStart, inEnd, 0, 1);
+      if (p < outStart) return 1;
+      if (p < outEnd) return 1 - mapRange(p, outStart, outEnd, 0, 1);
+      return 0;
+    }
+    function beatY(p, inStart, inEnd, outStart, outEnd) {
+      if (p < inStart) return 14;
+      if (p < inEnd) return mapRange(p, inStart, inEnd, 14, 0);
+      if (p < outStart) return 0;
+      if (p < outEnd) return mapRange(p, outStart, outEnd, 0, -14);
+      return -14;
+    }
+    function sectionProgress(el) {
+      const rect = el.getBoundingClientRect();
+      const total = el.offsetHeight - window.innerHeight;
+      if (total <= 0) return 1;
+      return clamp01(-rect.top / total);
+    }
+
+    let ticking = false;
+    function update() {
+      ticking = false;
+      const dProgress = sectionProgress(descentSection);
+      const pProgress = sectionProgress(passageSection);
+
+      /* persistent "keep scrolling" cue: visible across the whole page,
+         only fades once you're within reach of the very bottom, so it
+         never lingers asking you to scroll when there's nowhere left. */
+      if (scrollNotice) {
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const pageProgress = docHeight > 0 ? clamp01(window.scrollY / docHeight) : 0;
+        scrollNotice.style.opacity = String(1 - mapRange(pageProgress, 0.94, 1, 0, 1));
+      }
+
+      if (!reduceMotion) {
+        const maxTravel = Math.max(0, descentImg.offsetHeight - window.innerHeight);
+        descentImg.style.transform = 'translateY(' + (-dProgress * maxTravel) + 'px)';
+      }
+      /* ladder stays lit almost the whole way down, then darkens over
+         the final 10% — enough runway to read as a fade rather than a
+         cut, without holding on a long dead-black tail. */
+      descentVeil.style.opacity = String(mapRange(dProgress, 0.9, 1, 0, 1));
+
+      gaugeFill.style.height = (dProgress * 100).toFixed(1) + '%';
+      gaugeDepth.textContent = '-' + Math.round(dProgress * 14) + 'm';
+      /* gauge exits early and on its own schedule — fully gone before
+         the darken-to-black even starts, so it doesn't feel like it's
+         hanging around waiting for the screen to go dark */
+      const gaugeFade = mapRange(dProgress, 0.8, 0.95, 0, 1);
+      depthGauge.style.opacity = String(1 - gaugeFade);
+      if (!reduceMotion) depthGauge.style.transform = 'translateY(calc(-50% - ' + (gaugeFade * 26) + 'px))';
+
+      const heroFade = 1 - mapRange(dProgress, 0, 0.22, 0, 1);
+      heroText.style.opacity = String(heroFade);
+      if (!reduceMotion) heroText.style.transform = 'translateY(' + (dProgress * -40) + 'px)';
+
+      /* the cave dissolves in slowly, then the section carries two
+         readable blurbs in sequence (each its own fade/drift in,
+         hold, fade/drift out "beat"), before darkening for the
+         Lobby handoff:
+         0.00-0.20  cave dissolves in from black (slow, graceful)
+         0.20-0.46  blurb 1 in -> hold -> out
+         0.52-0.80  blurb 2 in -> hold -> out
+         0.85-1.00  darkens back to black, handing off to the Lobby */
+      const CAVE_FADE_END = 0.20;
+      const DARK_START = 0.85;
+      if (!reduceMotion) {
+        const zoom = 1 + pProgress * 0.4;
+        passageImg.style.transform = 'scale(' + zoom + ') translateY(' + (-pProgress * 20) + 'px)';
+      }
+      passageImg.style.opacity = String(mapRange(pProgress, 0, CAVE_FADE_END, 0, 1));
+      passageVeil.style.opacity = String(
+        pProgress < CAVE_FADE_END
+          ? 1 - mapRange(pProgress, 0, CAVE_FADE_END, 0, 1)
+          : mapRange(pProgress, DARK_START, 1, 0, 1)
+      );
+
+      const eyebrowOpacity =
+        pProgress < 0.26 ? mapRange(pProgress, 0.2, 0.26, 0, 1)
+        : pProgress < DARK_START ? 1
+        : 1 - mapRange(pProgress, DARK_START, 1, 0, 1);
+      passageEyebrow.style.opacity = String(eyebrowOpacity);
+
+      const b1op = beatOpacity(pProgress, 0.2, 0.26, 0.4, 0.46);
+      const b2op = beatOpacity(pProgress, 0.52, 0.58, 0.74, 0.8);
+      blurb1.style.opacity = String(b1op);
+      blurb2.style.opacity = String(b2op);
+      if (!reduceMotion) {
+        blurb1.style.transform = 'translateY(' + beatY(pProgress, 0.2, 0.26, 0.4, 0.46) + 'px)';
+        blurb2.style.transform = 'translateY(' + beatY(pProgress, 0.52, 0.58, 0.74, 0.8) + 'px)';
+      }
+
+      /* lobby: the cave-wall image holds still and simply dissolves into
+         view as the section scrolls into frame — no pan, no rise.
+         Reveal progress is read straight off the section's own position
+         (0 as its top edge enters near the bottom of the viewport, 1
+         once it has settled near the top), so it's continuous and
+         reverses cleanly on scroll-up. */
+      if (lobbySection && lobbyBg) {
+        const lobbyRect = lobbySection.getBoundingClientRect();
+        const revealProgress = mapRange(lobbyRect.top, window.innerHeight * 0.9, window.innerHeight * 0.35, 0, 1);
+        lobbyBg.style.opacity = String(revealProgress * 0.24);
+      }
+
+      /* corridor: vertical scroll still drives everything, it just
+         maps to translateX instead of translateY/scale — same
+         native-scroll pattern as above, so back button, keyboard
+         paging and touch scroll all keep working normally. */
+      if (corridorSection && corridorTrack && corridorSticky) {
+        const cProgress = sectionProgress(corridorSection);
+        if (!reduceMotion) {
+          const travel = Math.max(0, corridorTrack.scrollWidth - corridorSticky.clientWidth);
+          corridorTrack.style.transform = 'translateX(' + (-cProgress * travel) + 'px)';
+
+          const viewportCenter = window.innerWidth / 2;
+          roomPanels.forEach(function (panel) {
+            const r = panel.getBoundingClientRect();
+            const dist = Math.abs((r.left + r.width / 2) - viewportCenter);
+            const focus = clamp01(1 - dist / (window.innerWidth * 0.68));
+            const tilt = parseFloat(panel.dataset.tilt || '0');
+            const scale = 0.89 + focus * 0.13;
+            const lift = -focus * 16;
+            const rotate = tilt * (1 - focus * 0.75);
+            panel.style.setProperty('--focus', focus.toFixed(3));
+            panel.style.transform =
+              'translateY(' + lift + 'px) scale(' + scale + ') rotate(' + rotate + 'deg)';
+          });
+        }
+        if (hudFill) hudFill.style.width = (cProgress * 100).toFixed(1) + '%';
+        if (hudIndex && roomPanels.length) {
+          const active = Math.min(roomPanels.length, Math.round(cProgress * (roomPanels.length - 1)) + 1);
+          hudIndex.textContent = String(active).padStart(2, '0') + ' / ' + String(roomPanels.length).padStart(2, '0');
+        }
+      }
+    }
+
+    function onScroll() {
+      if (!ticking) { window.requestAnimationFrame(update); ticking = true; }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    update();
+  })();
+  </script>
 
 </body>
 </html>
