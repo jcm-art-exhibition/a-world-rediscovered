@@ -9,6 +9,9 @@
 .dust-layer{position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden;}
 .dust-mote{position:absolute; border-radius:50%; background:var(--whisper); opacity:var(--mote-op, 0.16);}
 
+/* Default motion: a gentle, undirected bob used by the page-wide dust
+   layer — same start/end state (0%/100% identical) so the infinite
+   loop never needs a position "jump". */
 @keyframes motefloat{
   0%, 100%{transform:translateY(0) translateX(0);}
   50%{transform:translateY(-24px) translateX(var(--drift-x, 12px));}
@@ -20,6 +23,26 @@
   animation-iteration-count:infinite;
   animation-delay:var(--delay, 0s);
 }
+
+/* Directional variant: a true one-way sweep, right to left, at a
+   constant (linear) speed — not a bounce-and-return. Each corridor
+   mote is spawned already off-screen to the right (see atmosphere.js:
+   xMin/xSpread put "left" beyond 100%) and travels a fixed -220vw,
+   which is far enough past the left edge to guarantee it has fully
+   exited (and is clipped by .corridor-sticky's overflow:hidden)
+   before the animation loops back to its 0% state — so the loop
+   point is invisible even though this is a one-way, not a
+   back-and-forth, animation. Scoped to .corridor-dust so the
+   page-wide layer keeps its plain undirected float. */
+@keyframes draftsweep{
+  0%{transform:translateX(0);}
+  100%{transform:translateX(-220vw);}
+}
+.corridor-dust .dust-mote.is-drifting{
+  animation-name:draftsweep;
+  animation-timing-function:linear;
+}
+
 @media (prefers-reduced-motion: reduce){
   .dust-mote.is-drifting{animation:none;}
 }
