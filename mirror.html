@@ -214,8 +214,8 @@
   }
   @media (prefers-reduced-motion: reduce){ .developing-line{ animation:none; transform:scaleY(1); } }
   .developing-text{
-    font-family:'Instrument Sans', sans-serif; font-weight:600; font-size:0.72rem; letter-spacing:0.1em;
-    text-transform:uppercase; color:var(--bone-dim);
+    font-family:'Instrument Sans', sans-serif; font-weight:400; font-style:italic; font-size:1.05rem; letter-spacing:0.01em;
+    text-transform:none; color:var(--bone-dim);
   }
 
   /* ---------- results reveal ----------
@@ -261,8 +261,15 @@
   .lb-fill::after{
     content:''; position:absolute; inset:0;
     background:linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-    transform:translateX(-100%); animation:lbShine 1.6s ease-out 0.5s 1;
+    transform:translateX(-100%);
   }
+  /* The shine sweep only plays once .is-playing is added, in sync
+     with the chart's own reveal (see playLensBars()) — previously it
+     ran on a fixed clock from the moment the bar was created, which
+     could be well before the chart was actually visible, so it (and
+     the width fill below) would finish while still hidden and the
+     chart would "flash" into view already fully lit. */
+  .lb-fill.is-playing::after{ animation:lbShine 1.6s ease-out 0.5s 1; }
   @keyframes lbShine{ to{ transform:translateX(100%); } }
   @media (prefers-reduced-motion: reduce){
     .lb-fill{ transition:none; }
@@ -340,26 +347,53 @@
     font-family:'Fraunces', serif; font-weight:500; font-size:clamp(1.7rem, 4.2vw, 2.6rem);
     line-height:1.3; color:var(--bone); margin-bottom:0.3rem;
   }
-  .reflection-line.is-dim{ color:var(--bone-dim); }
-  .reflection-divider{
-    width:2.4rem; height:1px; background:var(--ochre); margin:2.6rem auto; opacity:0.6;
-  }
   .reflection-line + .reflection-line{ margin-top:0; }
-  .reflection-group + .reflection-group{ margin-top:0; }
+  .reflection-line--nowrap{ white-space:nowrap; }
+  /* No divider rule between the two groups anymore (removed per request) —
+     this margin alone carries the separation that the divider + its
+     auto margins used to provide. */
+  .reflection-group + .reflection-group{ margin-top:3.2rem; }
   .reflection-continue{ margin-top:3rem; }
   .reflection-nav{
     display:flex; align-items:center; justify-content:center; gap:1rem; flex-wrap:wrap;
   }
   .reflection-nav .mirror-cta{ margin-top:0; }
-  .reflection-nav a:first-child:hover .arrow{ transform:translateX(-4px); }
   .mirror-cta.is-quiet{
     background:none; color:var(--bone-dim); cursor:default; opacity:0.7;
     border:1px solid rgba(237,230,216,0.3); box-shadow:none;
   }
   .mirror-cta.is-quiet:hover{ background:none; transform:none; box-shadow:none; }
-  .reflection-nav-note{
-    margin-top:1rem; font-size:0.78rem; letter-spacing:0.02em; color:var(--bone-faint);
+  /* Intro/results/profiles/reflection content that fades in via JS
+     uses its own data-reveal-manual attribute rather than the shared
+     [data-reveal] one that chrome.js sweeps on page load. That sweep
+     runs once, globally, on a timer started at page load — for
+     content still behind a hidden SPA stage at that point, its delay
+     can land several seconds in, well after a visitor has actually
+     reached that stage by clicking through, and it would still fire
+     then and slap .is-revealed onto everything at once — an unwanted
+     "flash to fully visible, then disappear" the moment the real,
+     deliberate reveal (scheduled by JS) resets it a moment later.
+     Giving these elements their own attribute keeps them invisible to
+     that sweep entirely; only the JS reveal functions below ever
+     touch their state. Pure opacity, no slide-up. */
+  [data-reveal-manual]{
+    opacity:0; transform:none;
+    /* ease-in-out, not the default "ease": that curve is front-loaded
+       (accelerates almost immediately), which read as a snap/pop once
+       it was the only thing driving the reveal (no slide to soften
+       it). ease-in-out ramps up and settles down gradually at both
+       ends, and the longer duration gives it room to actually read as
+       unhurried rather than quick. */
+    transition:opacity 1s ease-in-out;
   }
+  [data-reveal-manual].is-revealed{ opacity:1; }
+  @media (prefers-reduced-motion: reduce){
+    [data-reveal-manual]{ transition:none; opacity:1; }
+  }
+  /* The reflection stage's closing beat is meant to feel slower and
+     more contemplative than the functional pages, so it keeps its own
+     longer fade duration. */
+  #stage-reflection [data-reveal-manual]{ transition:opacity 1.4s ease-in-out; }
 
   /* ---------- cursor-tracked glass glow (intro + results) ---------- */
   .glass-glow{
@@ -417,11 +451,11 @@
     <!-- ============ STAGE: intro ============ -->
     <section class="stage is-active" id="stage-intro" data-stage="intro">
       <div class="stage-inner intro-content is-shown">
-        <p class="mirror-eyebrow" data-reveal>The Mirror Exhibit</p>
-        <h1 data-reveal>No One Reads Without a Lens</h1>
-        <p class="intro-lede" data-reveal>Every reader brings a worldview to the text before reading a single word. Our habits, expectations, traditions, and frames of reference shape what stands out and what passes unnoticed.</p>
-        <p class="intro-lede" data-reveal>This exhibit does not test what you know about the Bible. It helps you notice <em>how</em> you read it, including the interpretive habits and filters you bring to every passage, whether or not you have ever named them.</p>
-        <button class="mirror-cta" id="beginBtn" type="button" data-reveal>Look in the Mirror <span class="arrow">&rarr;</span></button>
+        <p class="mirror-eyebrow" data-reveal-manual>The Mirror Exhibit</p>
+        <h1 data-reveal-manual>No One Reads Without a Lens</h1>
+        <p class="intro-lede" data-reveal-manual>Every reader brings a worldview to the text before reading a single word. Our habits, expectations, traditions, and frames of reference shape what stands out and what passes unnoticed.</p>
+        <p class="intro-lede" data-reveal-manual>This exhibit does not test what you know about the Bible. It helps you notice <em>how</em> you read it, including the interpretive habits and filters you bring to every passage, whether or not you have ever named them.</p>
+        <button class="mirror-cta" id="beginBtn" type="button" data-reveal-manual>Look in the Mirror <span class="arrow">&rarr;</span></button>
       </div>
     </section>
 
@@ -451,14 +485,14 @@
     <!-- ============ STAGE: results reveal ============ -->
     <section class="stage" id="stage-results" data-stage="results">
       <div class="stage-inner results-inner">
-        <p class="mirror-eyebrow" data-reveal>The Mirror Exhibit</p>
-        <h1 class="quiz-heading" data-reveal>The Mirror</h1>
-        <p class="intro-lede" data-reveal>Every reader approaches the text with a set of habits, assumptions, questions, traditions, and expectations shaped by experience and culture.</p>
-        <p class="intro-lede" data-reveal>Your responses highlight the interpretive lenses you rely on most naturally when reading Scripture.</p>
-        <div class="lens-bar-list" id="lensRevealGroup" data-reveal>
+        <p class="mirror-eyebrow" data-reveal-manual>The Mirror Exhibit</p>
+        <h1 class="quiz-heading" data-reveal-manual>The Mirror</h1>
+        <p class="intro-lede" data-reveal-manual>Every reader approaches the text with a set of habits, assumptions, questions, traditions, and expectations shaped by experience and culture.</p>
+        <p class="intro-lede" data-reveal-manual>Your responses highlight the interpretive lenses you rely on most naturally when reading Scripture.</p>
+        <div class="lens-bar-list" id="lensRevealGroup" data-reveal-manual>
           <!-- rendered by JS -->
         </div>
-        <div class="results-continue" data-reveal>
+        <div class="results-continue" data-reveal-manual>
           <button class="mirror-cta" id="toProfilesBtn" type="button">See What Each Lens Means <span class="arrow">&rarr;</span></button>
         </div>
       </div>
@@ -469,18 +503,18 @@
       <div class="stage-inner profiles-inner">
         <div class="profiles-layout">
           <div class="profiles-sidebar">
-            <p class="mirror-eyebrow" data-reveal>The Mirror Exhibit</p>
-            <h1 class="quiz-heading" data-reveal>The Mirror</h1>
-            <p class="profiles-intro" data-reveal>Your Reading Profile</p>
-            <div class="lens-bar-list" id="profilesSummary" data-reveal>
+            <p class="mirror-eyebrow" data-reveal-manual>The Mirror Exhibit</p>
+            <h1 class="quiz-heading" data-reveal-manual>The Mirror</h1>
+            <p class="profiles-intro" data-reveal-manual>Your Reading Profile</p>
+            <div class="lens-bar-list" id="profilesSummary" data-reveal-manual>
               <!-- rendered by JS: your results, carried over for context -->
             </div>
           </div>
           <div class="profiles-main">
-            <div id="profilesList" data-reveal>
+            <div id="profilesList" data-reveal-manual>
               <!-- rendered by JS -->
             </div>
-            <div class="profiles-continue" data-reveal>
+            <div class="profiles-continue" data-reveal-manual>
               <button class="mirror-cta" id="toReflectionBtn" type="button">Continue <span class="arrow">&rarr;</span></button>
             </div>
           </div>
@@ -492,20 +526,17 @@
     <section class="stage" id="stage-reflection" data-stage="reflection">
       <div class="stage-inner reflection-inner">
         <div class="reflection-group">
-          <p class="reflection-line" data-reveal>Every lens reveals something.</p>
-          <p class="reflection-line" data-reveal>Every lens hides something.</p>
+          <p class="reflection-line" data-reveal-manual>Every lens reveals something.</p>
+          <p class="reflection-line" data-reveal-manual>Every lens hides something.</p>
         </div>
-        <div class="reflection-divider" aria-hidden="true"></div>
         <div class="reflection-group">
-          <p class="reflection-line is-dim" data-reveal>The goal isn&rsquo;t to stop reading through a lens.</p>
-          <p class="reflection-line" data-reveal>It&rsquo;s to know when you&rsquo;re wearing one.</p>
+          <p class="reflection-line reflection-line--nowrap" data-reveal-manual>The goal isn&rsquo;t to stop reading through a lens.</p>
+          <p class="reflection-line" data-reveal-manual>It&rsquo;s to know when you&rsquo;re wearing one.</p>
         </div>
-        <div class="reflection-continue" data-reveal>
+        <div class="reflection-continue" data-reveal-manual>
           <div class="reflection-nav">
-            <a class="mirror-cta" href="index.html#corridor-cards-start"><span class="arrow">&larr;</span> Back To Entrance</a>
             <a class="mirror-cta is-quiet" href="#" data-coming-soon aria-disabled="true">Next Exhibit <span class="arrow">&rarr;</span></a>
           </div>
-          <p class="reflection-nav-note">The next exhibit is still being built.</p>
         </div>
       </div>
     </section>
@@ -714,6 +745,123 @@
     });
   }
 
+  /* Cinematic reveal for the core-reflection stage only. Its four
+     lines fade in top to bottom, pure opacity (no slide — see the
+     #stage-reflection [data-reveal-manual] CSS rule), on an explicit
+     schedule (each line 2s after the last) so the rhythm can be tuned
+     by eye rather than computed from a stagger formula. */
+  function revealReflection(root) {
+    var lines = Array.prototype.slice.call(root.querySelectorAll('.reflection-line[data-reveal-manual]'));
+    var continueEl = root.querySelector('.reflection-continue[data-reveal-manual]');
+    var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var all = continueEl ? lines.concat([continueEl]) : lines;
+    all.forEach(function (el) { el.classList.remove('is-revealed'); });
+
+    if (reduceMotion) {
+      all.forEach(function (el) { el.classList.add('is-revealed'); });
+      return;
+    }
+
+    // Explicit fade-in start times, ms from when this stage becomes active.
+    var LINE_DELAYS = [2000, 5000, 7000, 9000];
+    var NAV_DELAY = 11000;
+
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        lines.forEach(function (el, i) {
+          var delay = LINE_DELAYS[i] !== undefined ? LINE_DELAYS[i] : LINE_DELAYS[LINE_DELAYS.length - 1];
+          setTimeout(function () { el.classList.add('is-revealed'); }, delay);
+        });
+        if (continueEl) {
+          setTimeout(function () { continueEl.classList.add('is-revealed'); }, NAV_DELAY);
+        }
+      });
+    });
+  }
+
+  /* Cinematic phased reveal used by the intro, results, and profiles
+     stages. `beats` is an ordered array of { els, onStart } objects —
+     each beat's elements fade in together (pure opacity; a small
+     internal stagger if a beat holds more than one element), and the
+     next beat doesn't begin until the current one has fully finished
+     fading in, plus a brief pause — so distinct sections of the page
+     settle into place one at a time, deliberately, rather than
+     everything animating at once. */
+  function revealCascade(beats) {
+    var MICRO_STAGGER = 150; // ms between elements within the same beat
+    var FADE = 1000;         // must match the [data-reveal-manual] transition duration
+    var PAUSE = 450;         // gap after a beat finishes fading, before the next starts
+    var INITIAL = 250;       // delay before the very first beat begins
+
+    var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var allEls = [];
+    beats.forEach(function (b) { allEls = allEls.concat(b.els); });
+    allEls.forEach(function (el) { el.classList.remove('is-revealed'); });
+
+    if (reduceMotion) {
+      beats.forEach(function (b) {
+        b.els.forEach(function (el) { el.classList.add('is-revealed'); });
+        if (b.onStart) b.onStart();
+      });
+      return;
+    }
+
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        var beatStart = INITIAL;
+        beats.forEach(function (b) {
+          (function (beat, delay) {
+            setTimeout(function () {
+              beat.els.forEach(function (el, j) {
+                setTimeout(function () { el.classList.add('is-revealed'); }, j * MICRO_STAGGER);
+              });
+              if (beat.onStart) beat.onStart();
+            }, delay);
+          })(b, beatStart);
+          beatStart += (b.els.length - 1) * MICRO_STAGGER + FADE + PAUSE;
+        });
+      });
+    });
+  }
+
+  // Mirror landing page: header, then the two lines of supporting
+  // text, then the CTA.
+  function revealIntro(root) {
+    revealCascade([
+      { els: [root.querySelector('.mirror-eyebrow'), root.querySelector('h1')] },
+      { els: Array.prototype.slice.call(root.querySelectorAll('.intro-lede')) },
+      { els: [document.getElementById('beginBtn')] }
+    ]);
+  }
+
+  // Results page: header, supporting text, then the percentage chart
+  // (its bars play in sync with this beat via playLensBars()), then
+  // the CTA.
+  function revealResults(root) {
+    revealCascade([
+      { els: [root.querySelector('.mirror-eyebrow'), root.querySelector('.quiz-heading')] },
+      { els: Array.prototype.slice.call(root.querySelectorAll('.intro-lede')) },
+      { els: [document.getElementById('lensRevealGroup')], onStart: function () { playLensBars('lensRevealGroup'); } },
+      { els: [root.querySelector('.results-continue')] }
+    ]);
+  }
+
+  // Reading Your Profile page: header, the carried-over percentage
+  // chart (bars synced via playLensBars()), the lens write-ups, then
+  // the CTA.
+  function revealProfiles(root) {
+    revealCascade([
+      { els: [
+          root.querySelector('.mirror-eyebrow'),
+          root.querySelector('.quiz-heading'),
+          root.querySelector('.profiles-intro')
+        ] },
+      { els: [document.getElementById('profilesSummary')], onStart: function () { playLensBars('profilesSummary'); } },
+      { els: [document.getElementById('profilesList')] },
+      { els: [root.querySelector('.profiles-continue')] }
+    ]);
+  }
+
   /* ============================================================
      Questionnaire
      ============================================================ */
@@ -759,7 +907,7 @@
         setTimeout(function () {
           computeResults();
           goToStage('results');
-          revealChrome(document.getElementById('stage-results'), 260);
+          revealResults(document.getElementById('stage-results'));
         }, 1500);
         return;
       }
@@ -821,15 +969,32 @@
     wrap.className = 'lens-bar-row' + (isTop ? ' is-top' : '');
     wrap.innerHTML =
       '<div class="lb-head"><span class="lb-name">' + LENSES[key].name + '</span><span class="lb-pct">' + pct + '%</span></div>' +
-      '<div class="lb-track"><div class="lb-fill" style="width:0%"></div></div>';
-    // Commit the 0% state first, then animate to its real width on the
-    // next frame so the transition actually plays (rather than snapping).
+      '<div class="lb-track"><div class="lb-fill" style="width:0%" data-target-pct="' + pct + '"></div></div>';
+    // Width-fill + shine sweep are triggered later, by playLensBars(),
+    // in sync with the moment the chart container itself actually
+    // fades into view as part of the page's reveal cascade — not here
+    // at creation time, which happens well before that and used to
+    // let the bars finish growing (and the shine sweep across them)
+    // while still hidden. See playLensBars() below.
+    return wrap;
+  }
+
+  // Plays every bar's width-fill + shine sweep in a lens-bar-list,
+  // called from the chart beat's onStart in revealResults()/
+  // revealProfiles() so it fires exactly when the chart becomes
+  // visible, instead of racing ahead of it.
+  function playLensBars(containerId) {
+    var group = document.getElementById(containerId);
+    if (!group) return;
+    var fills = Array.prototype.slice.call(group.querySelectorAll('.lb-fill'));
     requestAnimationFrame(function () {
       requestAnimationFrame(function () {
-        wrap.querySelector('.lb-fill').style.width = pct + '%';
+        fills.forEach(function (fill) {
+          fill.style.width = (fill.getAttribute('data-target-pct') || '0') + '%';
+          fill.classList.add('is-playing');
+        });
       });
     });
-    return wrap;
   }
 
   /* ============================================================
@@ -852,12 +1017,12 @@
       '</article>';
     }).join('');
     goToStage('profiles');
-    revealChrome(document.getElementById('stage-profiles'), 260);
+    revealProfiles(document.getElementById('stage-profiles'));
   });
 
   document.getElementById('toReflectionBtn').addEventListener('click', function () {
     goToStage('reflection');
-    revealChrome(document.getElementById('stage-reflection'), 650);
+    revealReflection(document.getElementById('stage-reflection'));
   });
 
   /* Read Again's CTA isn't wired up yet — same pattern as the
@@ -883,6 +1048,8 @@
       glow.style.setProperty('--gy', (e.clientY / window.innerHeight * 100).toFixed(1) + '%');
     });
   }
+
+  revealIntro(document.getElementById('stage-intro'));
 })();
 </script>
 <script src="atmosphere.js"></script>

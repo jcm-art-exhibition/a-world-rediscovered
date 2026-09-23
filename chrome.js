@@ -94,10 +94,20 @@
      No browser allows audible autoplay before the visitor has
      interacted with the page at all. The closest real equivalent,
      and what this does: start the track muted immediately on
-     landing (muted autoplay IS allowed everywhere), then unmute the
-     instant the first interaction of any kind happens — including
-     the very first scroll. The toggle lets the visitor turn it off
-     at any time, and that choice is remembered on the next page.
+     landing (muted autoplay IS allowed everywhere) so it's buffered
+     and ready, then unmute the instant the visitor actually wants
+     sound. The default (no stored preference yet) assumes they want
+     it, not that they've opted out — so the icon shows the "on" glyph
+     from the start and the very first interaction of any kind,
+     including the first scroll, is enough to make it audible without
+     requiring a click. Clicking the icon is the explicit, reliable
+     way to start or stop it at any time: it always acts on whether
+     the track is ACTUALLY audible right now, never on a separate flag
+     that can drift out of sync with that — so a click is guaranteed
+     to do what it looks like it's about to do (silent -> starts
+     playing, audible -> mutes), rather than occasionally muting a
+     track that hadn't even started yet. That choice is remembered on
+     the next page.
      ============================================================ */
   var PREF_KEY = 'awr_audio_enabled';
   (function () {
@@ -109,6 +119,9 @@
     audio.volume = 0.35;
     var storedPref = null;
     try { storedPref = window.localStorage.getItem(PREF_KEY); } catch (err) { /* ignore */ }
+    // No stored preference (first visit, or a fresh browser) defaults
+    // to wanting sound, not off — a returning visitor's own explicit
+    // choice always wins over this default.
     var enabled = storedPref !== 'off';
     var revealed = false;
 
@@ -122,7 +135,7 @@
     // Muted autoplay is permitted by every major browser, so this
     // succeeds immediately on page load.
     audio.muted = true;
-    audio.play().catch(function () { /* extremely rare even muted; the interaction listeners below cover it too */ });
+    audio.play().catch(function () { /* extremely rare even muted; the toggle and interaction listeners below cover it too */ });
 
     function revealAudio() {
       if (!enabled || revealed) return;
@@ -135,13 +148,21 @@
     });
 
     toggle.addEventListener('click', function () {
-      enabled = !enabled;
+      // Base the toggle on whether the track is actually audible
+      // right now, not on the `enabled` flag alone — that flag
+      // defaults to true before anything has played (nothing has
+      // unmuted it yet), so blindly flipping it here would turn a
+      // click into "mute a track that was never actually playing"
+      // instead of starting it.
+      var isAudible = !audio.muted && !audio.paused;
+      enabled = !isAudible;
       try { window.localStorage.setItem(PREF_KEY, enabled ? 'on' : 'off'); } catch (err) { /* ignore */ }
       if (enabled) {
         revealed = true;
         audio.muted = false;
         audio.play().catch(function () {});
       } else {
+        audio.muted = true;
         audio.pause();
       }
       syncIcon();
