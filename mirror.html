@@ -375,25 +375,26 @@
      deliberate reveal (scheduled by JS) resets it a moment later.
      Giving these elements their own attribute keeps them invisible to
      that sweep entirely; only the JS reveal functions below ever
-     touch their state. Pure opacity, no slide-up. */
+     touch their state.
+     Quick fade-up: a short opacity fade carries the reveal, with only
+     a subtle 10px rise (see revealCascade() below for the matching
+     stagger) — fast and responsive rather than something you feel
+     yourself waiting on. */
   [data-reveal-manual]{
-    opacity:0; transform:none;
-    /* ease-in-out, not the default "ease": that curve is front-loaded
-       (accelerates almost immediately), which read as a snap/pop once
-       it was the only thing driving the reveal (no slide to soften
-       it). ease-in-out ramps up and settles down gradually at both
-       ends, and the longer duration gives it room to actually read as
-       unhurried rather than quick. */
-    transition:opacity 1s ease-in-out;
+    opacity:0; transform:translateY(10px);
+    transition:opacity .4s ease-out, transform .4s ease-out;
   }
-  [data-reveal-manual].is-revealed{ opacity:1; }
+  [data-reveal-manual].is-revealed{ opacity:1; transform:translateY(0); }
   @media (prefers-reduced-motion: reduce){
-    [data-reveal-manual]{ transition:none; opacity:1; }
+    [data-reveal-manual]{ transition:none; opacity:1; transform:none; }
   }
-  /* The reflection stage's closing beat is meant to feel slower and
-     more contemplative than the functional pages, so it keeps its own
-     longer fade duration. */
-  #stage-reflection [data-reveal-manual]{ transition:opacity 1.4s ease-in-out; }
+  /* The reflection stage's closing beat is its own thing: slower,
+     more contemplative, and pure opacity with no rise at all — kept
+     exactly as tuned separately from the quick fade-up above. */
+  #stage-reflection [data-reveal-manual]{
+    transform:none;
+    transition:opacity 1.1s ease-in-out;
+  }
 
   /* ---------- cursor-tracked glass glow (intro + results) ---------- */
   .glass-glow{
@@ -763,8 +764,8 @@
     }
 
     // Explicit fade-in start times, ms from when this stage becomes active.
-    var LINE_DELAYS = [2000, 5000, 7000, 9000];
-    var NAV_DELAY = 11000;
+    var LINE_DELAYS = [1300, 3200, 4500, 5800];
+    var NAV_DELAY = 7100;
 
     requestAnimationFrame(function () {
       requestAnimationFrame(function () {
@@ -779,19 +780,22 @@
     });
   }
 
-  /* Cinematic phased reveal used by the intro, results, and profiles
-     stages. `beats` is an ordered array of { els, onStart } objects —
-     each beat's elements fade in together (pure opacity; a small
-     internal stagger if a beat holds more than one element), and the
-     next beat doesn't begin until the current one has fully finished
-     fading in, plus a brief pause — so distinct sections of the page
-     settle into place one at a time, deliberately, rather than
-     everything animating at once. */
+  /* Quick, responsive reveal used by the intro, results, and profiles
+     stages: eyebrow -> heading -> body copy -> CTA. `beats` is an
+     ordered array of { els, onStart } objects — every individual
+     element across all beats gets its own start time, one flat
+     STAGGER apart, in order. Each element's own fade is short (see
+     the [data-reveal-manual] transition duration, kept in sync via
+     FADE below), so later elements are already starting well before
+     earlier ones finish — the button doesn't wait for the paragraph
+     above it to completely settle, it follows close behind while it's
+     still finishing. That overlap is what makes this feel fast rather
+     than a strict one-at-a-time queue, while the fixed per-element gap
+     still keeps a clear, deliberate top-to-bottom order. */
   function revealCascade(beats) {
-    var MICRO_STAGGER = 150; // ms between elements within the same beat
-    var FADE = 1000;         // must match the [data-reveal-manual] transition duration
-    var PAUSE = 450;         // gap after a beat finishes fading, before the next starts
-    var INITIAL = 250;       // delay before the very first beat begins
+    var STAGGER = 100; // ms between each individual element's start
+    var FADE = 400;    // must match the [data-reveal-manual] transition duration
+    var INITIAL = 80;  // delay before the very first element begins
 
     var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var allEls = [];
@@ -808,17 +812,15 @@
 
     requestAnimationFrame(function () {
       requestAnimationFrame(function () {
-        var beatStart = INITIAL;
+        var index = 0;
         beats.forEach(function (b) {
-          (function (beat, delay) {
-            setTimeout(function () {
-              beat.els.forEach(function (el, j) {
-                setTimeout(function () { el.classList.add('is-revealed'); }, j * MICRO_STAGGER);
-              });
-              if (beat.onStart) beat.onStart();
-            }, delay);
-          })(b, beatStart);
-          beatStart += (b.els.length - 1) * MICRO_STAGGER + FADE + PAUSE;
+          var beatDelay = INITIAL + index * STAGGER;
+          if (b.onStart) setTimeout(b.onStart, beatDelay);
+          b.els.forEach(function (el) {
+            var delay = INITIAL + index * STAGGER;
+            setTimeout(function () { el.classList.add('is-revealed'); }, delay);
+            index++;
+          });
         });
       });
     });
