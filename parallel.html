@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Parallel Exhibit — A World Rediscovered</title>
+<meta name="description" content="An interactive exhibit that sets biblical passages beside related ancient Near Eastern texts to surface a shared cultural world.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="atmosphere.css">
+<link rel="stylesheet" href="chrome.css">
+<style>
+  :root{
+    --ground:#180801;
+    --ground-rgb:24,8,1;
+    --umber:#2F150A;
+    --rust:#5E250C;
+    --clay:#64463A;
+    --ochre:#AF9D2E;
+    --bone:#EDE6D8;
+    --whisper:#EDE6D8;
+    --bone-dim:rgba(237,230,216,0.62);
+    --bone-faint:rgba(237,230,216,0.34);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--ground); color:var(--bone);
+    font-family:'Instrument Sans', sans-serif; position:relative; overflow-x:hidden;
+    min-height:100vh;
+  }
+  img{display:block; max-width:none; user-select:none; -webkit-user-drag:none;}
+  h1,h2,h3,p{margin:0;}
+  button{font:inherit; color:inherit;}
+  a{color:inherit;}
+
+  /* ---------- shared chrome ---------- */
+  .lobby-return{
+    position:fixed; top:1.5rem; left:1.6rem; z-index:80;
+    display:flex; align-items:center; gap:0.5rem;
+    font-family:'IBM Plex Mono', monospace; font-size:0.68rem; letter-spacing:0.12em;
+    text-transform:uppercase; color:var(--bone-dim); text-decoration:none;
+    opacity:0.68; transition:opacity .25s ease, color .25s ease;
+  }
+  .lobby-return:hover, .lobby-return:focus-visible{ opacity:1; color:var(--ochre); outline:none; }
+
+  .parallel-eyebrow{
+    font-family:'Instrument Sans', sans-serif; font-weight:600; font-size:0.76rem; letter-spacing:0.34em;
+    text-transform:uppercase; color:var(--ochre); text-align:center;
+  }
+
+  /* ---------- load-in reveal (ported from the Mirror exhibit's
+     intro stage: a quick, staggered fade-up driven by revealCascade()
+     below, rather than the generic page-wide fade in chrome.js). ---------- */
+  [data-reveal-manual]{
+    opacity:0; transform:translateY(10px);
+    transition:opacity .4s ease-out, transform .4s ease-out;
+  }
+  [data-reveal-manual].is-revealed{ opacity:1; transform:translateY(0); }
+  @media (prefers-reduced-motion: reduce){
+    [data-reveal-manual]{ transition:none; opacity:1; transform:none; }
+  }
+
+  /* ---------- hero ---------- */
+  .hero{
+    min-height:100vh; width:100%;
+    position:relative; z-index:1;
+    display:flex; align-items:center; justify-content:center;
+    padding:7rem 1.5rem 5rem;
+    background:
+      linear-gradient(to bottom, rgba(24,8,1,0.55), rgba(24,8,1,0.88) 60%, var(--ground) 100%),
+      url('cards/parallel.jpg') center 38% / cover no-repeat;
+  }
+  .hero-inner{ max-width:52rem; text-align:center; position:relative; }
+  .hero-inner h1{
+    font-family:'Fraunces', serif; font-weight:600; font-size:clamp(2rem, 5.4vw, 4rem);
+    line-height:1.05; margin:1rem 0 1.4rem; color:var(--bone);
+    text-shadow:0 2px 4px rgba(0,0,0,0.55), 0 12px 34px rgba(0,0,0,0.5);
+    position:relative;
+    white-space:nowrap;
+  }
+  @media (max-width:480px){
+    .hero-inner h1{ white-space:normal; }
+  }
+  .hero-lede{
+    max-width:46rem; margin:0 auto; font-size:1.02rem; line-height:1.75;
+    color:var(--bone-dim);
+  }
+  .hero-lede + .hero-lede{ margin-top:1rem; }
+
+  /* CTA — matches the "Enter" chip used on the Lobby exhibit cards
+     and the Mirror exhibit's own intro CTA (.mirror-cta). */
+  .parallel-cta{
+    display:inline-flex; align-items:center; gap:0.5em; margin-top:2.6rem;
+    font-family:'Instrument Sans', sans-serif; font-weight:600; font-size:0.76rem; letter-spacing:0.08em;
+    text-transform:uppercase; color:var(--ground); background:var(--ochre);
+    border:none; border-radius:999px; padding:0.9rem 1.9rem;
+    text-decoration:none; cursor:pointer;
+    box-shadow:0 0.5rem 1.1rem rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+    transition:background .2s ease, box-shadow .2s ease, transform .2s ease;
+  }
+  .parallel-cta:hover, .parallel-cta:focus-visible{
+    background:#c4b154; transform:translateY(-2px);
+    box-shadow:0 0.7rem 1.5rem rgba(0,0,0,0.48), inset 0 1px 0 rgba(255,255,255,0.25); outline:none;
+  }
+  .parallel-cta .arrow{ transition:transform .25s ease; }
+  .parallel-cta:hover .arrow{ transform:translateX(4px); }
+</style>
+</head>
+<body class="page-transition">
+<noscript><style>body.page-transition{opacity:1 !important;}</style></noscript>
+
+  <button class="audio-toggle" id="audioToggle" type="button" aria-pressed="false" aria-label="Mute background music">
+    <svg class="audio-icon audio-icon-on" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/>
+      <path d="M16.3 8.7a5 5 0 0 1 0 6.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      <path d="M19 6a8.7 8.7 0 0 1 0 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity="0.55"/>
+    </svg>
+    <svg class="audio-icon audio-icon-off" viewBox="0 0 24 24" fill="none" aria-hidden="true" style="display:none">
+      <path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/>
+      <path d="M15.5 9.5l5 5M20.5 9.5l-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+    </svg>
+  </button>
+  <audio id="bgAudio" src="Buried%20Chambers.mp3" loop preload="auto" muted></audio>
+
+  <button class="credits-toggle" id="creditsToggle" type="button" aria-haspopup="dialog" aria-controls="creditsModal">Credits</button>
+
+  <div class="credits-overlay" id="creditsOverlay">
+    <div class="credits-modal" id="creditsModal" role="dialog" aria-modal="true" aria-labelledby="creditsTitle">
+      <button class="credits-close" id="creditsClose" type="button" aria-label="Close credits">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M1 1L13 13M13 1L1 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <h3 id="creditsTitle">Credits</h3>
+      <section>
+        <div class="credits-label">Made by</div>
+        <p>Jarrett Michael</p>
+      </section>
+      <section>
+        <div class="credits-label">Photography</div>
+        <p>Photography courtesy of contributors on Unsplash.<br><br>Roberto Catarinicchia<br>Drew Coffman<br>Taylor Flowe<br>Vladimir Kramer<br>Volodymyr Leush<br>Parastoo Maleki<br>Zoltan Tasi<br>Drew Walker</p>
+      </section>
+    </div>
+  </div>
+
+  <a class="lobby-return" href="index.html#corridor-cards-start" aria-label="Return to the first exhibit">&larr; Return to Entrance</a>
+
+  <div class="dust-layer" id="dustLayer" aria-hidden="true"></div>
+
+  <section class="hero">
+    <div class="hero-inner">
+      <p class="parallel-eyebrow" data-reveal-manual>The Parallel Exhibit</p>
+      <h1 data-reveal-manual>Same World, Different Voices</h1>
+      <p class="hero-lede" data-reveal-manual>Biblical texts emerged within a world already full of stories, laws, images, and ideas. When we place them beside other writings from the ancient Near East, familiar patterns begin to surface.</p>
+      <p class="hero-lede" data-reveal-manual>The Parallel is designed to make that shared cultural world visible. You&rsquo;ll read biblical passages alongside related ancient texts, noticing where their language, structure, and ideas resemble one another and where they begin to diverge.</p>
+      <p class="hero-lede" data-reveal-manual>Similarity does not necessarily mean direct borrowing, and difference does not always tell us why a writer made a particular choice. But together they can help us see the larger conversation biblical writers inherited, participated in, and reshaped. The invitation is to notice both what is shared and what becomes distinctive.</p>
+      <a class="parallel-cta" href="parallel-comparisons.html" data-reveal-manual>Choose a Comparison <span class="arrow">&rarr;</span></a>
+    </div>
+  </section>
+
+<script>
+(function(){
+  // Quick, responsive reveal ported from the Mirror exhibit's intro
+  // stage (revealCascade() there): each beat is a group of elements
+  // that starts fading in together, one flat stagger apart, in order.
+  function revealCascade(beats) {
+    var STAGGER = 100; // ms between each individual element's start
+    var INITIAL = 80;  // delay before the very first element begins
+
+    var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var allEls = [];
+    beats.forEach(function (b) { allEls = allEls.concat(b.els); });
+    allEls.forEach(function (el) { if (el) el.classList.remove('is-revealed'); });
+
+    if (reduceMotion) {
+      allEls.forEach(function (el) { if (el) el.classList.add('is-revealed'); });
+      return;
+    }
+
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        var index = 0;
+        beats.forEach(function (b) {
+          b.els.forEach(function (el) {
+            var delay = INITIAL + index * STAGGER;
+            if (el) setTimeout(function () { el.classList.add('is-revealed'); }, delay);
+            index++;
+          });
+        });
+      });
+    });
+  }
+
+  revealCascade([
+    { els: [document.querySelector('.parallel-eyebrow'), document.querySelector('.hero-inner h1')] },
+    { els: Array.prototype.slice.call(document.querySelectorAll('.hero-lede')) },
+    { els: [document.querySelector('.parallel-cta')] }
+  ]);
+})();
+</script>
+<script src="atmosphere.js"></script>
+<script src="chrome.js"></script>
+
+</body>
+</html>

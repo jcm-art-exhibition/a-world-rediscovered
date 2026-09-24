@@ -315,6 +315,12 @@
     margin-bottom:0.7rem;
     backdrop-filter:blur(3px);
   }
+  /* Mirror card only: the chip takes the index number's spot at the
+     top of the card instead of sitting above the title. */
+  .room-panel-eyebrow--top{
+    position:absolute; top:1.3rem; left:1.5rem; z-index:2;
+    margin-bottom:0;
+  }
   .room-panel h3{ font-family:'Fraunces', serif; font-weight:600; font-size:clamp(1.15rem, 2vw, 1.6rem); margin:0 0 0.5rem; }
   .room-panel p{ font-family:'Instrument Sans', sans-serif; font-style:italic; color:var(--bone-dim); font-size:0.86rem; line-height:1.45; margin:0 0 1rem; }
   /* The "Enter" button — a solid filled chip with its own weight,
@@ -545,11 +551,10 @@
             <img class="room-panel-image" src="cards/mirror.jpg" alt="" aria-hidden="true" loading="lazy">
             <div class="room-panel-fade" aria-hidden="true"></div>
             <div class="room-panel-glow" aria-hidden="true"></div>
-            <span class="room-panel-index">01</span>
+            <span class="room-panel-eyebrow room-panel-eyebrow--top">Interactive Reflection</span>
             <div class="room-panel-body">
-              <span class="room-panel-eyebrow">Exhibit</span>
               <h3>The Mirror Exhibit</h3>
-              <p>Every reader brings assumptions to a text without realizing it. This exhibit surfaces the interpretive lens you didn't know you were using, and asks what changes when you try on another culture's own.</p>
+              <p>Every reader brings assumptions to a text without realizing it. This exhibit reveals the interpretive lenses that shape how you read and asks what changes when you try another.</p>
               <span class="room-panel-status">Enter <span class="status-arrow">→</span></span>
             </div>
           </a>
@@ -571,15 +576,14 @@
         </article>
 
         <article class="room-panel" data-tilt="0">
-          <a class="room-panel-link" href="parallel-room.html">
+          <a class="room-panel-link" href="parallel.html" aria-label="The Parallel Exhibit">
             <img class="room-panel-image" src="cards/parallel.jpg" alt="" aria-hidden="true" loading="lazy">
             <div class="room-panel-fade" aria-hidden="true"></div>
             <div class="room-panel-glow" aria-hidden="true"></div>
-            <span class="room-panel-index">03</span>
+            <span class="room-panel-eyebrow room-panel-eyebrow--top">Comparative Reading</span>
             <div class="room-panel-body">
-              <span class="room-panel-eyebrow">Exhibit</span>
               <h3>The Parallel Exhibit</h3>
-              <p>Set biblical stories beside their ancient Near Eastern parallels and a larger conversation comes into view. The similarities reveal a shared cultural world; the places where the biblical writers diverge can reveal what they wanted their audiences to notice.</p>
+              <p>Biblical texts were written within a larger ancient Near Eastern world. Set them beside related texts from neighboring cultures and the similarities come into view, along with the places where biblical writers chose to tell things differently.</p>
               <span class="room-panel-status">Enter <span class="status-arrow">→</span></span>
             </div>
           </a>

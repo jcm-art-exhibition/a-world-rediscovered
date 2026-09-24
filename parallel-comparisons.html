@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Choose a Comparison — The Parallel Exhibit — A World Rediscovered</title>
+<meta name="description" content="Choose a biblical passage and its ancient Near Eastern parallel to explore side by side.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="atmosphere.css">
+<link rel="stylesheet" href="chrome.css">
+<style>
+  :root{
+    --ground:#180801;
+    --ground-rgb:24,8,1;
+    --umber:#2F150A;
+    --rust:#5E250C;
+    --clay:#64463A;
+    --ochre:#AF9D2E;
+    --bone:#EDE6D8;
+    --whisper:#EDE6D8;
+    --bone-dim:rgba(237,230,216,0.62);
+    --bone-faint:rgba(237,230,216,0.34);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--ground); color:var(--bone);
+    font-family:'Instrument Sans', sans-serif; position:relative; overflow-x:hidden;
+    min-height:100vh;
+  }
+  img{display:block; max-width:none; user-select:none; -webkit-user-drag:none;}
+  h1,h2,h3,p{margin:0;}
+  button{font:inherit; color:inherit;}
+  a{color:inherit;}
+
+  /* ---------- shared chrome ---------- */
+  .lobby-return{
+    position:fixed; top:1.5rem; left:1.6rem; z-index:80;
+    display:flex; align-items:center; gap:0.5rem;
+    font-family:'IBM Plex Mono', monospace; font-size:0.68rem; letter-spacing:0.12em;
+    text-transform:uppercase; color:var(--bone-dim); text-decoration:none;
+    opacity:0.68; transition:opacity .25s ease, color .25s ease;
+  }
+  .lobby-return:hover, .lobby-return:focus-visible{ opacity:1; color:var(--ochre); outline:none; }
+
+  .parallel-eyebrow{
+    font-family:'Instrument Sans', sans-serif; font-weight:600; font-size:0.76rem; letter-spacing:0.34em;
+    text-transform:uppercase; color:var(--ochre); text-align:center;
+  }
+
+  /* ---------- load-in reveal (ported from the Mirror exhibit's
+     intro stage: a quick, staggered fade-up driven by revealCascade()
+     below, rather than the generic page-wide fade in chrome.js). ---------- */
+  [data-reveal-manual]{
+    --reveal-y: 10px;
+    --reveal-duration: .4s;
+    opacity:0; transform:translateY(var(--reveal-y));
+    transition:opacity var(--reveal-duration) ease-out, transform var(--reveal-duration) ease-out;
+  }
+  [data-reveal-manual].is-revealed{ opacity:1; transform:translateY(0); }
+  /* Comparison cards get a slightly larger rise and a slower, more
+     cinematic settle than the header text above - just the --reveal-y
+     and --reveal-duration custom properties change, so the shared
+     opacity/transform/transition declarations (and the reduced-motion
+     override below) still apply exactly as before. */
+  .comparison-card-wrap[data-reveal-manual]{
+    --reveal-y: 24px;
+    --reveal-duration: .62s;
+  }
+  @media (prefers-reduced-motion: reduce){
+    [data-reveal-manual]{ transition:none; opacity:1; transform:none; }
+  }
+
+  /* ---------- page head (same background recipe as the Parallel
+     landing page's hero, shortened since the cards below are the
+     main content here) ---------- */
+  .page-head{
+    position:relative; z-index:1;
+    padding:9rem 1.5rem 4rem;
+    text-align:center;
+    background:
+      linear-gradient(to bottom, rgba(24,8,1,0.55), rgba(24,8,1,0.92) 72%, var(--ground) 100%),
+      url('cards/parallel.jpg') center 38% / cover no-repeat;
+  }
+  .page-head-inner{ max-width:44rem; margin:0 auto; }
+  .page-head-inner h1{
+    font-family:'Fraunces', serif; font-weight:600; font-size:clamp(2rem, 5.4vw, 3.4rem);
+    line-height:1.08; margin:1rem 0 1.3rem; color:var(--bone);
+    text-shadow:0 2px 4px rgba(0,0,0,0.55), 0 12px 34px rgba(0,0,0,0.5);
+  }
+  .page-head-lede{
+    max-width:36rem; margin:0 auto; font-size:1rem; line-height:1.75;
+    color:var(--bone-dim);
+  }
+
+  /* ---------- comparisons grid ---------- */
+  .comparisons{
+    position:relative; z-index:1;
+    padding:1rem 1.5rem 6rem;
+    display:flex; flex-direction:column; align-items:center;
+  }
+  .comparisons-grid{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr));
+    gap:2.5rem; width:100%; max-width:1120px;
+  }
+
+  /* Each card sits in its own positioning wrapper so a blurred,
+     color-matched "shadow" copy of its image can live behind it as
+     a separate, non-transforming layer - see .comparison-card-shadow
+     below. Wrapping this way (rather than growing .comparison-card
+     itself into two overlapping layers) means the card's own hover
+     transform never has to share a clip with anything else, which is
+     what a couple of earlier attempts at this hover state got wrong. */
+  .comparison-card-wrap{
+    position:relative;
+  }
+
+  /* A duplicate of the card's own image, heavily blurred and offset
+     down and out from behind the card, standing in for a plain
+     black drop shadow - the blur naturally carries the photo's own
+     colors, so each card casts a soft glow that matches it instead
+     of a generic shadow. It never animates its own clip or scale,
+     only its opacity/position on hover, so it can't develop the
+     seam issues a transformed, clipped element can. */
+  .comparison-card-shadow{
+    position:absolute;
+    top:10px; left:5%; right:5%;
+    aspect-ratio:4 / 3;
+    z-index:0;
+    border-radius:20px;
+    overflow:hidden;
+    filter:blur(26px) saturate(1.5) brightness(0.6);
+    opacity:0.7;
+    pointer-events:none;
+    transition:opacity .4s ease, transform .4s ease;
+  }
+  .comparison-card-shadow img{
+    width:100%; height:100%;
+    object-fit:cover; object-position:center 40%;
+  }
+  .comparison-card-wrap:hover .comparison-card-shadow,
+  .comparison-card-wrap:focus-within .comparison-card-shadow{
+    opacity:0.95;
+    transform:translateY(8px) scale(1.04);
+  }
+
+  .comparison-card{
+    position:relative; z-index:1;
+    display:flex; flex-direction:column;
+    border-radius:20px; overflow:hidden;
+    text-decoration:none; color:inherit;
+    background:var(--ground);
+    box-shadow:0 1.2rem 2.8rem rgba(0,0,0,0.45), 0 0 0 1px rgba(237,230,216,0.12);
+    transition:transform .4s ease, box-shadow .4s ease;
+  }
+  .comparison-card:hover, .comparison-card:focus-visible{
+    transform:scale(1.025);
+    box-shadow:0 1.8rem 3.6rem rgba(0,0,0,0.55), 0 0 0 1px rgba(175,157,46,0.5);
+    outline:none;
+  }
+
+  /* Full-bleed tall background image behind each card, closer to
+     how the Index page's opening view uses a tall image, rather than
+     a small image box above a separate solid content panel. The
+     image fades into the solid ground color well before the bottom
+     so the overlaid text stays legible - same multi-stop recipe as
+     the fade above, just stretched to cover the taller card. */
+  .comparison-card--bg{
+    aspect-ratio:3 / 4;
+  }
+  .comparison-card-bg-img{
+    position:absolute; inset:0; width:100%; height:100%; z-index:0;
+    object-fit:cover; object-position:center top;
+    filter:saturate(0.92) brightness(0.8);
+    transition:filter .5s ease;
+  }
+  .comparison-card--bg:hover .comparison-card-bg-img,
+  .comparison-card--bg:focus-visible .comparison-card-bg-img{
+    filter:saturate(1) brightness(0.88);
+  }
+  .comparison-card-bg-fade{
+    position:absolute; inset:0; z-index:1; pointer-events:none;
+    background:linear-gradient(to bottom,
+      rgba(24,8,1,0) 0%,
+      rgba(24,8,1,0.02) 30%,
+      rgba(24,8,1,0.22) 48%,
+      rgba(24,8,1,0.64) 64%,
+      rgba(24,8,1,0.93) 78%,
+      var(--ground) 92%);
+  }
+  .comparison-card--bg .comparison-body{
+    position:absolute; left:0; right:0; bottom:0; z-index:2;
+    padding:0 1.8rem 1.9rem;
+    text-shadow:0 1px 4px rgba(0,0,0,0.55);
+  }
+  .comparison-card--bg .comparison-chip{ text-shadow:none; }
+  .comparison-card--bg .comparison-status{ text-shadow:none; }
+
+  .comparison-body{
+    display:flex; flex-direction:column; flex:1;
+    padding:1.7rem 1.8rem 1.9rem;
+  }
+  /* Category label — same filled-chip treatment as the Lobby cards'
+     eyebrow, sitting directly above the title rather than overlaid
+     on the image. */
+  .comparison-chip{
+    display:inline-flex; align-items:center; align-self:flex-start;
+    font-family:'Instrument Sans', sans-serif; font-weight:600; font-size:0.66rem;
+    letter-spacing:0.1em; text-transform:uppercase; color:var(--ochre);
+    background:rgba(24,8,1,0.6);
+    border:1px solid rgba(175,157,46,0.35);
+    padding:0.35rem 0.75rem;
+    border-radius:999px;
+    margin-bottom:0.9rem;
+  }
+  .comparison-body h2{
+    font-family:'Fraunces', serif; font-weight:500; font-size:1.7rem; margin:0 0 0.5rem;
+  }
+  .comparison-subtitle{
+    font-family:'Instrument Sans', sans-serif; font-style:italic; font-size:0.9rem;
+    color:var(--bone-dim); margin:0 0 1.6rem;
+  }
+  /* Rounded "Enter" button — same filled-pill treatment as the Lobby
+     cards' .room-panel-status, in place of the old plain mono text. */
+  .comparison-status{
+    margin-top:auto; align-self:flex-start;
+    display:inline-flex; align-items:center; gap:0.4em;
+    padding:0.7rem 1.4rem;
+    border-radius:999px;
+    background:var(--ochre);
+    color:var(--ground);
+    font-family:'IBM Plex Mono', monospace;
+    font-weight:600; font-size:0.68rem; letter-spacing:0.14em; text-transform:uppercase;
+    box-shadow:0 0.5rem 1.1rem rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+    transition:background .2s ease, box-shadow .2s ease, transform .2s ease;
+  }
+  .comparison-card:hover .comparison-status,
+  .comparison-card:focus-visible .comparison-status{
+    background:#c4b154;
+    box-shadow:0 0.7rem 1.5rem rgba(0,0,0,0.48), inset 0 1px 0 rgba(255,255,255,0.25);
+    transform:translateY(-2px);
+  }
+  .comparison-status .arrow{ display:inline-block; transition:transform .25s ease; }
+  .comparison-card:hover .comparison-status .arrow,
+  .comparison-card:focus-visible .comparison-status .arrow{
+    transform:translateX(4px);
+  }
+</style>
+</head>
+<body class="page-transition">
+<noscript><style>body.page-transition{opacity:1 !important;}</style></noscript>
+
+  <button class="audio-toggle" id="audioToggle" type="button" aria-pressed="false" aria-label="Mute background music">
+    <svg class="audio-icon audio-icon-on" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/>
+      <path d="M16.3 8.7a5 5 0 0 1 0 6.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      <path d="M19 6a8.7 8.7 0 0 1 0 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity="0.55"/>
+    </svg>
+    <svg class="audio-icon audio-icon-off" viewBox="0 0 24 24" fill="none" aria-hidden="true" style="display:none">
+      <path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/>
+      <path d="M15.5 9.5l5 5M20.5 9.5l-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+    </svg>
+  </button>
+  <audio id="bgAudio" src="Buried%20Chambers.mp3" loop preload="auto" muted></audio>
+
+  <button class="credits-toggle" id="creditsToggle" type="button" aria-haspopup="dialog" aria-controls="creditsModal">Credits</button>
+
+  <div class="credits-overlay" id="creditsOverlay">
+    <div class="credits-modal" id="creditsModal" role="dialog" aria-modal="true" aria-labelledby="creditsTitle">
+      <button class="credits-close" id="creditsClose" type="button" aria-label="Close credits">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M1 1L13 13M13 1L1 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <h3 id="creditsTitle">Credits</h3>
+      <section>
+        <div class="credits-label">Made by</div>
+        <p>Jarrett Michael</p>
+      </section>
+      <section>
+        <div class="credits-label">Photography</div>
+        <p>Photography courtesy of contributors on Unsplash.<br><br>Roberto Catarinicchia<br>Drew Coffman<br>Taylor Flowe<br>Vladimir Kramer<br>Volodymyr Leush<br>Parastoo Maleki<br>Zoltan Tasi<br>Drew Walker</p>
+      </section>
+    </div>
+  </div>
+
+  <a class="lobby-return" href="parallel.html" aria-label="Return to the Parallel Exhibit">&larr; The Parallel Exhibit</a>
+
+  <div class="dust-layer" id="dustLayer" aria-hidden="true"></div>
+
+  <section class="page-head">
+    <div class="page-head-inner">
+      <p class="parallel-eyebrow" data-reveal-manual>The Parallel Exhibit</p>
+      <h1 data-reveal-manual>Choose a Comparison</h1>
+      <p class="page-head-lede" data-reveal-manual>Each comparison places a biblical text beside a related writing from the ancient Near East. Read them together to notice what they share, and where the biblical writers begin to say something distinct.</p>
+    </div>
+  </section>
+
+  <section class="comparisons">
+    <div class="comparisons-grid">
+      <div class="comparison-card-wrap" data-reveal-manual>
+        <div class="comparison-card-shadow" aria-hidden="true">
+          <img src="creation_tradition_card.png" alt="" aria-hidden="true" loading="lazy">
+        </div>
+        <a class="comparison-card comparison-card--bg" href="creation-and-chaos.html">
+          <img class="comparison-card-bg-img" src="creation_tradition_bg.png" alt="" aria-hidden="true" loading="lazy">
+          <div class="comparison-card-bg-fade" aria-hidden="true"></div>
+          <div class="comparison-body">
+            <span class="comparison-chip">Creation Tradition</span>
+            <h2>Ordering the World</h2>
+            <p class="comparison-subtitle">En&#363;ma Eli&scaron; &amp; Genesis 1</p>
+            <span class="comparison-status">Enter <span class="arrow">&rarr;</span></span>
+          </div>
+        </a>
+      </div>
+      <div class="comparison-card-wrap" data-reveal-manual>
+        <div class="comparison-card-shadow" aria-hidden="true">
+          <img src="flood_tradition_card.png" alt="" aria-hidden="true" loading="lazy">
+        </div>
+        <a class="comparison-card comparison-card--bg" href="the-flood.html">
+          <img class="comparison-card-bg-img" src="flood_tradition_bg.png" alt="" aria-hidden="true" loading="lazy">
+          <div class="comparison-card-bg-fade" aria-hidden="true"></div>
+          <div class="comparison-body">
+            <span class="comparison-chip">Flood Tradition</span>
+            <h2>Surviving the Flood</h2>
+            <p class="comparison-subtitle">Gilgamesh XI &amp; Genesis 6&ndash;9</p>
+            <span class="comparison-status">Enter <span class="arrow">&rarr;</span></span>
+          </div>
+        </a>
+      </div>
+      <div class="comparison-card-wrap" data-reveal-manual>
+        <div class="comparison-card-shadow" aria-hidden="true">
+          <img src="legal_tradition_card.png" alt="" aria-hidden="true" loading="lazy">
+        </div>
+        <a class="comparison-card comparison-card--bg" href="covenant-code.html">
+          <img class="comparison-card-bg-img" src="legal_tradition_bg.png" alt="" aria-hidden="true" loading="lazy">
+          <div class="comparison-card-bg-fade" aria-hidden="true"></div>
+          <div class="comparison-body">
+            <span class="comparison-chip">Legal Tradition</span>
+            <h2>Defining Justice</h2>
+            <p class="comparison-subtitle">Hammurabi &amp; Exodus 21&ndash;23</p>
+            <span class="comparison-status">Enter <span class="arrow">&rarr;</span></span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+<script>
+(function(){
+  // Quick, responsive reveal ported from the Mirror exhibit's intro
+  // stage (revealCascade() there): each beat is a group of elements
+  // that starts fading in together, one flat stagger apart, in order.
+  function revealCascade(beats) {
+    var DEFAULT_STAGGER = 100; // ms between each element's start, unless a beat overrides it
+    var INITIAL = 80;          // delay before the very first element begins
+
+    var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var allEls = [];
+    beats.forEach(function (b) { allEls = allEls.concat(b.els); });
+    allEls.forEach(function (el) { if (el) el.classList.remove('is-revealed'); });
+
+    if (reduceMotion) {
+      allEls.forEach(function (el) { if (el) el.classList.add('is-revealed'); });
+      return;
+    }
+
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        var delay = INITIAL;
+        beats.forEach(function (b) {
+          var stagger = (typeof b.stagger === 'number') ? b.stagger : DEFAULT_STAGGER;
+          b.els.forEach(function (el) {
+            (function (d) {
+              if (el) setTimeout(function () { el.classList.add('is-revealed'); }, d);
+            })(delay);
+            delay += stagger;
+          });
+        });
+      });
+    });
+  }
+
+  revealCascade([
+    { els: [document.querySelector('.parallel-eyebrow'), document.querySelector('.page-head-inner h1')] },
+    { els: [document.querySelector('.page-head-lede')] },
+    // Cards reveal left to right (source order: creation, flood, legal)
+    // on their own, slightly slower 150ms cadence - cinematic rather
+    // than brisk, and independent of the header's stagger above.
+    { els: Array.prototype.slice.call(document.querySelectorAll('.comparison-card-wrap')), stagger: 150 }
+  ]);
+})();
+</script>
+<script src="atmosphere.js"></script>
+<script src="chrome.js"></script>
+
+</body>
+</html>

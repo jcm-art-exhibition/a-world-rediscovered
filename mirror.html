@@ -214,8 +214,8 @@
   }
   @media (prefers-reduced-motion: reduce){ .developing-line{ animation:none; transform:scaleY(1); } }
   .developing-text{
-    font-family:'Instrument Sans', sans-serif; font-weight:400; font-style:italic; font-size:1.05rem; letter-spacing:0.01em;
-    text-transform:none; color:var(--bone-dim);
+    font-family:'Fraunces', serif; font-style:italic; font-weight:400; font-size:1.02rem; line-height:1.6;
+    color:var(--bone-dim);
   }
 
   /* ---------- shared percentage-chart styling ----------
@@ -435,12 +435,12 @@
   .readagain-inner{ max-width:62rem; text-align:center; }
 
   .readagain-layout{
-    margin-top:2rem; text-align:left;
+    margin-top:2.8rem; text-align:left;
     display:grid; grid-template-columns:1fr 1fr; gap:4.5rem;
     align-items:start;
   }
   @media (max-width:900px){
-    .readagain-layout{ grid-template-columns:1fr; gap:2.4rem; margin-top:1.6rem; }
+    .readagain-layout{ grid-template-columns:1fr; gap:2.4rem; margin-top:2.2rem; }
   }
 
   /* ---- left column: the passage ---- */
@@ -641,8 +641,9 @@
       <div class="stage-inner intro-content is-shown">
         <p class="mirror-eyebrow" data-reveal-manual>The Mirror Exhibit</p>
         <h1 data-reveal-manual>No One Reads Without a Lens</h1>
-        <p class="intro-lede" data-reveal-manual>Every reader brings a worldview to the text before reading a single word. Our habits, expectations, traditions, and frames of reference shape the way we understand what we read.</p>
-        <p class="intro-lede" data-reveal-manual>This exhibit is less about what you know and more about how you read. It invites you to notice the interpretive habits and filters that influence the way you approach Scripture.</p>
+        <p class="intro-lede" data-reveal-manual>Every reader brings assumptions to a text without realizing it. Our expectations, traditions, and frames of reference shape what we notice, what we connect, and what we may overlook.</p>
+        <p class="intro-lede" data-reveal-manual>The Mirror is designed to make some of those interpretive habits visible. You&rsquo;ll respond to a series of questions, see the lenses your responses reveal, and then revisit biblical passages through other lenses to notice what changes.</p>
+        <p class="intro-lede" data-reveal-manual>There are no correct answers. Choose the response that most closely reflects how you would naturally understand each passage. Don&rsquo;t try to choose the answer you think you should give. The invitation is to notice the habits that shape how you&nbsp;read.</p>
         <button class="mirror-cta" id="beginBtn" type="button" data-reveal-manual>Look in the Mirror <span class="arrow">&rarr;</span></button>
       </div>
     </section>
@@ -666,7 +667,7 @@
     <section class="stage" id="stage-developing" data-stage="developing">
       <div class="stage-inner developing-inner">
         <div class="developing-line" aria-hidden="true"></div>
-        <p class="developing-text">Bringing your reading into focus&hellip;</p>
+        <p class="developing-text">Bringing your interpretive lenses into focus&hellip;</p>
       </div>
     </section>
 
@@ -677,7 +678,7 @@
          screen is gone — this page absorbed its copy and chart. -->
     <section class="stage" id="stage-profiles" data-stage="profiles">
       <div class="stage-inner profiles-inner">
-        <h2 class="profiles-heading" data-reveal-manual>Your Reading Profile</h2>
+        <h2 class="profiles-heading" data-reveal-manual>Your Interpretive Lenses</h2>
         <div class="profiles-divider" data-reveal-manual></div>
 
         <div class="profiles-layout">
@@ -715,7 +716,7 @@
     <section class="stage" id="stage-readagain" data-stage="readagain">
       <a class="back-link" href="#" data-back-to-results aria-label="Return to your results">&larr; Back to Results</a>
       <div class="stage-inner readagain-inner">
-        <h2 class="profiles-heading" data-reveal-manual>Read It Again</h2>
+        <h2 class="profiles-heading" data-reveal-manual>Read Through Another Lens</h2>
         <div class="profiles-divider" data-reveal-manual></div>
 
         <!-- Two-column editorial layout: the passage (left) stays put
@@ -756,11 +757,11 @@
       <div class="stage-inner reflection-inner">
         <div class="reflection-group">
           <p class="reflection-line" data-reveal-manual>Every lens reveals something.</p>
-          <p class="reflection-line" data-reveal-manual>Every lens hides something.</p>
+          <p class="reflection-line" data-reveal-manual>Every lens obscures something.</p>
         </div>
         <div class="reflection-group">
-          <p class="reflection-line reflection-line--nowrap" data-reveal-manual>The goal isn&rsquo;t to stop reading through a lens.</p>
-          <p class="reflection-line" data-reveal-manual>It&rsquo;s to know when you&rsquo;re wearing one.</p>
+          <p class="reflection-line reflection-line--nowrap" data-reveal-manual>We never read without a lens.</p>
+          <p class="reflection-line" data-reveal-manual>The difference is whether we notice it.</p>
         </div>
         <div class="reflection-continue" data-reveal-manual>
           <div class="reflection-nav">
@@ -784,52 +785,52 @@
   var LENSES = {
     coherence: {
       name: 'Harmonization',
-      tagline: 'You read the parts as pieces of one whole.',
-      body: 'When a passage seems to sit oddly beside another, you look for the connection that resolves the tension. You trust that Scripture, read as a whole, holds together — so an apparent gap reads as an invitation to look further, not a flaw to leave unexamined.',
-      helps: 'It lets you hear Scripture as a single, unfolding conversation rather than a pile of disconnected fragments.',
-      hides: 'It can smooth over real differences in voice, emphasis, and circumstance between passages that were never meant to say exactly the same thing.'
+      tagline: 'You look for how the parts fit together.',
+      body: 'When passages seem to differ or sit in tension, you look for a way to understand them as parts of a coherent whole. Apparent contradictions invite further reading rather than quick conclusions.',
+      helps: 'It helps you notice connections across texts and resist treating difficult passages as isolated fragments.',
+      hides: 'It can smooth over real differences in voice, emphasis, or perspective that may deserve attention.'
     },
     framework: {
       name: 'Framework',
-      tagline: 'You read through the system you already trust.',
-      body: 'You bring a theological structure with you — a tradition, a set of categories, a way the pieces are supposed to fit — and you reach for it instinctively when a passage needs interpreting. That structure gives you a place to stand.',
-      helps: 'It gives you a coherent way to relate one passage to the whole of Christian teaching, instead of starting from scratch every time.',
-      hides: 'It can quietly decide what a passage is allowed to mean before you’ve actually read it closely.'
+      tagline: 'You read through a theological structure you already trust.',
+      body: 'You bring established beliefs, doctrines, and traditions to the text and ask how a passage fits within them. Familiar categories help organize what you read and give individual passages a larger theological shape.',
+      helps: 'It gives you a stable structure for connecting individual passages to larger theological ideas.',
+      hides: 'It can make unfamiliar ideas harder to notice when they do not fit easily within categories you already hold.'
     },
     precision: {
       name: 'Historical',
-      tagline: 'You want to know exactly what happened.',
-      body: 'Chronology, authorship, historical accuracy — you notice when the details matter, and you want them to hold up. A text that claims something happened should be checkable, or at least honest about its own kind of claim.',
-      helps: 'It keeps you honest about what a text is actually asserting, rather than what you’d like it to be asserting.',
-      hides: 'It can miss what a passage is doing artistically or theologically when it was never written to satisfy a modern standard of reporting.'
+      tagline: 'You ask what happened, when, and how the text came to be.',
+      body: 'You are drawn to the events, people, sources, dates, and circumstances behind a passage. Understanding what may have happened historically helps you make sense of what the text is describing or preserving.',
+      helps: 'It grounds the text in real people, events, places, and moments in history.',
+      hides: 'It can draw attention toward reconstructing what happened and away from how the text itself has been shaped to communicate meaning.'
     },
     application: {
       name: 'Application',
-      tagline: 'You ask what this means for you, right now.',
-      body: 'Before anything else, you want to know what a passage asks of you — morally, spiritually, personally. Scripture isn’t an artifact to you; it’s a voice still speaking, and you listen for what it’s saying to your life.',
-      helps: 'It keeps the text from becoming merely academic — you let it actually address you.',
-      hides: 'It can rush past what a passage meant on its own terms, to its own audience, before deciding what it means for you.'
+      tagline: 'You ask what the text means for your life now.',
+      body: 'As you read, you look for beliefs, principles, challenges, or practices that can shape the way you live. The distance between the ancient text and the present naturally leads you toward personal meaning.',
+      helps: 'It keeps the text connected to lived experience rather than leaving it only in the past.',
+      hides: 'It can move too quickly toward the present before asking what the text meant within its own world.'
     },
     canonical: {
       name: 'Canonical',
-      tagline: 'You read the beginning in light of the ending.',
-      body: 'You read earlier Scripture with the whole story already in view — later revelation casts light backward, and a passage’s fullest meaning often only becomes visible once you know where the story is headed.',
-      helps: 'It lets you see patterns, promises, and fulfillments that stretch across the whole of Scripture.',
-      hides: 'It can overwrite what an earlier passage meant to the people who first received it, before any of what came later existed.'
+      tagline: 'You read each passage as part of a larger biblical story.',
+      body: 'You naturally connect one part of Scripture with others, especially later texts that revisit, develop, or reinterpret earlier ones. Meaning emerges not only from the passage itself, but from its place within the wider canon.',
+      helps: 'It reveals connections, developments, and recurring themes across the biblical collection.',
+      hides: 'It can allow later texts to shape your reading before an earlier passage has been heard on its own terms.'
     },
     context: {
       name: 'Context',
-      tagline: 'You picture the world the writer actually stood in.',
-      body: 'Before you ask what a passage means, you ask what it would have meant — to its author, its first audience, in their actual world of customs, politics, and assumptions you don’t share.',
-      helps: 'It keeps you from reading your own world’s assumptions back into a text that was never written with you in mind.',
-      hides: 'It can turn a text that still addresses you into something that only ever addressed someone else, a long time ago.'
+      tagline: 'You picture the world the writer and audience actually inhabited.',
+      body: 'Before asking what a passage means today, you ask what it may have meant within its own cultural world. Customs, politics, social structures, beliefs, and assumptions all help shape how a text would first have been heard.',
+      helps: 'It helps keep modern assumptions from being read back into an ancient text.',
+      hides: 'It can make a text feel confined to its original setting rather than something that may continue to speak beyond it.'
     },
     literary: {
       name: 'Literary',
-      tagline: 'You notice how the story is built, not just what it says.',
-      body: 'Genre, structure, repetition, symbolism, the choices an author or editor made — you read for craft as much as content, and you trust that how something is said is part of what it means.',
-      helps: 'It surfaces patterns and artistry that a purely factual or doctrinal reading can miss entirely.',
-      hides: 'It can treat a text primarily as a made thing to admire, rather than a claim being made on you.'
+      tagline: 'You notice how the text is built, not just what it says.',
+      body: 'Genre, structure, repetition, imagery, pacing, and arrangement all draw your attention. You read for craft as well as content, trusting that how something is communicated contributes to what it means.',
+      helps: 'It reveals patterns, structure, and artistry that other approaches can easily overlook.',
+      hides: 'It can draw so much attention to how the text is constructed that its historical, theological, or personal claims receive less attention.'
     }
   };
 
@@ -847,127 +848,127 @@
       reference: 'Genesis 1:1—2',
       text: 'In the beginning God created the heavens and the earth. Now the earth was formless and empty, darkness was over the surface of the deep, and the Spirit of God was hovering over the waters.',
       readings: {
-        coherence: 'You read this as the deliberate overture to a story that keeps unfolding—the same God who calls light out of darkness here is still calling order out of chaos by the time the story reaches a new heaven and a new earth.',
-        framework: 'The question you bring here is what kind of creation this is—out of nothing, or order drawn out of existing material—because the answer shapes how the rest of your system accounts for the origin of evil and matter.',
-        precision: 'You want to know whether “formless and empty” describes an actual pre-creation state or reflects the cosmology its ancient audience already held, and how it compares to other ancient Near Eastern creation accounts.',
-        application: 'Before any of the cosmology, you hear an invitation: the God who spoke order into chaos is still willing to do that in whatever feels formless in your own life right now.',
-        canonical: 'You cannot read “in the beginning” without hearing John’s “in the beginning was the Word” answering back—this opening line is already pointing toward a second creation in Christ.',
-        context: 'You picture this as a word first spoken to exiles surrounded by their captors’ own creation myths—a quiet, confident rebuttal: there is one God, and the waters they feared are not a rival power but raw material.',
-        literary: 'You notice the artistry before the argument—the deliberate rhythm of “and God said… and it was so… and God saw that it was good,” building toward the rest that crowns the whole structure.'
+        coherence: 'You look for how this opening fits with other biblical passages that describe creation differently, reading them together as parts of one coherent account rather than letting the differences stand in isolation.',
+        framework: 'You approach these verses through beliefs you already hold about creation, God, and the nature of Scripture, so those categories shape what you expect the opening of Genesis to be saying.',
+        precision: 'You ask what lies behind this account historically, including when it took shape, what traditions it may preserve, and how its language compares with other ancient accounts of origins.',
+        application: 'You notice a God who brings order and possibility out of darkness and disorder, and ask where that pattern might speak into your own life.',
+        canonical: 'You hear later biblical texts echoing this opening, especially John’s “In the beginning,” and read Genesis as part of a larger scriptural story of creation and new creation.',
+        context: 'You picture an ancient audience hearing words like “the deep,” darkness, and an unformed earth within a world of assumptions about the cosmos very different from your own.',
+        literary: 'You notice how the scene is constructed: darkness, the deep, an unformed earth, and the Spirit of God poised over the waters before the first divine words are spoken.'
       }
     },
     {
       reference: 'Isaiah 7:14',
       text: 'Therefore the Lord himself will give you a sign: the virgin will conceive and give birth to a son, and will call him Immanuel.',
       readings: {
-        coherence: 'You want this promise to sit comfortably beside its later use in Matthew, reading the two as one continuous sign rather than two separate messages to two separate audiences, centuries apart.',
-        framework: 'Your theological system already knows how this verse gets used—as a prophecy of the virgin birth—so that is the meaning you reach for first, before asking what it might have meant to the king it was actually spoken to.',
-        precision: 'You want to know exactly what the underlying Hebrew word means—a young woman, not necessarily a virgin—and how that word choice shapes what this verse could and could not have promised in its own century.',
-        application: 'You hear it as a personal assurance: God is willing to give unmistakable signs of his presence, even to people who do not especially deserve or want one.',
-        canonical: 'You read this sign mainly through Matthew’s eyes, where it becomes the announcement of Immanuel, God with us, in Jesus—the later fulfillment shapes what you expect the earlier promise to mean.',
-        context: 'You place this inside a king’s own crisis—his capital threatened by two enemy armies—and ask what sign could have meant anything to a frightened ruler who needed reassurance within his own lifetime, not centuries later.',
-        literary: 'You notice this sign sits inside a larger pattern of symbolically named children in Isaiah, each one a walking message about what God is about to do next.'
+        coherence: 'You look for a way to read Isaiah’s sign to Ahaz together with Matthew’s later use of the verse, treating them as parts of one coherent witness rather than leaving them in tension.',
+        framework: 'You read this verse through theological convictions you already hold about prophecy, fulfillment, and the identity of Jesus, so those categories shape what the sign means from the beginning.',
+        precision: 'You ask what the key terms would have meant in Isaiah’s own time, how the verse functioned historically, and what kind of claim it could have made in its original setting.',
+        application: 'You hear a reminder that God is not absent in moments of fear or uncertainty, and you ask what it means to trust his presence in your own life.',
+        canonical: 'You read this sign in light of Matthew’s use of it, where “Immanuel” becomes part of the larger scriptural pattern that culminates in Jesus as God with us.',
+        context: 'You place this within Ahaz’s political crisis and ask what kind of sign would have meant something to a threatened king and the people around him in that moment.',
+        literary: 'You notice that this sign belongs to a larger pattern in Isaiah, where children and their names function as living symbols within the prophet’s message.'
       }
     },
     {
       reference: 'Genesis 6:1—4',
       text: 'When human beings began to increase in number on the earth and daughters were born to them, the sons of God saw that the daughters of humans were beautiful, and they married any of them they chose.',
       readings: {
-        coherence: 'You look for a reading that fits comfortably with the rest of Genesis’s fairly restrained, human-centered narration, which makes this strange episode feel like it needs to be reconciled with everything around it.',
-        framework: 'Your tradition has probably already told you who the “sons of God” are, and that inherited answer quietly decides how strange—or how ordinary—this passage is allowed to feel.',
-        precision: 'You want to know what the phrase “sons of God” meant to its earliest readers, where the same words elsewhere clearly refer to divine or angelic beings rather than human ones.',
-        application: 'You read this as a story about boundary-crossing and its consequences—a warning about desire pursued without restraint, right before judgment falls on a world grown corrupt.',
-        canonical: 'You cannot read this without the New Testament’s own strange cross-references in mind, which seem to take the more supernatural reading seriously and pull this passage’s meaning forward.',
-        context: 'You place this beside the wider ancient world of stories about divine beings intermarrying with humans and producing extraordinary offspring—a kind of story this text’s earliest audience would have recognized immediately, even if it unsettles you now.',
-        literary: 'You notice how deliberately compressed and strange this passage is—four verses that raise more questions than they answer, functioning as a hinge into the flood story that follows.'
+        coherence: 'You look for a way to understand this unusual episode alongside other biblical passages about human beings, divine beings, and the events leading to the flood, reading the differences as parts of a coherent whole.',
+        framework: 'You approach the “sons of God” through beliefs you already hold about angels, humanity, and the boundaries between them, so those theological categories shape which interpretations seem possible.',
+        precision: 'You ask how terms like “sons of God” were understood when this passage took shape, what older traditions may stand behind the story, and how those questions affect its historical interpretation.',
+        application: 'You notice a story of desire crossing boundaries and ask what it might reveal about power, restraint, and the human choices that precede the judgment of the flood.',
+        canonical: 'You read this passage alongside later biblical texts that return to rebellious divine beings and ancient judgment, allowing those later echoes to shape how you understand this brief and difficult episode.',
+        context: 'You place the story within an ancient world familiar with traditions about divine beings, human women, and extraordinary offspring, making imagery that feels unusual now more recognizable within its original cultural setting.',
+        literary: 'You notice how compressed the episode is and where it appears in the story. Its unexplained figures and boundary crossing intensify the sense of disorder just before Genesis turns toward the flood.'
       }
     }
   ];
 
   var QUESTIONS = [
-    { scenario: 'You come across a strange purity law in Leviticus with no obvious modern equivalent.', prompt: 'What’s your first instinct?', answers: [
-      { lens: 'coherence', text: 'Look for a similar law elsewhere in Scripture that might explain the logic behind it.' },
-      { lens: 'framework', text: 'Ask what larger theological principle this law is meant to illustrate.' },
-      { lens: 'precision', text: 'Wonder whether this reflects an actual historical practice, and try to date it.' },
-      { lens: 'application', text: 'Ask what timeless principle this teaches you today.' }
+    { scenario: 'You come across an unfamiliar purity law in Leviticus with no obvious modern equivalent.', prompt: 'What is your first instinct?', answers: [
+      { lens: 'coherence', text: 'Look elsewhere in Scripture for a related law that might help explain how the two fit together.' },
+      { lens: 'framework', text: 'Ask what larger theological principle the law is meant to express.' },
+      { lens: 'precision', text: 'Ask when the law emerged and what historical practice may lie behind it.' },
+      { lens: 'application', text: 'Ask what enduring principle the law might teach you today.' }
     ]},
-    { scenario: 'A genealogy interrupts the story you were following.', prompt: 'What do you do with it?', answers: [
-      { lens: 'canonical', text: 'Skim ahead to see whose story it’s building toward.' },
-      { lens: 'context', text: 'Wonder what genealogies meant to the people who first heard them.' },
-      { lens: 'literary', text: 'Notice the names’ rhythm — what’s included, and what’s left out.' },
-      { lens: 'coherence', text: 'Try to reconcile it with a genealogy given elsewhere in Scripture.' }
+    { scenario: 'A genealogy interrupts the story you are following.', prompt: 'What do you do with it?', answers: [
+      { lens: 'canonical', text: 'Trace where the genealogy leads in the larger biblical story.' },
+      { lens: 'context', text: 'Ask what the genealogy would have meant to its original audience.' },
+      { lens: 'literary', text: 'Notice the pattern of names, including who appears and who is left out.' },
+      { lens: 'coherence', text: 'Compare it with another genealogy elsewhere in Scripture and try to reconcile the differences.' }
     ]},
-    { scenario: 'Two accounts of the same event tell it slightly differently.', prompt: 'How do you hold them together?', answers: [
-      { lens: 'framework', text: 'Fit both accounts into the theological system you already hold.' },
-      { lens: 'precision', text: 'Try to work out exactly what happened, and in what order.' },
-      { lens: 'application', text: 'Ask what each version is meant to teach you personally.' },
-      { lens: 'canonical', text: 'Read both in light of how the whole story eventually resolves.' }
+    { scenario: 'Two accounts of the same event tell it differently.', prompt: 'What do you do with the differences?', answers: [
+      { lens: 'framework', text: 'Read both through the theological framework you already hold.' },
+      { lens: 'precision', text: 'Try to determine what happened and in what order.' },
+      { lens: 'application', text: 'Ask what each account is meant to teach you personally.' },
+      { lens: 'canonical', text: 'Read both in light of how later Scripture interprets or develops the same event.' }
     ]},
-    { scenario: 'A prophet uses a strange, vivid image you don’t fully understand.', prompt: 'Where do you go first?', answers: [
-      { lens: 'context', text: 'Picture what that image would have meant to its original audience.' },
-      { lens: 'literary', text: 'Notice how the image is built, and where else it echoes in the passage.' },
-      { lens: 'coherence', text: 'Look for a place elsewhere in Scripture that uses the same image more plainly.' },
-      { lens: 'framework', text: 'Interpret the image using categories you already know from teaching or tradition.' }
+    { scenario: 'A prophet uses a vivid image you do not immediately understand.', prompt: 'Where do you go first?', answers: [
+      { lens: 'context', text: 'Ask what the image would have meant to its original audience.' },
+      { lens: 'literary', text: 'Notice how the image is constructed and how it functions within the passage.' },
+      { lens: 'coherence', text: 'Look elsewhere in Scripture for the same image used more plainly and use it to clarify this one.' },
+      { lens: 'framework', text: 'Interpret the image through categories you already know from teaching or tradition.' }
     ]},
-    { scenario: 'You read a psalm that seems to describe a real historical crisis.', prompt: 'What draws your attention?', answers: [
-      { lens: 'precision', text: 'Try to identify which specific historical event it’s describing.' },
-      { lens: 'application', text: 'Ask how the psalm’s emotion maps onto something you’re feeling.' },
-      { lens: 'canonical', text: 'Read it as pointing toward something fulfilled later.' },
-      { lens: 'context', text: 'Imagine the world the psalmist was actually standing in.' }
+    { scenario: 'You read a psalm that seems to emerge from a historical crisis.', prompt: 'What draws your attention first?', answers: [
+      { lens: 'precision', text: 'Try to identify the specific historical event behind it.' },
+      { lens: 'application', text: 'Ask how the psalm’s emotion connects with something you are experiencing.' },
+      { lens: 'canonical', text: 'Read it in light of how later Scripture interprets or develops the psalm.' },
+      { lens: 'context', text: 'Picture the cultural and social world the psalmist was writing from.' }
     ]},
-    { scenario: 'A parable ends without a clear resolution.', prompt: 'What’s your reaction?', answers: [
-      { lens: 'literary', text: 'Notice the shape of the story, and what its ambiguity is doing.' },
-      { lens: 'coherence', text: 'Compare it to other parables to fill in the missing ending.' },
-      { lens: 'framework', text: 'Assume it fits the moral lesson you already associate with parables.' },
-      { lens: 'precision', text: 'Wonder whether this is an exact transcript of something actually said.' }
+    { scenario: 'A parable ends without a clear resolution.', prompt: 'What do you do with the ambiguity?', answers: [
+      { lens: 'literary', text: 'Notice the shape of the story and ask what the ambiguity is doing.' },
+      { lens: 'coherence', text: 'Compare it with other parables to see whether they help resolve the ambiguity.' },
+      { lens: 'framework', text: 'Interpret it through the moral or theological lesson you already associate with parables.' },
+      { lens: 'precision', text: 'Ask how closely the written account reflects the parable as it was originally told.' }
     ]},
     { scenario: 'You come across a command that seems to apply only to ancient Israel.', prompt: 'What do you do with it?', answers: [
-      { lens: 'application', text: 'Look for the principle behind it that still applies to you.' },
-      { lens: 'canonical', text: 'Ask how later Scripture treats or reinterprets that command.' },
-      { lens: 'context', text: 'Consider what problem in that ancient society the command was solving.' },
-      { lens: 'literary', text: 'Notice where the command sits in the larger structure of the book.' }
+      { lens: 'application', text: 'Look for an enduring principle you can apply today.' },
+      { lens: 'canonical', text: 'Ask how later Scripture treats or develops the command.' },
+      { lens: 'context', text: 'Ask what issue in ancient Israel the command was addressing.' },
+      { lens: 'literary', text: 'Notice where the command appears in the book and how it relates to what surrounds it.' }
     ]},
-    { scenario: 'You notice the same phrase repeated three times across a book.', prompt: 'What’s your instinct?', answers: [
-      { lens: 'coherence', text: 'Trace every other place in Scripture where that phrase appears.' },
-      { lens: 'framework', text: 'Ask what doctrine or theme the repetition is meant to reinforce.' },
-      { lens: 'precision', text: 'Wonder whether the repetition points to multiple authors or sources.' },
-      { lens: 'application', text: 'Ask what that phrase should mean for how you live.' }
+    { scenario: 'You notice the same phrase repeated three times across a book.', prompt: 'What is your first instinct?', answers: [
+      { lens: 'coherence', text: 'Trace the phrase elsewhere in Scripture to see how the different uses fit together.' },
+      { lens: 'framework', text: 'Ask what theological theme or doctrine the repetition reinforces.' },
+      { lens: 'precision', text: 'Ask whether the repetition might reflect different sources or stages of composition.' },
+      { lens: 'application', text: 'Ask what the repeated phrase might mean for how you live.' }
     ]},
-    { scenario: 'An early narrative includes a detail that feels strange or troubling on its own.', prompt: 'How do you sit with it?', answers: [
-      { lens: 'canonical', text: 'Trust that it will make more sense in light of where the story ends up.' },
-      { lens: 'context', text: 'Ask what that detail would have signaled to its original readers.' },
-      { lens: 'literary', text: 'Notice how the detail is placed, and what it’s setting up narratively.' },
-      { lens: 'coherence', text: 'Look for a parallel passage that softens or explains it.' }
+    { scenario: 'An early narrative includes a detail that feels troubling or hard to explain on its own.', prompt: 'How do you approach it?', answers: [
+      { lens: 'canonical', text: 'Read the detail in light of where the larger biblical story eventually goes.' },
+      { lens: 'context', text: 'Ask what the detail would have signaled to its original audience.' },
+      { lens: 'literary', text: 'Notice where the detail appears and what it may be setting up in the story.' },
+      { lens: 'coherence', text: 'Look for a parallel passage that might explain or resolve the tension.' }
     ]},
-    { scenario: 'You come across a biblical passage that could be understood in several different ways.', prompt: 'What most shapes where you begin?', answers: [
+    { scenario: 'You come across a biblical passage that could reasonably be understood in several ways.', prompt: 'What most shapes where you begin?', answers: [
       { lens: 'framework', text: 'How the passage fits within the theological framework or tradition you trust.' },
-      { lens: 'precision', text: 'What the historical evidence suggests about what actually happened.' },
-      { lens: 'application', text: 'What the passage means for how you believe or live today.' },
+      { lens: 'precision', text: 'What historical evidence suggests about the passage’s setting, authorship, or circumstances.' },
+      { lens: 'application', text: 'What the passage might mean for how you believe or live today.' },
       { lens: 'canonical', text: 'How other biblical writers interpret or develop the same idea.' }
     ]},
-    { scenario: 'A law code lists a penalty that feels disproportionate by today’s standards.', prompt: 'Where do you turn?', answers: [
-      { lens: 'context', text: 'Compare it to how neighboring ancient cultures handled the same offense.' },
-      { lens: 'literary', text: 'Notice how the law is worded, and where it sits among other laws.' },
-      { lens: 'coherence', text: 'Look for how a related law elsewhere balances or clarifies it.' },
-      { lens: 'framework', text: 'Interpret it through a theological lens that explains why it’s fair.' }
+    { scenario: 'A law code lists a penalty that feels disproportionate by today’s standards.', prompt: 'Where do you turn first?', answers: [
+      { lens: 'context', text: 'Compare it with how neighboring ancient cultures treated the same offense.' },
+      { lens: 'literary', text: 'Notice how the law is worded and how it relates to the laws around it.' },
+      { lens: 'coherence', text: 'Look for a related law elsewhere in Scripture that might balance or clarify it.' },
+      { lens: 'framework', text: 'Ask how the penalty fits within the theological understanding of justice you already hold.' }
     ]},
-    { scenario: 'A number in the text seems unusually large, or unexpected.', prompt: 'What do you do with it?', answers: [
-      { lens: 'precision', text: 'Try to determine whether it’s meant literally or as an estimate.' },
-      { lens: 'application', text: 'Ask what the number is meant to make you feel or trust.' },
-      { lens: 'canonical', text: 'Compare it to how similar numbers function across Scripture’s larger story.' },
-      { lens: 'context', text: 'Consider what that number would have symbolized in the ancient world.' }
+    { scenario: 'A number in the text seems unusually large or otherwise unexpected.', prompt: 'What do you do with it?', answers: [
+      { lens: 'precision', text: 'Try to determine whether the number is literal, approximate, or shaped by ancient reporting conventions.' },
+      { lens: 'application', text: 'Ask what response the number is inviting from you today.' },
+      { lens: 'canonical', text: 'Read it in light of how similar numbers function elsewhere in Scripture.' },
+      { lens: 'context', text: 'Consider what the number might have symbolized or communicated in the ancient world.' }
     ]},
-    { scenario: 'A book abruptly shifts from narrative into poetry.', prompt: 'What catches your attention?', answers: [
-      { lens: 'literary', text: 'Why the genre shift happens right there.' },
-      { lens: 'coherence', text: 'A similar shift elsewhere, to understand the pattern.' },
-      { lens: 'framework', text: 'The assumption that the poetry reinforces a point already familiar to you.' },
-      { lens: 'precision', text: 'Whether the poem was composed separately and inserted later.' }
+    { scenario: 'A book shifts from narrative into poetry that revisits some of the same material.', prompt: 'What catches your attention first?', answers: [
+      { lens: 'literary', text: 'Ask why the genre shift happens at that point and what it does in the book.' },
+      { lens: 'coherence', text: 'Compare the narrative and poetic versions to see how they fit together.' },
+      { lens: 'framework', text: 'Read the poetry through a theological theme you already associate with the book.' },
+      { lens: 'precision', text: 'Ask whether the poem may have been composed separately and incorporated later.' }
     ]},
     { scenario: 'You finish reading an entire book of the Bible in one sitting.', prompt: 'What are you left thinking about?', answers: [
-      { lens: 'application', text: 'What personal change this book is calling you toward.' },
-      { lens: 'canonical', text: 'Where this book fits in the Bible’s larger story.' },
-      { lens: 'context', text: 'What it would have been like to hear this book read aloud in its own time.' },
-      { lens: 'literary', text: 'The shape of the whole book — how it opens, builds, and closes.' }
+      { lens: 'application', text: 'What personal change the book might be calling you toward.' },
+      { lens: 'canonical', text: 'Where the book fits within the Bible’s larger story.' },
+      { lens: 'context', text: 'What it might have been like to hear the book read aloud in its original setting.' },
+      { lens: 'literary', text: 'The shape of the whole book, including how it opens, develops, and closes.' }
     ]}
   ];
 
