@@ -218,19 +218,13 @@
     text-transform:none; color:var(--bone-dim);
   }
 
-  /* ---------- results reveal ----------
-     Same washed mirror.jpg backdrop and eyebrow/heading treatment as
-     the quiz stage, so the results feel like a continuation of it
-     rather than a new template. */
-  #stage-results{
-    background:
-      linear-gradient(to bottom, rgba(24,8,1,0.82), rgba(24,8,1,0.9) 55%, var(--ground) 100%),
-      url('cards/mirror.jpg') center 32% / cover no-repeat;
-  }
-  .results-inner{ text-align:center; }
+  /* ---------- shared percentage-chart styling ----------
+     Used by the percentage breakdown on the lens-profiles stage
+     (the standalone results screen that used to share this block
+     has been folded into that stage). */
   .lens-bar-list{
     display:flex; flex-direction:column; gap:1.15rem;
-    margin:3.2rem 0 1rem; text-align:left;
+    margin:0.4rem 0 1rem; text-align:left;
   }
   .lens-bar-row .lb-head{
     display:flex; align-items:baseline; justify-content:space-between; gap:1rem; margin-bottom:0.5rem;
@@ -275,63 +269,256 @@
     .lb-fill{ transition:none; }
     .lb-fill::after{ animation:none; display:none; }
   }
-  .results-continue{ margin-top:2.8rem; }
-
   /* ---------- lens profiles ----------
-     Same washed mirror.jpg backdrop as the quiz/results stages, and
-     the same eyebrow/heading, so the reader never loses the thread
-     between "here's your result" and "here's what it means." */
+     Same washed mirror.jpg backdrop as the quiz stage — this is the
+     first screen the visitor sees after the quiz. It carries a small
+     section heading (not the full exhibit eyebrow/title treatment
+     used elsewhere) since the visitor already knows where they are —
+     this just labels the results that follow. */
+  .profiles-heading{
+    font-family:'Fraunces', serif; font-weight:600; font-size:clamp(2rem, 5.4vw, 4rem);
+    text-align:center; color:var(--bone); margin:0 0 0.9rem;
+    text-shadow:0 1px 0 rgba(255,255,255,0.06), 0 2px 22px rgba(175,157,46,0.18);
+  }
+  .profiles-divider{
+    width:3rem; height:1px; margin:0 auto 1.9rem;
+    background:rgba(175,157,46,0.35);
+  }
   #stage-profiles{
-    align-items:flex-start; padding-top:6.5rem;
+    align-items:flex-start; padding-top:3rem; padding-bottom:1.25rem;
+    height:100vh; max-height:100vh; overflow:hidden;
     background:
       linear-gradient(to bottom, rgba(24,8,1,0.82), rgba(24,8,1,0.9) 55%, var(--ground) 100%),
       url('cards/mirror.jpg') center 32% / cover no-repeat;
   }
-  .profiles-inner{ max-width:74rem; }
-  /* Left panel (eyebrow, heading, and your results) stays put as a
-     sticky column while the lens write-ups on the right scroll past
-     it — so the reader can always see what they're reading about. */
-  .profiles-layout{ display:flex; align-items:flex-start; gap:6rem; }
-  .profiles-sidebar{ flex:0 0 21rem; position:sticky; top:5.5rem; }
-  .profiles-main{ flex:1 1 auto; min-width:0; }
+  .profiles-inner{
+    max-width:78rem; height:100%; min-height:0;
+    display:flex; flex-direction:column; justify-content:center;
+    text-align:center;
+  }
+  /* No page scroll on this stage: the sidebar, carousel, pagination
+     and Continue button are sized to their own content and centered
+     as one composition, rather than stretched to fill the stage — so
+     they read as a single connected unit and Continue always sits
+     just beneath the carousel, never far down the page. If a single
+     lens's write-up is too long, that card scrolls internally. */
+  .profiles-layout{
+    display:flex; align-items:center; gap:4.5rem;
+    flex:0 0 auto; min-height:0; text-align:left;
+    margin-top:2rem;
+  }
+  .profiles-sidebar{ flex:0 0 21rem; }
+  .profiles-main{
+    flex:1 1 auto; min-width:0;
+    display:flex; flex-direction:column;
+  }
   @media (max-width:900px){
-    .profiles-layout{ display:block; }
-    .profiles-sidebar{ position:static; margin-bottom:3rem; }
+    .profiles-layout{ display:flex; flex-direction:column; gap:1.5rem; }
+    .profiles-sidebar{ flex:0 0 auto; }
   }
   .profiles-sidebar .lens-bar-list{ margin-bottom:0; }
-  .profiles-intro{
-    text-align:center; font-family:'IBM Plex Mono', monospace; font-size:0.7rem;
-    letter-spacing:0.24em; text-transform:uppercase; color:var(--ochre); margin-bottom:2.6rem;
+  /* Quiet "back to results" wayfinding link — used on Read It Again
+     and Reflection, the two screens that follow the results, so the
+     visitor can always return to their results but never further
+     back into the quiz itself. Styled to match .lobby-return exactly
+     and sits fixed just beneath it; scoped inside its stage so it
+     only ever appears on those two screens. */
+  .back-link{
+    position:fixed; top:3.3rem; left:1.6rem; z-index:80;
+    display:flex; align-items:center; gap:0.5rem;
+    font-family:'IBM Plex Mono', monospace; font-size:0.68rem; letter-spacing:0.12em;
+    text-transform:uppercase; color:var(--bone-dim); text-decoration:none;
+    opacity:0.68; transition:opacity .25s ease, color .25s ease;
+  }
+  .back-link:hover, .back-link:focus-visible{ opacity:1; color:var(--ochre); outline:none; }
+  /* Subtle instructional line reused on both the Profiles carousel
+     and the Read It Again lens selector. */
+  .subtle-instruction{
+    font-family:'Fraunces', serif; font-style:italic; font-weight:400;
+    font-size:0.92rem; color:var(--bone-faint); margin-bottom:0.8rem;
+  }
+
+  /* ---- lens carousel: one lens at a time, with arrows, dots and a
+     counter making it obvious there's more to page through. It sizes
+     to its content (capped by max-height, with internal scroll as a
+     fallback) instead of stretching, so there's no dead space below
+     the text and the arrows sit level with the content. ---- */
+  .profiles-carousel{
+    position:relative;
+    display:flex; align-items:center; gap:0.85rem;
+  }
+  .carousel-viewport{
+    flex:1 1 auto; min-width:0; overflow:hidden; position:relative;
+  }
+  .carousel-track{
+    display:flex;
+    transition:transform .5s cubic-bezier(.16,.9,.28,1);
   }
   .lens-profile{
-    padding:2.4rem 0; border-top:1px solid rgba(175,157,46,0.2);
+    flex:0 0 100%; width:100%; max-width:100%; max-height:40vh;
+    padding:0 0.25rem; overflow-y:auto;
   }
-  .lens-profile:first-of-type{ border-top:none; padding-top:0; }
   .lens-profile h2{
-    font-family:'Fraunces', serif; font-weight:600; font-size:clamp(1.5rem, 3.4vw, 2rem);
-    color:var(--bone); margin-bottom:0.5rem;
+    font-family:'Fraunces', serif; font-weight:600; font-size:clamp(1.7rem, 3.8vw, 2.3rem);
+    color:var(--bone); margin-bottom:0.4rem;
   }
   .lens-profile .lp-tagline{
-    font-family:'Fraunces', serif; font-style:italic; font-size:1.05rem; color:var(--ochre);
-    margin-bottom:1.1rem;
+    font-family:'Fraunces', serif; font-style:italic; font-size:1.15rem; color:var(--ochre);
+    margin-bottom:0.85rem;
   }
   .lens-profile .lp-body{
-    font-size:0.98rem; line-height:1.75; color:var(--bone-dim); margin-bottom:1.6rem;
+    font-size:1.05rem; line-height:1.7; color:var(--bone-dim); margin-bottom:1.1rem;
   }
-  .lp-split{ display:grid; grid-template-columns:1fr 1fr; gap:1.4rem; }
+  .lp-split{ display:grid; grid-template-columns:1fr 1fr; gap:1.1rem; }
   @media (max-width:640px){ .lp-split{ grid-template-columns:1fr; } }
   .lp-split div{
     background:rgba(237,230,216,0.03); border:1px solid rgba(237,230,216,0.1);
-    border-radius:4px; padding:1.1rem 1.2rem;
+    border-radius:4px; padding:0.85rem 1rem;
   }
   .lp-split .lp-label{
     display:inline-flex; font-family:'Instrument Sans', sans-serif; font-weight:600;
-    font-size:0.62rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--bone-faint);
+    font-size:0.66rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--bone-faint);
     background:rgba(237,230,216,0.06); border:1px solid rgba(237,230,216,0.18);
-    border-radius:999px; padding:0.35rem 0.75rem; margin-bottom:0.8rem;
+    border-radius:999px; padding:0.3rem 0.7rem; margin-bottom:0.5rem;
   }
-  .lp-split p{ font-size:0.9rem; line-height:1.6; color:var(--bone-dim); }
-  .profiles-continue{ text-align:center; margin-top:3rem; }
+  .lp-split p{ font-size:0.96rem; line-height:1.6; color:var(--bone-dim); }
+
+  .carousel-arrow{
+    flex:0 0 auto; align-self:center;
+    width:2.5rem; height:2.5rem; border-radius:50%; padding:0;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(237,230,216,0.05); border:1px solid rgba(237,230,216,0.16);
+    color:var(--bone-dim); cursor:pointer;
+    transition:background .2s ease, border-color .2s ease, color .2s ease, opacity .2s ease;
+  }
+  .carousel-arrow:hover:not(:disabled), .carousel-arrow:focus-visible:not(:disabled){
+    background:rgba(175,157,46,0.14); border-color:rgba(175,157,46,0.4); color:var(--ochre); outline:none;
+  }
+  .carousel-arrow:disabled{ opacity:0.25; cursor:default; }
+  .carousel-arrow svg{ display:block; }
+
+  .carousel-pagination{
+    display:flex; align-items:center; justify-content:center; gap:0.6rem;
+    margin-top:0.45rem; flex:0 0 auto;
+  }
+  .carousel-dot{
+    width:0.5rem; height:0.5rem; border-radius:50%;
+    background:rgba(237,230,216,0.22); border:none; padding:0; cursor:pointer;
+    transition:background .25s ease, transform .25s ease;
+  }
+  .carousel-dot:hover{ background:rgba(237,230,216,0.4); }
+  .carousel-dot.is-active{ background:var(--ochre); transform:scale(1.35); }
+  .carousel-counter{
+    font-family:'IBM Plex Mono', monospace; font-size:0.64rem; letter-spacing:0.1em;
+    text-transform:uppercase; color:var(--bone-faint); margin-left:0.4rem;
+  }
+
+  .profiles-continue{ text-align:center; margin-top:1.8rem; flex:0 0 auto; }
+  .profiles-continue .mirror-cta{ margin-top:0.8rem; }
+  @media (max-width:900px){
+    .profiles-continue{ margin-top:1.4rem; }
+  }
+
+  /* ---------- read it again ----------
+     Editorial two-column composition, museum-placard rather than
+     quiz-interface: the passage (left) is the one carousel on this
+     page — the lens (right) is a selector that swaps the reading
+     shown beneath it, not a second carousel. The passage stays put
+     while only the lens content changes, and that's meant to be
+     visually obvious: a stable left column beside a right column
+     whose content quietly crossfades. */
+  #stage-readagain{
+    background:
+      linear-gradient(to bottom, rgba(24,8,1,0.82), rgba(24,8,1,0.9) 55%, var(--ground) 100%),
+      url('cards/mirror.jpg') center 32% / cover no-repeat;
+  }
+  .readagain-inner{ max-width:62rem; text-align:center; }
+
+  .readagain-layout{
+    margin-top:2rem; text-align:left;
+    display:grid; grid-template-columns:1fr 1fr; gap:4.5rem;
+    align-items:start;
+  }
+  @media (max-width:900px){
+    .readagain-layout{ grid-template-columns:1fr; gap:2.4rem; margin-top:1.6rem; }
+  }
+
+  /* ---- left column: the passage ---- */
+  .passage-col{ display:flex; flex-direction:column; }
+  .passage-panel{ transition:opacity .26s ease; }
+  .passage-panel.is-fading{ opacity:0; }
+  .verse-ref{
+    font-family:'IBM Plex Mono', monospace; font-size:0.72rem;
+    letter-spacing:0.24em; text-transform:uppercase; color:var(--ochre); margin-bottom:1.3rem;
+  }
+  .verse-text{
+    font-family:'Fraunces', serif; font-style:italic; font-weight:500;
+    font-size:clamp(1.35rem, 2.4vw, 1.85rem); line-height:1.5; color:var(--bone);
+  }
+  .passage-nav{
+    display:flex; align-items:center; gap:1.1rem; margin-top:1.8rem;
+  }
+  .ra-nav-arrow{
+    background:none; border:none; padding:0.2rem 0.4rem; cursor:pointer;
+    font-family:'Instrument Sans', sans-serif; font-size:1.2rem; line-height:1;
+    color:var(--bone-dim);
+    transition:color .2s ease, opacity .2s ease;
+  }
+  .ra-nav-arrow:hover:not(:disabled), .ra-nav-arrow:focus-visible:not(:disabled){
+    color:var(--ochre); outline:none;
+  }
+  .ra-nav-arrow:disabled{ opacity:0.3; cursor:default; }
+  .ra-nav-counter{
+    font-family:'IBM Plex Mono', monospace; font-size:0.72rem; letter-spacing:0.08em;
+    color:var(--bone-faint); min-width:3rem; text-align:center;
+  }
+
+  /* ---- right column: the lens ---- */
+  .lens-col{ display:flex; flex-direction:column; }
+  .lens-selector{
+    display:flex; flex-wrap:wrap; gap:0.5rem 0.6rem;
+    margin-bottom:1.6rem;
+  }
+  @media (max-width:900px){
+    .lens-selector{
+      flex-wrap:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch;
+      padding-bottom:0.4rem; margin-bottom:1.3rem;
+    }
+    .lens-select-btn{ flex:0 0 auto; }
+  }
+  .lens-select-btn{
+    font-family:'Instrument Sans', sans-serif; font-weight:600; font-size:0.7rem;
+    letter-spacing:0.05em; text-transform:uppercase; color:var(--bone-faint);
+    background:transparent; border:1px solid rgba(237,230,216,0.16);
+    border-radius:999px; padding:0.5rem 1rem; cursor:pointer; white-space:nowrap;
+    transition:color .2s ease, border-color .2s ease, background .2s ease;
+  }
+  .lens-select-btn:hover{ color:var(--bone); border-color:rgba(237,230,216,0.32); }
+  .lens-select-btn:focus-visible{ outline:none; border-color:var(--ochre); }
+  .lens-select-btn.is-active{
+    color:var(--ground); background:var(--ochre); border-color:var(--ochre);
+  }
+  .lens-panel{
+    background:rgba(237,230,216,0.04); border:1px solid rgba(175,157,46,0.22);
+    border-radius:8px; padding:2rem 2.2rem; min-height:15rem;
+    transition:opacity .26s ease;
+  }
+  .lens-panel.is-fading{ opacity:0; }
+  .lens-panel .lp-note{
+    font-family:'Instrument Sans', sans-serif; font-weight:600; font-size:0.64rem;
+    letter-spacing:0.1em; text-transform:uppercase; color:var(--bone-faint);
+    margin-bottom:0.6rem;
+  }
+  .lens-panel h2{
+    font-family:'Fraunces', serif; font-weight:600; font-size:1.35rem; color:var(--ochre);
+    margin-bottom:1rem;
+  }
+  .lens-panel p{ font-size:1.02rem; line-height:1.75; color:var(--bone-dim); }
+  @media (prefers-reduced-motion: reduce){
+    .passage-panel, .lens-panel{ transition:none; }
+  }
+
+  .readagain-continue{ text-align:center; margin-top:2.6rem; }
 
   /* ---------- core reflection ----------
      A quiet, deliberate beat between the results and what comes next —
@@ -454,8 +641,8 @@
       <div class="stage-inner intro-content is-shown">
         <p class="mirror-eyebrow" data-reveal-manual>The Mirror Exhibit</p>
         <h1 data-reveal-manual>No One Reads Without a Lens</h1>
-        <p class="intro-lede" data-reveal-manual>Every reader brings a worldview to the text before reading a single word. Our habits, expectations, traditions, and frames of reference shape what stands out and what passes unnoticed.</p>
-        <p class="intro-lede" data-reveal-manual>This exhibit does not test what you know about the Bible. It helps you notice <em>how</em> you read it, including the interpretive habits and filters you bring to every passage, whether or not you have ever named them.</p>
+        <p class="intro-lede" data-reveal-manual>Every reader brings a worldview to the text before reading a single word. Our habits, expectations, traditions, and frames of reference shape the way we understand what we read.</p>
+        <p class="intro-lede" data-reveal-manual>This exhibit is less about what you know and more about how you read. It invites you to notice the interpretive habits and filters that influence the way you approach Scripture.</p>
         <button class="mirror-cta" id="beginBtn" type="button" data-reveal-manual>Look in the Mirror <span class="arrow">&rarr;</span></button>
       </div>
     </section>
@@ -483,48 +670,89 @@
       </div>
     </section>
 
-    <!-- ============ STAGE: results reveal ============ -->
-    <section class="stage" id="stage-results" data-stage="results">
-      <div class="stage-inner results-inner">
-        <p class="mirror-eyebrow" data-reveal-manual>The Mirror Exhibit</p>
-        <h1 class="quiz-heading" data-reveal-manual>The Mirror</h1>
-        <p class="intro-lede" data-reveal-manual>Every reader approaches the text with a set of habits, assumptions, questions, traditions, and expectations shaped by experience and culture.</p>
-        <p class="intro-lede" data-reveal-manual>Your responses highlight the interpretive lenses you rely on most naturally when reading Scripture.</p>
-        <div class="lens-bar-list" id="lensRevealGroup" data-reveal-manual>
-          <!-- rendered by JS -->
+    <!-- ============ STAGE: lens profiles ============ -->
+    <!-- This is now the first screen the visitor sees right after
+         Question 14: it both reveals the percentage breakdown and
+         explains what each lens means, so the old standalone results
+         screen is gone — this page absorbed its copy and chart. -->
+    <section class="stage" id="stage-profiles" data-stage="profiles">
+      <div class="stage-inner profiles-inner">
+        <h2 class="profiles-heading" data-reveal-manual>Your Reading Profile</h2>
+        <div class="profiles-divider" data-reveal-manual></div>
+
+        <div class="profiles-layout">
+          <div class="profiles-sidebar">
+            <div class="lens-bar-list" id="profilesSummary" data-reveal-manual>
+              <!-- rendered by JS: your results -->
+            </div>
+          </div>
+          <div class="profiles-main">
+            <div class="profiles-carousel" data-reveal-manual>
+              <button class="carousel-arrow carousel-arrow--prev" id="lensPrevBtn" type="button" aria-label="Previous lens">
+                <svg width="9" height="15" viewBox="0 0 9 15" fill="none" aria-hidden="true"><path d="M8 1L1.5 7.5L8 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+              <div class="carousel-viewport">
+                <div id="profilesList" class="carousel-track">
+                  <!-- rendered by JS -->
+                </div>
+              </div>
+              <button class="carousel-arrow carousel-arrow--next" id="lensNextBtn" type="button" aria-label="Next lens">
+                <svg width="9" height="15" viewBox="0 0 9 15" fill="none" aria-hidden="true"><path d="M1 1L7.5 7.5L1 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+            </div>
+            <div class="carousel-pagination" id="profilesPagination" role="tablist" aria-label="Lens navigation" data-reveal-manual>
+              <!-- dots + counter rendered by JS -->
+            </div>
+          </div>
         </div>
-        <div class="results-continue" data-reveal-manual>
-          <button class="mirror-cta" id="toProfilesBtn" type="button">See What Each Lens Means <span class="arrow">&rarr;</span></button>
+        <div class="profiles-continue" data-reveal-manual>
+          <button class="mirror-cta" id="toReadAgainBtn" type="button">Continue Exploring <span class="arrow">&rarr;</span></button>
         </div>
       </div>
     </section>
 
-    <!-- ============ STAGE: lens profiles ============ -->
-    <section class="stage" id="stage-profiles" data-stage="profiles">
-      <div class="stage-inner profiles-inner">
-        <div class="profiles-layout">
-          <div class="profiles-sidebar">
-            <p class="mirror-eyebrow" data-reveal-manual>The Mirror Exhibit</p>
-            <h1 class="quiz-heading" data-reveal-manual>The Mirror</h1>
-            <p class="profiles-intro" data-reveal-manual>Your Reading Profile</p>
-            <div class="lens-bar-list" id="profilesSummary" data-reveal-manual>
-              <!-- rendered by JS: your results, carried over for context -->
+    <!-- ============ STAGE: read it again ============ -->
+    <section class="stage" id="stage-readagain" data-stage="readagain">
+      <a class="back-link" href="#" data-back-to-results aria-label="Return to your results">&larr; Back to Results</a>
+      <div class="stage-inner readagain-inner">
+        <h2 class="profiles-heading" data-reveal-manual>Read It Again</h2>
+        <div class="profiles-divider" data-reveal-manual></div>
+
+        <!-- Two-column editorial layout: the passage (left) stays put
+             while only the lens (right) changes — a single passage
+             carousel plus a lens selector, not two carousels. -->
+        <div class="readagain-layout" data-reveal-manual>
+          <div class="passage-col">
+            <div class="passage-panel" id="passagePanel">
+              <!-- rendered by JS: reference + verse text -->
+            </div>
+            <div class="passage-nav">
+              <button class="ra-nav-arrow ra-nav-arrow--prev" id="versePrevBtn" type="button" aria-label="Previous passage">&lsaquo;</button>
+              <span class="ra-nav-counter" id="versePagination">1 / 3</span>
+              <button class="ra-nav-arrow ra-nav-arrow--next" id="verseNextBtn" type="button" aria-label="Next passage">&rsaquo;</button>
             </div>
           </div>
-          <div class="profiles-main">
-            <div id="profilesList" data-reveal-manual>
+
+          <div class="lens-col">
+            <p class="subtle-instruction">Choose a lens to read the passage from a different angle.</p>
+            <div class="lens-selector" id="lensSelector" role="tablist" aria-label="Choose a lens">
               <!-- rendered by JS -->
             </div>
-            <div class="profiles-continue" data-reveal-manual>
-              <button class="mirror-cta" id="toReflectionBtn" type="button">Continue <span class="arrow">&rarr;</span></button>
+            <div class="lens-panel" id="lensPanel">
+              <!-- rendered by JS: active lens name + reading -->
             </div>
           </div>
+        </div>
+
+        <div class="readagain-continue" data-reveal-manual>
+          <button class="mirror-cta" id="toReflectionBtn" type="button">Continue Exploring <span class="arrow">&rarr;</span></button>
         </div>
       </div>
     </section>
 
     <!-- ============ STAGE: core reflection ============ -->
     <section class="stage" id="stage-reflection" data-stage="reflection">
+      <a class="back-link" href="#" data-back-to-results aria-label="Return to your results">&larr; Back to Results</a>
       <div class="stage-inner reflection-inner">
         <div class="reflection-group">
           <p class="reflection-line" data-reveal-manual>Every lens reveals something.</p>
@@ -604,6 +832,57 @@
       hides: 'It can treat a text primarily as a made thing to admire, rather than a claim being made on you.'
     }
   };
+
+  // Fixed display order for the seven lenses, shared by the profile
+  // ranking above and the Read It Again verse comparisons below.
+  var LENS_ORDER = ['coherence', 'framework', 'precision', 'application', 'canonical', 'context', 'literary'];
+
+  // Read It Again: three familiar verses, each read through all seven
+  // lenses at once, so the same passage visibly changes depending on
+  // which lens is doing the reading. Centralized here (same pattern
+  // as LENSES/QUESTIONS above) so new verses or readings can be added
+  // just by editing this array.
+  var READ_AGAIN_VERSES = [
+    {
+      reference: 'Genesis 1:1—2',
+      text: 'In the beginning God created the heavens and the earth. Now the earth was formless and empty, darkness was over the surface of the deep, and the Spirit of God was hovering over the waters.',
+      readings: {
+        coherence: 'You read this as the deliberate overture to a story that keeps unfolding—the same God who calls light out of darkness here is still calling order out of chaos by the time the story reaches a new heaven and a new earth.',
+        framework: 'The question you bring here is what kind of creation this is—out of nothing, or order drawn out of existing material—because the answer shapes how the rest of your system accounts for the origin of evil and matter.',
+        precision: 'You want to know whether “formless and empty” describes an actual pre-creation state or reflects the cosmology its ancient audience already held, and how it compares to other ancient Near Eastern creation accounts.',
+        application: 'Before any of the cosmology, you hear an invitation: the God who spoke order into chaos is still willing to do that in whatever feels formless in your own life right now.',
+        canonical: 'You cannot read “in the beginning” without hearing John’s “in the beginning was the Word” answering back—this opening line is already pointing toward a second creation in Christ.',
+        context: 'You picture this as a word first spoken to exiles surrounded by their captors’ own creation myths—a quiet, confident rebuttal: there is one God, and the waters they feared are not a rival power but raw material.',
+        literary: 'You notice the artistry before the argument—the deliberate rhythm of “and God said… and it was so… and God saw that it was good,” building toward the rest that crowns the whole structure.'
+      }
+    },
+    {
+      reference: 'Isaiah 7:14',
+      text: 'Therefore the Lord himself will give you a sign: the virgin will conceive and give birth to a son, and will call him Immanuel.',
+      readings: {
+        coherence: 'You want this promise to sit comfortably beside its later use in Matthew, reading the two as one continuous sign rather than two separate messages to two separate audiences, centuries apart.',
+        framework: 'Your theological system already knows how this verse gets used—as a prophecy of the virgin birth—so that is the meaning you reach for first, before asking what it might have meant to the king it was actually spoken to.',
+        precision: 'You want to know exactly what the underlying Hebrew word means—a young woman, not necessarily a virgin—and how that word choice shapes what this verse could and could not have promised in its own century.',
+        application: 'You hear it as a personal assurance: God is willing to give unmistakable signs of his presence, even to people who do not especially deserve or want one.',
+        canonical: 'You read this sign mainly through Matthew’s eyes, where it becomes the announcement of Immanuel, God with us, in Jesus—the later fulfillment shapes what you expect the earlier promise to mean.',
+        context: 'You place this inside a king’s own crisis—his capital threatened by two enemy armies—and ask what sign could have meant anything to a frightened ruler who needed reassurance within his own lifetime, not centuries later.',
+        literary: 'You notice this sign sits inside a larger pattern of symbolically named children in Isaiah, each one a walking message about what God is about to do next.'
+      }
+    },
+    {
+      reference: 'Genesis 6:1—4',
+      text: 'When human beings began to increase in number on the earth and daughters were born to them, the sons of God saw that the daughters of humans were beautiful, and they married any of them they chose.',
+      readings: {
+        coherence: 'You look for a reading that fits comfortably with the rest of Genesis’s fairly restrained, human-centered narration, which makes this strange episode feel like it needs to be reconciled with everything around it.',
+        framework: 'Your tradition has probably already told you who the “sons of God” are, and that inherited answer quietly decides how strange—or how ordinary—this passage is allowed to feel.',
+        precision: 'You want to know what the phrase “sons of God” meant to its earliest readers, where the same words elsewhere clearly refer to divine or angelic beings rather than human ones.',
+        application: 'You read this as a story about boundary-crossing and its consequences—a warning about desire pursued without restraint, right before judgment falls on a world grown corrupt.',
+        canonical: 'You cannot read this without the New Testament’s own strange cross-references in mind, which seem to take the more supernatural reading seriously and pull this passage’s meaning forward.',
+        context: 'You place this beside the wider ancient world of stories about divine beings intermarrying with humans and producing extraordinary offspring—a kind of story this text’s earliest audience would have recognized immediately, even if it unsettles you now.',
+        literary: 'You notice how deliberately compressed and strange this passage is—four verses that raise more questions than they answer, functioning as a hinge into the flood story that follows.'
+      }
+    }
+  ];
 
   var QUESTIONS = [
     { scenario: 'You come across a strange purity law in Leviticus with no obvious modern equivalent.', prompt: 'What’s your first instinct?', answers: [
@@ -836,31 +1115,28 @@
     ]);
   }
 
-  // Results page: header, supporting text, then the percentage chart
-  // (its bars play in sync with this beat via playLensBars()), then
-  // the CTA.
-  function revealResults(root) {
+  // Reading Your Profile page: this is now the first screen the
+  // visitor sees right after the quiz, so its cascade covers both
+  // the results reveal (header, intro copy, percentage chart with
+  // bars synced via playLensBars()) and the lens carousel + CTA that
+  // used to live on a separate screen.
+  function revealProfiles(root) {
     revealCascade([
-      { els: [root.querySelector('.mirror-eyebrow'), root.querySelector('.quiz-heading')] },
-      { els: Array.prototype.slice.call(root.querySelectorAll('.intro-lede')) },
-      { els: [document.getElementById('lensRevealGroup')], onStart: function () { playLensBars('lensRevealGroup'); } },
-      { els: [root.querySelector('.results-continue')] }
+      { els: [root.querySelector('.profiles-heading'), root.querySelector('.profiles-divider')] },
+      { els: [document.getElementById('profilesSummary')], onStart: function () { playLensBars('profilesSummary'); } },
+      { els: [root.querySelector('.profiles-carousel'), document.getElementById('profilesPagination')] },
+      { els: [root.querySelector('.profiles-continue')] }
     ]);
   }
 
-  // Reading Your Profile page: header, the carried-over percentage
-  // chart (bars synced via playLensBars()), the lens write-ups, then
-  // the CTA.
-  function revealProfiles(root) {
+  // Read It Again page: header, supporting text, then the whole
+  // passage/lens composition, then the CTA — same top-to-bottom
+  // cascade as the results and profiles stages above.
+  function revealReadAgain(root) {
     revealCascade([
-      { els: [
-          root.querySelector('.mirror-eyebrow'),
-          root.querySelector('.quiz-heading'),
-          root.querySelector('.profiles-intro')
-        ] },
-      { els: [document.getElementById('profilesSummary')], onStart: function () { playLensBars('profilesSummary'); } },
-      { els: [document.getElementById('profilesList')] },
-      { els: [root.querySelector('.profiles-continue')] }
+      { els: [root.querySelector('.profiles-heading'), root.querySelector('.profiles-divider')] },
+      { els: [root.querySelector('.readagain-layout')] },
+      { els: [root.querySelector('.readagain-continue')] }
     ]);
   }
 
@@ -907,9 +1183,7 @@
         progressFill.style.width = '100%';
         goToStage('developing');
         setTimeout(function () {
-          computeResults();
-          goToStage('results');
-          revealResults(document.getElementById('stage-results'));
+          enterProfiles();
         }, 1500);
         return;
       }
@@ -947,10 +1221,18 @@
      used for the results stage, and again on the lens-profiles stage
      so the reader never loses track of their results while reading
      what each lens means. */
-  function renderLensBars(containerId) {
-    var total = QUESTIONS.length;
+  // Ranks the seven lenses by score, highest first — shared by
+  // renderLensBars() (drawing a chart) and computeResults() (which
+  // no longer needs to touch any DOM container directly).
+  function getRankedLensEntries() {
     var entries = Object.keys(scores).map(function (k) { return { key: k, score: scores[k] }; });
     entries.sort(function (a, b) { return b.score - a.score; });
+    return entries;
+  }
+
+  function renderLensBars(containerId) {
+    var total = QUESTIONS.length;
+    var entries = getRankedLensEntries();
 
     var group = document.getElementById(containerId);
     group.innerHTML = '';
@@ -962,7 +1244,7 @@
   }
 
   function computeResults() {
-    var entries = renderLensBars('lensRevealGroup');
+    var entries = getRankedLensEntries();
     resultProfile = { kind: 'ranked', lenses: entries.map(function (e) { return e.key; }) };
   }
 
@@ -982,9 +1264,9 @@
   }
 
   // Plays every bar's width-fill + shine sweep in a lens-bar-list,
-  // called from the chart beat's onStart in revealResults()/
-  // revealProfiles() so it fires exactly when the chart becomes
-  // visible, instead of racing ahead of it.
+  // called from the chart beat's onStart in revealProfiles() so it
+  // fires exactly when the chart becomes visible, instead of racing
+  // ahead of it.
   function playLensBars(containerId) {
     var group = document.getElementById(containerId);
     if (!group) return;
@@ -1000,13 +1282,149 @@
   }
 
   /* ============================================================
-     Lens profiles
+     Reusable single-item-at-a-time carousel: builds pagination dots
+     and a "n / total" counter, wires prev/next buttons, arrow-key
+     navigation (while the given stage is active), and horizontal
+     swipe/drag (a vertical drag is left alone so scrolling a tall
+     card's own text still works). Shared by the lens-profiles
+     carousel and the Read It Again verse carousel so both behave
+     identically.
      ============================================================ */
-  document.getElementById('toProfilesBtn').addEventListener('click', function () {
+  function createCarousel(opts) {
+    var trackEl = opts.track;
+    var viewportEl = opts.viewport;
+    var prevBtn = opts.prevBtn;
+    var nextBtn = opts.nextBtn;
+    var paginationEl = opts.pagination;
+    var stageEl = opts.stage;
+    var itemLabel = opts.itemLabel || 'item';
+    var onChange = opts.onChange || null;
+    var index = 0;
+    var count = 0;
+
+    function setIndex(i, setOpts) {
+      if (!count) return;
+      setOpts = setOpts || {};
+      index = Math.max(0, Math.min(i, count - 1));
+      if (setOpts.instant) trackEl.style.transition = 'none';
+      trackEl.style.transform = 'translateX(-' + (index * 100) + '%)';
+      if (setOpts.instant) {
+        void trackEl.offsetHeight; // force reflow before restoring the transition
+        trackEl.style.transition = '';
+      }
+      prevBtn.disabled = index === 0;
+      nextBtn.disabled = index === count - 1;
+      Array.prototype.slice.call(paginationEl.querySelectorAll('.carousel-dot')).forEach(function (dot, idx) {
+        dot.classList.toggle('is-active', idx === index);
+        dot.setAttribute('aria-selected', idx === index ? 'true' : 'false');
+      });
+      Array.prototype.slice.call(trackEl.children).forEach(function (slide, idx) {
+        slide.setAttribute('aria-hidden', idx === index ? 'false' : 'true');
+        if (idx !== index) slide.scrollTop = 0;
+      });
+      var counter = paginationEl.querySelector('.carousel-counter');
+      if (counter) counter.textContent = (index + 1) + ' / ' + count;
+      if (onChange) onChange(index, setOpts);
+    }
+
+    function build(newCount) {
+      count = newCount;
+      paginationEl.innerHTML = '';
+      for (var i = 0; i < count; i++) {
+        var dot = document.createElement('button');
+        dot.type = 'button';
+        dot.className = 'carousel-dot';
+        dot.setAttribute('role', 'tab');
+        dot.setAttribute('aria-label', 'Go to ' + itemLabel + ' ' + (i + 1) + ' of ' + count);
+        (function (idx) {
+          dot.addEventListener('click', function () { setIndex(idx); });
+        })(i);
+        paginationEl.appendChild(dot);
+      }
+      var counter = document.createElement('span');
+      counter.className = 'carousel-counter';
+      paginationEl.appendChild(counter);
+    }
+
+    prevBtn.addEventListener('click', function () { setIndex(index - 1); });
+    nextBtn.addEventListener('click', function () { setIndex(index + 1); });
+
+    document.addEventListener('keydown', function (e) {
+      if (!stageEl.classList.contains('is-active')) return;
+      if (e.key === 'ArrowLeft') setIndex(index - 1);
+      else if (e.key === 'ArrowRight') setIndex(index + 1);
+    });
+
+    (function () {
+      var startX = 0, startY = 0, dragging = false, horizontal = false;
+      viewportEl.addEventListener('pointerdown', function (e) {
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
+        startX = e.clientX; startY = e.clientY; dragging = true; horizontal = false;
+      });
+      viewportEl.addEventListener('pointermove', function (e) {
+        if (!dragging) return;
+        var dx = e.clientX - startX, dy = e.clientY - startY;
+        if (!horizontal && Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy)) horizontal = true;
+      });
+      function endDrag(e) {
+        if (!dragging) return;
+        dragging = false;
+        if (!horizontal) return;
+        var dx = e.clientX - startX;
+        if (dx < -40) setIndex(index + 1);
+        else if (dx > 40) setIndex(index - 1);
+      }
+      viewportEl.addEventListener('pointerup', endDrag);
+      viewportEl.addEventListener('pointercancel', function () { dragging = false; });
+    })();
+
+    return {
+      setIndex: setIndex,
+      build: build,
+      setOnChange: function (fn) { onChange = fn; }
+    };
+  }
+
+  /* ============================================================
+     Lens profiles — one lens at a time in the shared carousel,
+     with no page-level vertical scroll so the Continue button is
+     always in view.
+     ============================================================ */
+  var profilesCarousel = createCarousel({
+    track: document.getElementById('profilesList'),
+    viewport: document.querySelector('#stage-profiles .carousel-viewport'),
+    prevBtn: document.getElementById('lensPrevBtn'),
+    nextBtn: document.getElementById('lensNextBtn'),
+    pagination: document.getElementById('profilesPagination'),
+    stage: document.getElementById('stage-profiles'),
+    itemLabel: 'lens'
+  });
+
+  // Lets the visitor return to their results from Read It Again or
+  // Reflection — the only screens that follow it — without rebuilding
+  // anything, since the profiles stage's chart and carousel already
+  // hold their last state. There is deliberately no way back further
+  // than this into the quiz itself.
+  function goBackToResults() {
+    goToStage('profiles');
+    revealProfiles(document.getElementById('stage-profiles'));
+  }
+  Array.prototype.slice.call(document.querySelectorAll('.back-link[data-back-to-results]')).forEach(function (el) {
+    el.addEventListener('click', function (e) {
+      e.preventDefault();
+      goBackToResults();
+    });
+  });
+
+  // Called once the quiz's final answer has been scored (see
+  // handleAnswer() above): builds and reveals the profiles stage,
+  // which is now the first screen the visitor sees after Question 14
+  // — the old standalone results screen has been folded into it.
+  function enterProfiles() {
+    computeResults();
     renderLensBars('profilesSummary');
 
-    var list = document.getElementById('profilesList');
-    list.innerHTML = resultProfile.lenses.map(function (key) {
+    document.getElementById('profilesList').innerHTML = resultProfile.lenses.map(function (key) {
       var l = LENSES[key];
       return '<article class="lens-profile">' +
         '<h2>' + l.name + ' Lens</h2>' +
@@ -1018,8 +1436,119 @@
         '</div>' +
       '</article>';
     }).join('');
+    profilesCarousel.build(resultProfile.lenses.length);
+    profilesCarousel.setIndex(0, { instant: true });
     goToStage('profiles');
     revealProfiles(document.getElementById('stage-profiles'));
+  }
+
+  /* ============================================================
+     Read It Again — a single passage carousel (left column) beside
+     a lens selector (right column). The passage changes what verse
+     is shown; the lens selector changes only which reading of that
+     same verse is shown beneath it — there is no second carousel.
+     Switching passages always resets back to the first lens
+     (Harmonization), so every passage starts the same comparison.
+     Both panels crossfade in place (opacity only, no motion) so the
+     swap reads as quiet and editorial rather than a slide/page turn.
+     ============================================================ */
+  var raPassageIndex = 0;
+  var raLensIndex = 0;
+  var passagePanel = document.getElementById('passagePanel');
+  var passagePagination = document.getElementById('versePagination');
+  var versePrevBtn = document.getElementById('versePrevBtn');
+  var verseNextBtn = document.getElementById('verseNextBtn');
+  var lensSelector = document.getElementById('lensSelector');
+  var lensPanel = document.getElementById('lensPanel');
+
+  function fadeSwap(el, updateFn) {
+    var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduceMotion) { updateFn(); return; }
+    el.classList.add('is-fading');
+    setTimeout(function () {
+      updateFn();
+      el.classList.remove('is-fading');
+    }, 260);
+  }
+
+  function renderPassagePanel() {
+    var verse = READ_AGAIN_VERSES[raPassageIndex];
+    passagePanel.innerHTML =
+      '<p class="verse-ref">' + verse.reference + '</p>' +
+      '<p class="verse-text">&ldquo;' + verse.text + '&rdquo;</p>';
+    passagePagination.textContent = (raPassageIndex + 1) + ' / ' + READ_AGAIN_VERSES.length;
+    versePrevBtn.disabled = raPassageIndex === 0;
+    verseNextBtn.disabled = raPassageIndex === READ_AGAIN_VERSES.length - 1;
+  }
+
+  function renderLensPanel() {
+    var verse = READ_AGAIN_VERSES[raPassageIndex];
+    var key = LENS_ORDER[raLensIndex];
+    var l = LENSES[key];
+    lensPanel.innerHTML =
+      '<div class="lp-note">What this lens notices</div>' +
+      '<h2>' + l.name + '</h2>' +
+      '<p>' + verse.readings[key] + '</p>';
+  }
+
+  function updateLensSelectorActive() {
+    Array.prototype.slice.call(lensSelector.querySelectorAll('.lens-select-btn')).forEach(function (btn, idx) {
+      var active = idx === raLensIndex;
+      btn.classList.toggle('is-active', active);
+      btn.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+  }
+
+  function buildLensSelector() {
+    lensSelector.innerHTML = LENS_ORDER.map(function (key, idx) {
+      return '<button class="lens-select-btn' + (idx === raLensIndex ? ' is-active' : '') + '" type="button" ' +
+        'role="tab" aria-selected="' + (idx === raLensIndex ? 'true' : 'false') + '" data-lens-index="' + idx + '">' +
+        LENSES[key].name + '</button>';
+    }).join('');
+    Array.prototype.slice.call(lensSelector.querySelectorAll('.lens-select-btn')).forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var idx = parseInt(btn.getAttribute('data-lens-index'), 10);
+        setLensIndex(idx);
+      });
+    });
+  }
+
+  function setLensIndex(idx) {
+    if (idx === raLensIndex) return;
+    raLensIndex = idx;
+    updateLensSelectorActive();
+    fadeSwap(lensPanel, renderLensPanel);
+  }
+
+  function setPassageIndex(idx) {
+    idx = Math.max(0, Math.min(idx, READ_AGAIN_VERSES.length - 1));
+    if (idx === raPassageIndex) return;
+    raPassageIndex = idx;
+    raLensIndex = 0;
+    updateLensSelectorActive();
+    fadeSwap(passagePanel, renderPassagePanel);
+    fadeSwap(lensPanel, renderLensPanel);
+  }
+
+  versePrevBtn.addEventListener('click', function () { setPassageIndex(raPassageIndex - 1); });
+  verseNextBtn.addEventListener('click', function () { setPassageIndex(raPassageIndex + 1); });
+
+  document.addEventListener('keydown', function (e) {
+    if (!document.getElementById('stage-readagain').classList.contains('is-active')) return;
+    if (e.key === 'ArrowLeft') setPassageIndex(raPassageIndex - 1);
+    else if (e.key === 'ArrowRight') setPassageIndex(raPassageIndex + 1);
+  });
+
+  buildLensSelector();
+
+  document.getElementById('toReadAgainBtn').addEventListener('click', function () {
+    raPassageIndex = 0;
+    raLensIndex = 0;
+    renderPassagePanel();
+    updateLensSelectorActive();
+    renderLensPanel();
+    goToStage('readagain');
+    revealReadAgain(document.getElementById('stage-readagain'));
   });
 
   document.getElementById('toReflectionBtn').addEventListener('click', function () {
