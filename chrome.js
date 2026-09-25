@@ -110,6 +110,7 @@
      the next page.
      ============================================================ */
   var PREF_KEY = 'awr_audio_enabled';
+  var TIME_KEY = 'awr_audio_time';
   (function () {
     var audio = document.getElementById('bgAudio');
     var toggle = document.getElementById('audioToggle');
@@ -124,6 +125,20 @@
     // choice always wins over this default.
     var enabled = storedPref !== 'off';
     var revealed = false;
+
+    // Resume from wherever the visitor left off on the previous page,
+    // so the track reads as one continuous piece across exhibit pages
+    // instead of restarting every time they navigate - the Mirror
+    // exhibit gets this for free by being a single page; this gives
+    // the multi-page exhibits the same continuity. Session-scoped: a
+    // fresh tab still starts the track from the top.
+    var storedTime = null;
+    try { storedTime = parseFloat(window.sessionStorage.getItem(TIME_KEY)); } catch (err) { /* ignore */ }
+    if (storedTime && isFinite(storedTime) && storedTime > 0) {
+      audio.addEventListener('loadedmetadata', function () {
+        audio.currentTime = (audio.duration && isFinite(audio.duration)) ? (storedTime % audio.duration) : storedTime;
+      }, { once: true });
+    }
 
     function syncIcon() {
       iconOn.style.display = enabled ? 'block' : 'none';
@@ -166,6 +181,15 @@
         audio.pause();
       }
       syncIcon();
+    });
+
+    // Persist the current position periodically and on navigation
+    // away, so the next page (or a reload) resumes close to here.
+    window.setInterval(function () {
+      try { window.sessionStorage.setItem(TIME_KEY, String(audio.currentTime)); } catch (err) { /* ignore */ }
+    }, 1000);
+    window.addEventListener('pagehide', function () {
+      try { window.sessionStorage.setItem(TIME_KEY, String(audio.currentTime)); } catch (err) { /* ignore */ }
     });
 
     syncIcon();

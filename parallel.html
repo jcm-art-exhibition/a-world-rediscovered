@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Parallel Exhibit — A World Rediscovered</title>
 <meta name="description" content="An interactive exhibit that sets biblical passages beside related ancient Near Eastern texts to surface a shared cultural world.">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="shortcut icon" href="favicon.ico">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="atmosphere.css">
@@ -24,6 +28,7 @@
   }
   *{box-sizing:border-box;}
   html{scroll-behavior:smooth;}
+  html.modal-lock{overflow:hidden; scrollbar-gutter:stable;}
   body{
     margin:0; background:var(--ground); color:var(--bone);
     font-family:'Instrument Sans', sans-serif; position:relative; overflow-x:hidden;
@@ -34,35 +39,78 @@
   button{font:inherit; color:inherit;}
   a{color:inherit;}
 
-  /* ---------- shared chrome ---------- */
-  .lobby-return{
+  /* ============================================================
+     SPA stage machinery - the whole Parallel flow (hero, the
+     comparison grid, and all three rooms) now lives on this one
+     page as a set of .stage sections that JS shows/hides in place,
+     the same way the Mirror exhibit's own stages work. Nothing here
+     ever triggers a real page navigation, so the shared background
+     music (see chrome.js) keeps playing continuously end to end
+     instead of restarting on every step.
+     ============================================================ */
+  #stageRoot{ position:relative; z-index:1; }
+  .stage{ display:none; }
+  .stage.is-active{ display:block; }
+  .stage-fade{
+    /* Opacity only - deliberately no transform here. A `transform`
+       (even an identity translateY(0)) on this wrapper would create a
+       new containing block for any `position:fixed` element inside a
+       room (the fixed background image, the star/wave atmosphere
+       layer), breaking them: instead of sizing/positioning against
+       the viewport they'd size against this wrapper's own (much
+       taller, scrollable) content box, making them huge and no
+       longer anchored on scroll. */
+    opacity:0;
+    transition:opacity .55s ease;
+  }
+  .stage-fade.is-shown{ opacity:1; }
+  @media (prefers-reduced-motion: reduce){
+    .stage-fade{ transition:none; opacity:1; }
+  }
+
+  /* ---------- stage: parallel-intro ---------- */
+#stage-parallel-intro{
+    --ground:#180801;
+    --ground-rgb:24,8,1;
+    --umber:#2F150A;
+    --rust:#5E250C;
+    --clay:#64463A;
+    --ochre:#AF9D2E;
+    --bone:#EDE6D8;
+    --whisper:#EDE6D8;
+    --bone-dim:rgba(237,230,216,0.62);
+    --bone-faint:rgba(237,230,216,0.34);
+  }
+#stage-parallel-intro *{box-sizing:border-box;}
+#stage-parallel-intro{scroll-behavior:smooth;}
+#stage-parallel-intro{
+    margin:0; background:var(--ground); color:var(--bone);
+    font-family:'Instrument Sans', sans-serif; position:relative; overflow-x:hidden;
+    min-height:100vh;
+  }
+#stage-parallel-intro img{display:block; max-width:none; user-select:none; -webkit-user-drag:none;}
+#stage-parallel-intro h1, #stage-parallel-intro h2, #stage-parallel-intro h3, #stage-parallel-intro p{margin:0;}
+#stage-parallel-intro button{font:inherit; color:inherit;}
+#stage-parallel-intro a{color:inherit;}
+#stage-parallel-intro .lobby-return{
     position:fixed; top:1.5rem; left:1.6rem; z-index:80;
     display:flex; align-items:center; gap:0.5rem;
-    font-family:'IBM Plex Mono', monospace; font-size:0.68rem; letter-spacing:0.12em;
+    font-family:'Instrument Sans', sans-serif; font-weight:600; font-size:0.72rem; letter-spacing:0.08em;
     text-transform:uppercase; color:var(--bone-dim); text-decoration:none;
     opacity:0.68; transition:opacity .25s ease, color .25s ease;
   }
-  .lobby-return:hover, .lobby-return:focus-visible{ opacity:1; color:var(--ochre); outline:none; }
-
-  .parallel-eyebrow{
+#stage-parallel-intro .lobby-return:hover, #stage-parallel-intro .lobby-return:focus-visible{ opacity:1; color:var(--ochre); outline:none; }
+#stage-parallel-intro .parallel-eyebrow{
     font-family:'Instrument Sans', sans-serif; font-weight:600; font-size:0.76rem; letter-spacing:0.34em;
     text-transform:uppercase; color:var(--ochre); text-align:center;
   }
-
-  /* ---------- load-in reveal (ported from the Mirror exhibit's
-     intro stage: a quick, staggered fade-up driven by revealCascade()
-     below, rather than the generic page-wide fade in chrome.js). ---------- */
-  [data-reveal-manual]{
+#stage-parallel-intro [data-reveal-manual]{
     opacity:0; transform:translateY(10px);
     transition:opacity .4s ease-out, transform .4s ease-out;
   }
-  [data-reveal-manual].is-revealed{ opacity:1; transform:translateY(0); }
-  @media (prefers-reduced-motion: reduce){
-    [data-reveal-manual]{ transition:none; opacity:1; transform:none; }
-  }
-
-  /* ---------- hero ---------- */
-  .hero{
+#stage-parallel-intro [data-reveal-manual].is-revealed{ opacity:1; transform:translateY(0); }
+@media (prefers-reduced-motion: reduce){#stage-parallel-intro [data-reveal-manual]{ transition:none; opacity:1; transform:none; }}
+#stage-parallel-intro .hero{
     min-height:100vh; width:100%;
     position:relative; z-index:1;
     display:flex; align-items:center; justify-content:center;
@@ -71,26 +119,21 @@
       linear-gradient(to bottom, rgba(24,8,1,0.55), rgba(24,8,1,0.88) 60%, var(--ground) 100%),
       url('cards/parallel.jpg') center 38% / cover no-repeat;
   }
-  .hero-inner{ max-width:52rem; text-align:center; position:relative; }
-  .hero-inner h1{
+#stage-parallel-intro .hero-inner{ max-width:52rem; text-align:center; position:relative; }
+#stage-parallel-intro .hero-inner h1{
     font-family:'Fraunces', serif; font-weight:600; font-size:clamp(2rem, 5.4vw, 4rem);
     line-height:1.05; margin:1rem 0 1.4rem; color:var(--bone);
     text-shadow:0 2px 4px rgba(0,0,0,0.55), 0 12px 34px rgba(0,0,0,0.5);
     position:relative;
     white-space:nowrap;
   }
-  @media (max-width:480px){
-    .hero-inner h1{ white-space:normal; }
-  }
-  .hero-lede{
+@media (max-width:480px){#stage-parallel-intro .hero-inner h1{ white-space:normal; }}
+#stage-parallel-intro .hero-lede{
     max-width:46rem; margin:0 auto; font-size:1.02rem; line-height:1.75;
     color:var(--bone-dim);
   }
-  .hero-lede + .hero-lede{ margin-top:1rem; }
-
-  /* CTA — matches the "Enter" chip used on the Lobby exhibit cards
-     and the Mirror exhibit's own intro CTA (.mirror-cta). */
-  .parallel-cta{
+#stage-parallel-intro .hero-lede + .hero-lede{ margin-top:1rem; }
+#stage-parallel-intro .parallel-cta{
     display:inline-flex; align-items:center; gap:0.5em; margin-top:2.6rem;
     font-family:'Instrument Sans', sans-serif; font-weight:600; font-size:0.76rem; letter-spacing:0.08em;
     text-transform:uppercase; color:var(--ground); background:var(--ochre);
@@ -99,18 +142,1365 @@
     box-shadow:0 0.5rem 1.1rem rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
     transition:background .2s ease, box-shadow .2s ease, transform .2s ease;
   }
-  .parallel-cta:hover, .parallel-cta:focus-visible{
+#stage-parallel-intro .parallel-cta:hover, #stage-parallel-intro .parallel-cta:focus-visible{
     background:#c4b154; transform:translateY(-2px);
     box-shadow:0 0.7rem 1.5rem rgba(0,0,0,0.48), inset 0 1px 0 rgba(255,255,255,0.25); outline:none;
   }
-  .parallel-cta .arrow{ transition:transform .25s ease; }
-  .parallel-cta:hover .arrow{ transform:translateX(4px); }
+#stage-parallel-intro .parallel-cta .arrow{ transition:transform .25s ease; }
+#stage-parallel-intro .parallel-cta:hover .arrow{ transform:translateX(4px); }
+
+  /* ---------- stage: comparisons ---------- */
+#stage-comparisons{
+    --ground:#180801;
+    --ground-rgb:24,8,1;
+    --umber:#2F150A;
+    --rust:#5E250C;
+    --clay:#64463A;
+    --ochre:#AF9D2E;
+    --bone:#EDE6D8;
+    --whisper:#EDE6D8;
+    --bone-dim:rgba(237,230,216,0.62);
+    --bone-faint:rgba(237,230,216,0.34);
+  }
+#stage-comparisons *{box-sizing:border-box;}
+#stage-comparisons{scroll-behavior:smooth;}
+#stage-comparisons{
+    margin:0; background:var(--ground); color:var(--bone);
+    font-family:'Instrument Sans', sans-serif; position:relative; overflow-x:hidden;
+    min-height:100vh;
+  }
+#stage-comparisons img{display:block; max-width:none; user-select:none; -webkit-user-drag:none;}
+#stage-comparisons h1, #stage-comparisons h2, #stage-comparisons h3, #stage-comparisons p{margin:0;}
+#stage-comparisons button{font:inherit; color:inherit;}
+#stage-comparisons a{color:inherit;}
+#stage-comparisons .lobby-return{
+    position:fixed; top:1.5rem; left:1.6rem; z-index:80;
+    display:flex; align-items:center; gap:0.5rem;
+    font-family:'Instrument Sans', sans-serif; font-weight:600; font-size:0.72rem; letter-spacing:0.08em;
+    text-transform:uppercase; color:var(--bone-dim); text-decoration:none;
+    opacity:0.68; transition:opacity .25s ease, color .25s ease;
+  }
+#stage-comparisons .lobby-return:hover, #stage-comparisons .lobby-return:focus-visible{ opacity:1; color:var(--ochre); outline:none; }
+#stage-comparisons .parallel-eyebrow{
+    font-family:'Instrument Sans', sans-serif; font-weight:600; font-size:0.76rem; letter-spacing:0.34em;
+    text-transform:uppercase; color:var(--ochre); text-align:center;
+  }
+#stage-comparisons [data-reveal-manual]{
+    --reveal-y: 10px;
+    --reveal-duration: .4s;
+    opacity:0; transform:translateY(var(--reveal-y));
+    transition:opacity var(--reveal-duration) ease-out, transform var(--reveal-duration) ease-out;
+  }
+#stage-comparisons [data-reveal-manual].is-revealed{ opacity:1; transform:translateY(0); }
+#stage-comparisons .comparison-card-wrap[data-reveal-manual]{
+    --reveal-y: 24px;
+    --reveal-duration: .62s;
+  }
+@media (prefers-reduced-motion: reduce){#stage-comparisons [data-reveal-manual]{ transition:none; opacity:1; transform:none; }}
+#stage-comparisons .page-head{
+    position:relative; z-index:1;
+    padding:9rem 1.5rem 4rem;
+    text-align:center;
+    background:
+      linear-gradient(to bottom, rgba(24,8,1,0.55), rgba(24,8,1,0.92) 72%, var(--ground) 100%),
+      url('cards/parallel.jpg') center 38% / cover no-repeat;
+  }
+#stage-comparisons .page-head-inner{ max-width:44rem; margin:0 auto; }
+#stage-comparisons .page-head-inner h1{
+    font-family:'Fraunces', serif; font-weight:600; font-size:clamp(2rem, 5.4vw, 3.4rem);
+    line-height:1.08; margin:1rem 0 1.3rem; color:var(--bone);
+    text-shadow:0 2px 4px rgba(0,0,0,0.55), 0 12px 34px rgba(0,0,0,0.5);
+  }
+#stage-comparisons .page-head-lede{
+    max-width:36rem; margin:0 auto; font-size:1rem; line-height:1.75;
+    color:var(--bone-dim);
+  }
+#stage-comparisons .comparisons{
+    position:relative; z-index:1;
+    padding:1rem 1.5rem 6rem;
+    display:flex; flex-direction:column; align-items:center;
+  }
+#stage-comparisons .comparisons-grid{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr));
+    gap:2.5rem; width:100%; max-width:1120px;
+  }
+#stage-comparisons .comparison-card-wrap{
+    position:relative;
+  }
+#stage-comparisons .comparison-card-shadow{
+    position:absolute;
+    top:10px; left:5%; right:5%;
+    aspect-ratio:4 / 3;
+    z-index:0;
+    border-radius:20px;
+    overflow:hidden;
+    filter:blur(26px) saturate(1.5) brightness(0.6);
+    opacity:0.7;
+    pointer-events:none;
+    transition:opacity .4s ease, transform .4s ease;
+  }
+#stage-comparisons .comparison-card-shadow img{
+    width:100%; height:100%;
+    object-fit:cover; object-position:center 40%;
+  }
+#stage-comparisons .comparison-card-wrap:hover .comparison-card-shadow, #stage-comparisons .comparison-card-wrap:focus-within .comparison-card-shadow{
+    opacity:0.95;
+    transform:translateY(8px) scale(1.04);
+  }
+#stage-comparisons .comparison-card{
+    position:relative; z-index:1;
+    display:flex; flex-direction:column;
+    border-radius:20px; overflow:hidden;
+    text-decoration:none; color:inherit;
+    background:var(--ground);
+    box-shadow:0 1.2rem 2.8rem rgba(0,0,0,0.45), 0 0 0 1px rgba(237,230,216,0.12);
+    transition:transform .4s ease, box-shadow .4s ease;
+  }
+#stage-comparisons .comparison-card:hover, #stage-comparisons .comparison-card:focus-visible{
+    transform:scale(1.025);
+    box-shadow:0 1.8rem 3.6rem rgba(0,0,0,0.55), 0 0 0 1px rgba(175,157,46,0.5);
+    outline:none;
+  }
+#stage-comparisons .comparison-card--bg{
+    aspect-ratio:3 / 4;
+  }
+#stage-comparisons .comparison-card-bg-img{
+    position:absolute; inset:0; width:100%; height:100%; z-index:0;
+    object-fit:cover; object-position:center top;
+    filter:saturate(0.92) brightness(0.8);
+    transition:filter .5s ease;
+  }
+#stage-comparisons .comparison-card--bg:hover .comparison-card-bg-img, #stage-comparisons .comparison-card--bg:focus-visible .comparison-card-bg-img{
+    filter:saturate(1) brightness(0.88);
+  }
+#stage-comparisons .comparison-card-bg-fade{
+    position:absolute; inset:0; z-index:1; pointer-events:none;
+    background:linear-gradient(to bottom,
+      rgba(24,8,1,0) 0%,
+      rgba(24,8,1,0.02) 30%,
+      rgba(24,8,1,0.22) 48%,
+      rgba(24,8,1,0.64) 64%,
+      rgba(24,8,1,0.93) 78%,
+      var(--ground) 92%);
+  }
+#stage-comparisons .comparison-card--bg .comparison-body{
+    position:absolute; left:0; right:0; bottom:0; z-index:2;
+    padding:0 1.8rem 1.9rem;
+    text-shadow:0 1px 4px rgba(0,0,0,0.55);
+  }
+#stage-comparisons .comparison-card--bg .comparison-chip{ text-shadow:none; }
+#stage-comparisons .comparison-card--bg .comparison-status{ text-shadow:none; }
+#stage-comparisons .comparison-body{
+    display:flex; flex-direction:column; flex:1;
+    padding:1.7rem 1.8rem 1.9rem;
+  }
+#stage-comparisons .comparison-chip{
+    display:inline-flex; align-items:center; align-self:flex-start;
+    font-family:'Instrument Sans', sans-serif; font-weight:600; font-size:0.66rem;
+    letter-spacing:0.1em; text-transform:uppercase; color:var(--ochre);
+    background:rgba(24,8,1,0.6);
+    border:1px solid rgba(175,157,46,0.35);
+    padding:0.35rem 0.75rem;
+    border-radius:999px;
+    margin-bottom:0.9rem;
+  }
+#stage-comparisons .comparison-body h2{
+    font-family:'Fraunces', serif; font-weight:500; font-size:1.7rem; margin:0 0 0.5rem;
+  }
+#stage-comparisons .comparison-subtitle{
+    font-family:'Instrument Sans', sans-serif; font-style:italic; font-size:0.9rem;
+    color:var(--bone-dim); margin:0 0 1.6rem;
+  }
+#stage-comparisons .comparison-status{
+    margin-top:auto; align-self:flex-start;
+    display:inline-flex; align-items:center; gap:0.4em;
+    padding:0.7rem 1.4rem;
+    border-radius:999px;
+    background:var(--ochre);
+    color:var(--ground);
+    font-family:'Instrument Sans', sans-serif;
+    font-weight:600; font-size:0.7rem; letter-spacing:0.1em; text-transform:uppercase;
+    transition:background .2s ease, transform .2s ease;
+  }
+#stage-comparisons .comparison-card:hover .comparison-status, #stage-comparisons .comparison-card:focus-visible .comparison-status{
+    background:#c4b154;
+    transform:translateY(-2px);
+  }
+#stage-comparisons .comparison-status .arrow{ display:inline-block; transition:transform .25s ease; }
+#stage-comparisons .comparison-card:hover .comparison-status .arrow, #stage-comparisons .comparison-card:focus-visible .comparison-status .arrow{
+    transform:translateX(4px);
+  }
+
+  /* ---------- stage: room-creation ---------- */
+#stage-room-creation{
+    --ground: #14181C;
+    --ground-deep: #0B0E11;
+    --clay: #8FA5B2;
+    --clay-deep: #738A99;
+    --clay-ink: #2A1F12;
+    --parchment: #B6C3CC;
+    --parchment-deep: #9EAEB8;
+    --parchment-ink: #201B14;
+    --brass: #629ABD;
+    --brass-dim: #466A80;
+    --accent-deep: #1B3342;
+    --whisper: #F2EFE8;
+    --fog: rgba(242,239,232,0.55);
+    --mist: rgba(220,215,205,0.35);
+  }
+#stage-room-creation *{box-sizing:border-box;}
+#stage-room-creation{scroll-behavior:smooth;}
+#stage-room-creation{
+    margin:0;
+    background:var(--ground);
+    color:var(--whisper);
+    font-family:'Instrument Sans', sans-serif;
+    overflow-x:hidden;
+  }
+#stage-room-creation svg{display:block;}
+#stage-room-creation .page-bg{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    width:100%; height:100%;
+    object-fit:cover; object-position:center top;
+  }
+#stage-room-creation .page-bg-scrim{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background:rgba(11,14,17,0.58);
+  }
+#stage-room-creation .r1_intro{
+    position:relative;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:2rem;
+  }
+#stage-room-creation .eyebrow{
+    font-family:'Instrument Sans', sans-serif;
+    font-weight:600;
+    letter-spacing:0.22em;
+    font-size:0.74rem;
+    color:var(--brass);
+    text-transform:uppercase;
+    margin-bottom:1.4rem;
+    text-shadow:0 1px 4px rgba(0,0,0,0.5);
+  }
+#stage-room-creation .r1_intro h1{
+    font-family:'Fraunces', serif;
+    font-weight:500;
+    font-optical-sizing:auto;
+    font-size:clamp(2.2rem, 6vw, 4.4rem);
+    line-height:1.05;
+    margin:0;
+    letter-spacing:-0.01em;
+    text-shadow:
+      0 1px 0 rgba(255,255,255,0.07),
+      0 2px 4px rgba(0,0,0,0.55),
+      0 12px 34px rgba(0,0,0,0.55);
+  }
+#stage-room-creation .r1_intro h1 em{
+    font-style:italic;
+    font-weight:300;
+    color:var(--fog);
+  }
+#stage-room-creation .scroll-cue{
+    margin-top:2.6rem;
+    font-family:'Instrument Sans', sans-serif;
+    font-weight:600;
+    font-size:0.72rem;
+    letter-spacing:0.14em;
+    color:var(--brass-dim);
+    text-transform:uppercase;
+    animation:r1-kf1-driftDown 2.2s ease-in-out infinite;
+    text-shadow:0 1px 4px rgba(0,0,0,0.5);
+  }
+@keyframes r1-kf1-driftDown{
+    0%,100%{transform:translateY(0);opacity:0.6;}
+    50%{transform:translateY(6px);opacity:1;}
+  }
+#stage-room-creation .room-back{
+    position:fixed; top:1.4rem; left:1.4rem; z-index:25;
+    display:flex; align-items:center; gap:0.5rem;
+    font-family:'Instrument Sans', sans-serif; font-weight:600; font-size:0.72rem; letter-spacing:0.08em;
+    color:var(--fog); text-decoration:none; text-transform:uppercase;
+    opacity:0.68;
+    transition:opacity 0.25s ease, color 0.25s ease;
+  }
+#stage-room-creation .room-back:hover, #stage-room-creation .room-back:focus-visible{opacity:1; color:var(--brass); outline:none;}
+@media (max-width:780px){#stage-room-creation .room-back{font-size:0.66rem; top:1rem; left:1rem;}}
+#stage-room-creation .site-line{
+    position:absolute;
+    left:50%;
+    top:0;
+    bottom:0;
+    width:1px;
+    background:linear-gradient(to bottom, transparent, var(--brass-dim) 8%, var(--brass-dim) 92%, transparent);
+    opacity:0.35;
+    z-index:0;
+  }
+#stage-room-creation .exhibit{position:relative;}
+#stage-room-creation .beat{
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:100vh;
+    padding:5rem 1.5rem;
+    z-index:1;
+  }
+#stage-room-creation .beat-inner{
+    position:relative;
+    width:100%;
+    max-width:1180px;
+    display:grid;
+    grid-template-columns:1fr auto 1fr;
+    gap:2.2rem;
+    align-items:stretch;
+  }
+#stage-room-creation .stratum-tag{
+    grid-column:2;
+    align-self:center;
+    font-family:'Instrument Sans', sans-serif;
+    font-weight:600;
+    font-size:0.7rem;
+    letter-spacing:0.13em;
+    color:var(--brass);
+    text-transform:uppercase;
+    background:var(--ground);
+    border-radius:999px;
+    padding:0.6rem 0.3rem;
+    text-align:center;
+    writing-mode:vertical-rl;
+    opacity:0;
+    transition:opacity 1.1s ease 0.9s;
+  }
+#stage-room-creation .beat.is-revealed .stratum-tag{opacity:0.8;}
+#stage-room-creation .panel-wrap{
+    display:flex;
+    opacity:0;
+    transform:translateY(28px);
+    transition:opacity 0.9s cubic-bezier(.2,.7,.2,1), transform 0.9s cubic-bezier(.2,.7,.2,1);
+  }
+#stage-room-creation .panel-wrap.clay{grid-column:1;}
+#stage-room-creation .panel-wrap.parchment{grid-column:3; transition-delay:0.28s;}
+#stage-room-creation .beat.is-revealed .panel-wrap{opacity:1; transform:translateY(0);}
+#stage-room-creation .panel{
+    position:relative;
+    width:100%;
+    height:100%;
+    min-height:291px;
+    display:flex;
+    flex-direction:column;
+    text-align:left;
+    font:inherit;
+    border:1px solid rgba(98,134,155,0.4);
+    border-radius:24px;
+    padding:2.8rem 3.2rem 3rem;
+    cursor:pointer;
+    overflow:hidden;
+    --rx:0deg; --ry:0deg; --gx:50%; --gy:50%;
+    transform:perspective(900px) rotateX(var(--rx)) rotateY(var(--ry));
+    transition:transform 0.2s ease-out, box-shadow 0.2s ease-out, border-color 0.2s ease-out, background 0.2s ease-out;
+  }
+#stage-room-creation .panel:hover, #stage-room-creation .panel:focus-visible{border-color:rgba(130,165,185,0.55);}
+#stage-room-creation .panel::after{
+    content:"";
+    position:absolute; inset:0;
+    background:radial-gradient(circle at var(--gx) var(--gy), rgba(255,255,255,0.08), transparent 55%);
+    opacity:0;
+    transition:opacity 0.25s ease;
+    mix-blend-mode:overlay;
+    pointer-events:none;
+  }
+#stage-room-creation .panel:hover::after, #stage-room-creation .panel:focus-visible::after{opacity:0.6;}
+#stage-room-creation .panel:focus-visible{outline:2px solid var(--brass); outline-offset:3px;}
+#stage-room-creation .panel.clay, #stage-room-creation .panel.parchment{
+    background:rgba(39,55,67,0.65);
+    -webkit-backdrop-filter:blur(8px);
+    backdrop-filter:blur(8px);
+    color:var(--whisper);
+  }
+#stage-room-creation .panel .source{
+    font-family:'Instrument Sans', sans-serif;
+    font-weight:500;
+    font-size:0.7rem;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:rgba(210,220,223,0.72);
+    margin-bottom:1.1rem;
+    display:block;
+  }
+#stage-room-creation .panel p{font-family:'Fraunces', serif; font-weight:400; font-size:1.2rem; line-height:1.6; color:#F0ECE3; margin:0 0 1.4rem;}
+#stage-room-creation .panel.clay p, #stage-room-creation .panel.parchment p{font-style:italic;}
+#stage-room-creation .panel .examine{
+    display:inline-flex;
+    align-items:center;
+    gap:0.4em;
+    align-self:flex-start;
+    margin-top:auto;
+    padding:0.7rem 1.4rem;
+    border-radius:999px;
+    background:rgba(7,28,41,0.92);
+    border:1px solid rgba(98,134,155,0.4);
+    color:#F3F1EB;
+    font-family:'Instrument Sans', sans-serif;
+    font-weight:600;
+    font-size:0.68rem;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    transition:background .2s ease, border-color .2s ease, transform .2s ease;
+  }
+#stage-room-creation .panel .examine .arrow{display:inline-block; transition:transform .25s ease;}
+#stage-room-creation .panel:hover .examine, #stage-room-creation .panel:focus-visible .examine{
+    background:rgba(11,40,58,0.96);
+    border-color:rgba(130,165,185,0.55);
+    transform:translateY(-2px);
+  }
+#stage-room-creation .panel:hover .examine .arrow, #stage-room-creation .panel:focus-visible .examine .arrow{
+    transform:translateX(4px);
+  }
+#stage-room-creation .trace-word{
+    border-bottom:1px dotted currentColor;
+    opacity:0.92;
+    padding:0 1px;
+    transition:background 0.35s ease, color 0.2s ease, border-color 0.35s ease;
+  }
+#stage-room-creation .trace-word.is-traced{
+    background:rgba(172,165,59,0.28);
+    border-bottom-style:solid;
+    border-bottom-color:#aca53b;
+  }
+#stage-room-creation #r1_traceOverlay{position:fixed; inset:0; pointer-events:none; z-index:15;}
+#stage-room-creation #r1_tracePath{stroke:#aca53b; stroke-width:1.6; fill:none; opacity:0; filter:drop-shadow(0 0 3px rgba(172,165,59,0.55));}
+#stage-room-creation .beat[data-beat="5"]{min-height:auto; padding-bottom:2.5rem;}
+#stage-room-creation .room-exit-nav{
+    display:flex; align-items:center; justify-content:center; gap:2.75rem; flex-wrap:wrap;
+    margin:1.4rem 0 2.6rem; padding:0 1.5rem;
+  }
+#stage-room-creation .room-exit-btn{
+    display:inline-flex; align-items:center; gap:0.5em;
+    font-family:'Instrument Sans', sans-serif; font-weight:600; font-size:0.76rem; letter-spacing:0.08em;
+    text-transform:uppercase; color:var(--whisper); background:var(--accent-deep);
+    border:none; border-radius:999px; padding:0.9rem 1.9rem;
+    text-decoration:none; cursor:pointer;
+    box-shadow:0 0.5rem 1.1rem rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+    transition:filter .2s ease, box-shadow .2s ease, transform .2s ease;
+  }
+#stage-room-creation .room-exit-btn:hover, #stage-room-creation .room-exit-btn:focus-visible{
+    filter:brightness(1.15); transform:translateY(-2px); outline:none;
+  }
+#stage-room-creation .room-exit-btn .arrow{ transition:transform .25s ease; }
+#stage-room-creation .room-exit-btn:hover .arrow{ transform:translateX(4px); }
+#stage-room-creation .room-exit-btn--quiet{
+    background:none; color:var(--brass);
+    border:1.5px solid var(--brass); box-shadow:none;
+  }
+#stage-room-creation .room-exit-btn--quiet:hover{
+    background:rgba(98,154,189,0.14); transform:translateY(-2px); box-shadow:none; filter:none;
+  }
+@media (max-width:480px){#stage-room-creation .room-exit-btn{padding:0.8rem 1.4rem; font-size:0.68rem;}}
+#stage-room-creation .stratum-rail{
+    position:fixed; right:1.6rem; top:50%; transform:translateY(-50%);
+    display:flex; flex-direction:column; gap:0.9rem; z-index:20;
+  }
+#stage-room-creation .stratum-rail button{
+    width:26px; height:26px; border-radius:50%;
+    border:1px solid rgba(98,154,189,0.3); background:transparent; color:rgba(98,154,189,0.65);
+    font-family:'Instrument Sans', sans-serif; font-weight:600; font-size:0.64rem;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; transition:all 0.3s ease;
+  }
+#stage-room-creation .stratum-rail button:hover{border-color:rgba(98,154,189,0.55); color:var(--brass);}
+#stage-room-creation .stratum-rail button.active{background:var(--brass); color:var(--ground-deep); border-color:var(--brass);}
+#stage-room-creation .stratum-rail button:focus-visible{outline:2px solid var(--whisper); outline-offset:2px;}
+#stage-room-creation .artifact-modal{
+    position:fixed; inset:0; z-index:50;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(11,14,17,0.82);
+    opacity:0; pointer-events:none;
+    transition:opacity 0.34s cubic-bezier(0.22,1,0.36,1);
+    padding:1.5rem;
+  }
+#stage-room-creation .artifact-modal.is-closing{transition:opacity 0.22s cubic-bezier(0.4,0,1,1);}
+#stage-room-creation .artifact-modal.is-open{opacity:1; pointer-events:auto;}
+#stage-room-creation .artifact-card{
+    background:var(--whisper); color:var(--ground-deep);
+    max-width:480px; width:100%;
+    padding:2.4rem 2.2rem;
+    border-radius:20px;
+    position:relative;
+    transform:translateY(14px) scale(0.97);
+    transition:transform 0.34s cubic-bezier(0.22,1,0.36,1);
+  }
+#stage-room-creation .artifact-modal.is-open .artifact-card{transform:translateY(0) scale(1);}
+#stage-room-creation .artifact-modal.is-closing .artifact-card{transition:transform 0.22s cubic-bezier(0.4,0,1,1);}
+#stage-room-creation .modal-close{
+    position:absolute; top:1rem; right:1.1rem;
+    background:none; border:none; font-size:1.4rem; line-height:1;
+    color:var(--brass-dim); cursor:pointer; padding:0.3rem;
+  }
+#stage-room-creation .modal-close:focus-visible{outline:2px solid var(--brass); outline-offset:2px;}
+#stage-room-creation .artifact-card .icon{width:40px; height:40px; opacity:0.7; margin-bottom:1rem;}
+#stage-room-creation .artifact-photo{
+    display:none;
+    width:100%; height:220px; object-fit:cover;
+    border-radius:14px; margin-bottom:1.2rem;
+    background:rgba(0,0,0,0.08);
+    opacity:0;
+    transition:opacity 0.4s ease;
+  }
+#stage-room-creation .artifact-photo.is-loading{display:block;}
+#stage-room-creation .artifact-photo.is-visible{opacity:1;}
+#stage-room-creation .artifact-photo.is-loading + .icon{display:none;}
+#stage-room-creation .photo-credit{
+    font-family:'Instrument Sans', sans-serif; font-weight:600; font-size:0.68rem;
+    letter-spacing:0.03em; opacity:0.55; margin:1rem 0 0;
+  }
+#stage-room-creation .artifact-card h3{font-family:'Fraunces', serif; font-weight:500; font-size:1.5rem; margin:0 0 0.9rem;}
+#stage-room-creation .artifact-card .artifact-quote{font-family:'Fraunces', serif; font-style:italic; line-height:1.6; margin:0 0 1.5rem; opacity:0.85;}
+#stage-room-creation .spec-table{width:100%; border-collapse:collapse; font-family:'Instrument Sans', sans-serif; font-size:0.82rem;}
+#stage-room-creation .spec-table th{
+    text-align:left; text-transform:uppercase; letter-spacing:0.08em;
+    color:var(--brass-dim); font-weight:500; padding:0.5rem 0.8rem 0.5rem 0; width:38%;
+    border-top:1px solid rgba(0,0,0,0.12); vertical-align:top;
+  }
+#stage-room-creation .spec-table td{padding:0.5rem 0; border-top:1px solid rgba(0,0,0,0.12);}
+#stage-room-creation .word-history{
+    display:none;
+    margin-top:1.3rem; margin-bottom:1.6rem; padding:1rem 1.1rem;
+    background:rgba(98,154,189,0.08); border-left:2px solid var(--brass);
+    border-radius:0 12px 12px 0;
+  }
+#stage-room-creation .word-history.is-visible{display:block;}
+#stage-room-creation .word-history-label{
+    display:block; font-family:'Instrument Sans', sans-serif; font-weight:600; font-size:0.68rem;
+    letter-spacing:0.08em; text-transform:uppercase; color:var(--brass-dim); margin-bottom:0.4rem;
+  }
+#stage-room-creation .word-history p{
+    margin:0; font-family:'Instrument Sans', sans-serif; font-size:0.86rem; line-height:1.55; color:var(--ground-deep);
+  }
+#stage-room-creation .parallel-reveal{
+    grid-column:1 / -1;
+    max-width:820px; margin:0.6rem auto 0;
+    background:rgba(12,28,40,0.8);
+    border:1px solid rgba(98,154,189,0.22);
+    border-radius:20px;
+    padding:1.8rem 2rem;
+    text-align:center;
+    opacity:0; transform:translateY(16px);
+    transition:opacity 0.9s cubic-bezier(.2,.7,.2,1) 0.5s, transform 0.9s cubic-bezier(.2,.7,.2,1) 0.5s;
+  }
+#stage-room-creation .beat.is-revealed .parallel-reveal{opacity:1; transform:translateY(0);}
+#stage-room-creation .parallel-reveal-eyebrow{
+    display:flex; align-items:center; justify-content:center; gap:0.9rem;
+    font-family:'Instrument Sans', sans-serif; font-weight:600; font-size:0.66rem;
+    letter-spacing:0.13em; text-transform:uppercase; color:var(--brass);
+    margin-bottom:1rem;
+  }
+#stage-room-creation .parallel-reveal-eyebrow::before, #stage-room-creation .parallel-reveal-eyebrow::after{
+    content:''; flex:1; height:1px; background:rgba(98,154,189,0.3);
+  }
+#stage-room-creation .parallel-reveal-headline{
+    font-family:'Fraunces', serif; font-weight:300; font-size:1.32rem; line-height:1.38;
+    color:var(--whisper); margin:0 0 0.8rem;
+  }
+#stage-room-creation .parallel-reveal-sub{
+    font-family:'Instrument Sans', sans-serif; font-size:0.92rem; line-height:1.55;
+    color:var(--bone-dim); margin:0;
+  }
+
+@media (max-width: 780px){#stage-room-creation .beat-inner{grid-template-columns:1fr; gap:1.4rem;}
+#stage-room-creation .stratum-tag{grid-column:1; writing-mode:horizontal-tb; opacity:0.8 !important; order:-1;}
+#stage-room-creation .panel-wrap.clay{grid-column:1;}
+#stage-room-creation .panel-wrap.parchment{grid-column:1;}
+#stage-room-creation .site-line{left:1.4rem;}
+#stage-room-creation .panel{padding:2rem 1.6rem;}
+#stage-room-creation .parallel-reveal{padding:1.5rem 1.4rem;}
+#stage-room-creation .stratum-rail{display:none;}}
+@media (prefers-reduced-motion: reduce){#stage-room-creation *{transition-duration:0.01ms !important; animation:none !important;}
+#stage-room-creation .panel-wrap{opacity:1; transform:none;}
+#stage-room-creation .stratum-tag, #stage-room-creation .hush-line{opacity:1;}
+#stage-room-creation .panel{transform:none !important;}}
+
+  /* ---------- stage: room-flood ---------- */
+#stage-room-flood{
+    --ground: #14181C;
+    --ground-deep: #0B0E11;
+    --clay: #8A99A8;
+    --clay-deep: #6E7E8F;
+    --clay-ink: #2A1F12;
+    --parchment: #B3BDC7;
+    --parchment-deep: #9BA7B2;
+    --parchment-ink: #201B14;
+    --brass: #5F8CB8;
+    --brass-dim: #435F7A;
+    --accent-deep: #1B2E42;
+    --whisper: #F2EFE8;
+    --fog: rgba(242,239,232,0.55);
+    --mist: rgba(220,215,205,0.35);
+  }
+#stage-room-flood *{box-sizing:border-box;}
+#stage-room-flood{scroll-behavior:smooth;}
+#stage-room-flood{
+    margin:0;
+    background:var(--ground);
+    color:var(--whisper);
+    font-family:'Instrument Sans', sans-serif;
+    overflow-x:hidden;
+  }
+#stage-room-flood svg{display:block;}
+#stage-room-flood .page-bg{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    width:100%; height:100%;
+    object-fit:cover; object-position:center top;
+    filter:brightness(0.36);
+  }
+#stage-room-flood .r2_intro{
+    position:relative;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:2rem;
+  }
+#stage-room-flood .eyebrow{
+    font-family:'Instrument Sans', sans-serif;
+    font-weight:600;
+    letter-spacing:0.22em;
+    font-size:0.74rem;
+    color:var(--brass);
+    text-transform:uppercase;
+    margin-bottom:1.4rem;
+  }
+#stage-room-flood .r2_intro h1{
+    font-family:'Fraunces', serif;
+    font-weight:500;
+    font-optical-sizing:auto;
+    font-size:clamp(2.2rem, 6vw, 4.4rem);
+    line-height:1.05;
+    margin:0;
+    letter-spacing:-0.01em;
+    position:relative;
+    z-index:1;
+  }
+#stage-room-flood .r2_intro h1 em{
+    font-style:italic;
+    font-weight:300;
+    color:var(--fog);
+  }
+#stage-room-flood .scroll-cue{
+    margin-top:2.6rem;
+    font-family:'Instrument Sans', sans-serif;
+    font-weight:600;
+    font-size:0.72rem;
+    letter-spacing:0.14em;
+    color:var(--brass-dim);
+    text-transform:uppercase;
+    animation:r2-kf1-driftDown 2.2s ease-in-out infinite;
+  }
+@keyframes r2-kf1-driftDown{
+    0%,100%{transform:translateY(0);opacity:0.6;}
+    50%{transform:translateY(6px);opacity:1;}
+  }
+#stage-room-flood .room-back{
+    position:fixed; top:1.4rem; left:1.4rem; z-index:25;
+    display:flex; align-items:center; gap:0.5rem;
+    font-family:'Instrument Sans', sans-serif; font-weight:600; font-size:0.72rem; letter-spacing:0.08em;
+    color:var(--fog); text-decoration:none; text-transform:uppercase;
+    opacity:0.68;
+    transition:opacity 0.25s ease, color 0.25s ease;
+  }
+#stage-room-flood .room-back:hover, #stage-room-flood .room-back:focus-visible{opacity:1; color:var(--brass); outline:none;}
+@media (max-width:780px){#stage-room-flood .room-back{font-size:0.66rem; top:1rem; left:1rem;}}
+#stage-room-flood .site-line{
+    position:absolute;
+    left:50%;
+    top:0;
+    bottom:0;
+    width:1px;
+    background:linear-gradient(to bottom, transparent, var(--brass-dim) 8%, var(--brass-dim) 92%, transparent);
+    opacity:0.35;
+    z-index:0;
+  }
+#stage-room-flood .exhibit{position:relative;}
+#stage-room-flood .beat{
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:100vh;
+    padding:5rem 1.5rem;
+    z-index:1;
+  }
+#stage-room-flood .beat-inner{
+    position:relative;
+    width:100%;
+    max-width:1180px;
+    display:grid;
+    grid-template-columns:1fr auto 1fr;
+    gap:2.2rem;
+    align-items:stretch;
+  }
+#stage-room-flood .stratum-tag{
+    grid-column:2;
+    align-self:center;
+    font-family:'Instrument Sans', sans-serif;
+    font-weight:600;
+    font-size:0.7rem;
+    letter-spacing:0.13em;
+    color:var(--brass);
+    text-transform:uppercase;
+    background:var(--ground);
+    border-radius:999px;
+    padding:0.6rem 0.3rem;
+    text-align:center;
+    writing-mode:vertical-rl;
+    opacity:0;
+    transition:opacity 1.1s ease 0.9s;
+  }
+#stage-room-flood .beat.is-revealed .stratum-tag{opacity:0.8;}
+#stage-room-flood .panel-wrap{
+    display:flex;
+    opacity:0;
+    transform:translateY(28px);
+    transition:opacity 0.9s cubic-bezier(.2,.7,.2,1), transform 0.9s cubic-bezier(.2,.7,.2,1);
+  }
+#stage-room-flood .panel-wrap.clay{grid-column:1;}
+#stage-room-flood .panel-wrap.parchment{grid-column:3; transition-delay:0.28s;}
+#stage-room-flood .beat.is-revealed .panel-wrap{opacity:1; transform:translateY(0);}
+#stage-room-flood .panel{
+    position:relative;
+    width:100%;
+    height:100%;
+    min-height:291px;
+    display:flex;
+    flex-direction:column;
+    text-align:left;
+    font:inherit;
+    border:1px solid rgba(98,134,155,0.4);
+    border-radius:24px;
+    padding:2.8rem 3.2rem 3rem;
+    cursor:pointer;
+    overflow:hidden;
+    --rx:0deg; --ry:0deg; --gx:50%; --gy:50%;
+    transform:perspective(900px) rotateX(var(--rx)) rotateY(var(--ry));
+    transition:transform 0.2s ease-out, box-shadow 0.2s ease-out, border-color 0.2s ease-out, background 0.2s ease-out;
+  }
+#stage-room-flood .panel:hover, #stage-room-flood .panel:focus-visible{border-color:rgba(130,165,185,0.55);}
+#stage-room-flood .panel::after{
+    content:"";
+    position:absolute; inset:0;
+    background:radial-gradient(circle at var(--gx) var(--gy), rgba(255,255,255,0.08), transparent 55%);
+    opacity:0;
+    transition:opacity 0.25s ease;
+    mix-blend-mode:overlay;
+    pointer-events:none;
+  }
+#stage-room-flood .panel:hover::after, #stage-room-flood .panel:focus-visible::after{opacity:0.6;}
+#stage-room-flood .panel:focus-visible{outline:2px solid var(--brass); outline-offset:3px;}
+#stage-room-flood .panel.clay, #stage-room-flood .panel.parchment{
+    background:rgba(39,55,67,0.65);
+    -webkit-backdrop-filter:blur(8px);
+    backdrop-filter:blur(8px);
+    color:var(--whisper);
+  }
+#stage-room-flood .panel .source{
+    font-family:'Instrument Sans', sans-serif;
+    font-weight:500;
+    font-size:0.7rem;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:rgba(210,220,223,0.72);
+    margin-bottom:1.1rem;
+    display:block;
+  }
+#stage-room-flood .panel p{font-family:'Fraunces', serif; font-weight:400; font-size:1.2rem; line-height:1.6; color:#F0ECE3; margin:0 0 1.4rem;}
+#stage-room-flood .panel.clay p, #stage-room-flood .panel.parchment p{font-style:italic;}
+#stage-room-flood .panel .examine{
+    display:inline-flex;
+    align-items:center;
+    gap:0.4em;
+    align-self:flex-start;
+    margin-top:auto;
+    padding:0.7rem 1.4rem;
+    border-radius:999px;
+    background:rgba(7,28,41,0.92);
+    border:1px solid rgba(98,134,155,0.4);
+    color:#F3F1EB;
+    font-family:'Instrument Sans', sans-serif;
+    font-weight:600;
+    font-size:0.68rem;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    transition:background .2s ease, border-color .2s ease, transform .2s ease;
+  }
+#stage-room-flood .panel .examine .arrow{display:inline-block; transition:transform .25s ease;}
+#stage-room-flood .panel:hover .examine, #stage-room-flood .panel:focus-visible .examine{
+    background:rgba(11,40,58,0.96);
+    border-color:rgba(130,165,185,0.55);
+    transform:translateY(-2px);
+  }
+#stage-room-flood .panel:hover .examine .arrow, #stage-room-flood .panel:focus-visible .examine .arrow{
+    transform:translateX(4px);
+  }
+#stage-room-flood .trace-word{
+    border-bottom:1px dotted currentColor;
+    opacity:0.92;
+    padding:0 1px;
+    transition:background 0.35s ease, color 0.2s ease, border-color 0.35s ease;
+  }
+#stage-room-flood .trace-word.is-traced{
+    background:rgba(172,165,59,0.28);
+    border-bottom-style:solid;
+    border-bottom-color:#aca53b;
+  }
+#stage-room-flood #r2_traceOverlay{position:fixed; inset:0; pointer-events:none; z-index:15;}
+#stage-room-flood #r2_tracePath{stroke:#aca53b; stroke-width:1.6; fill:none; opacity:0; filter:drop-shadow(0 0 3px rgba(172,165,59,0.55));}
+#stage-room-flood .beat[data-beat="5"]{min-height:auto; padding-bottom:2.5rem;}
+#stage-room-flood .room-exit-nav{
+    display:flex; align-items:center; justify-content:center; gap:2.75rem; flex-wrap:wrap;
+    margin:1.4rem 0 2.6rem; padding:0 1.5rem;
+  }
+#stage-room-flood .room-exit-btn{
+    display:inline-flex; align-items:center; gap:0.5em;
+    font-family:'Instrument Sans', sans-serif; font-weight:600; font-size:0.76rem; letter-spacing:0.08em;
+    text-transform:uppercase; color:var(--whisper); background:var(--accent-deep);
+    border:none; border-radius:999px; padding:0.9rem 1.9rem;
+    text-decoration:none; cursor:pointer;
+    box-shadow:0 0.5rem 1.1rem rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+    transition:filter .2s ease, box-shadow .2s ease, transform .2s ease;
+  }
+#stage-room-flood .room-exit-btn:hover, #stage-room-flood .room-exit-btn:focus-visible{
+    filter:brightness(1.15); transform:translateY(-2px); outline:none;
+  }
+#stage-room-flood .room-exit-btn .arrow{ transition:transform .25s ease; }
+#stage-room-flood .room-exit-btn:hover .arrow{ transform:translateX(4px); }
+#stage-room-flood .room-exit-btn--quiet{
+    background:none; color:var(--brass);
+    border:1.5px solid var(--brass); box-shadow:none;
+  }
+#stage-room-flood .room-exit-btn--quiet:hover{
+    background:rgba(98,154,189,0.14); transform:translateY(-2px); box-shadow:none; filter:none;
+  }
+@media (max-width:480px){#stage-room-flood .room-exit-btn{padding:0.8rem 1.4rem; font-size:0.68rem;}}
+#stage-room-flood .stratum-rail{
+    position:fixed; right:1.6rem; top:50%; transform:translateY(-50%);
+    display:flex; flex-direction:column; gap:0.9rem; z-index:20;
+  }
+#stage-room-flood .stratum-rail button{
+    width:26px; height:26px; border-radius:50%;
+    border:1px solid rgba(95,140,184,0.3); background:transparent; color:rgba(95,140,184,0.65);
+    font-family:'Instrument Sans', sans-serif; font-weight:600; font-size:0.64rem;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; transition:all 0.3s ease;
+  }
+#stage-room-flood .stratum-rail button:hover{border-color:rgba(95,140,184,0.55); color:var(--brass);}
+#stage-room-flood .stratum-rail button.active{background:var(--brass); color:var(--ground-deep); border-color:var(--brass);}
+#stage-room-flood .stratum-rail button:focus-visible{outline:2px solid var(--whisper); outline-offset:2px;}
+#stage-room-flood .artifact-modal{
+    position:fixed; inset:0; z-index:50;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(11,14,17,0.82);
+    opacity:0; pointer-events:none;
+    transition:opacity 0.34s cubic-bezier(0.22,1,0.36,1);
+    padding:1.5rem;
+  }
+#stage-room-flood .artifact-modal.is-closing{transition:opacity 0.22s cubic-bezier(0.4,0,1,1);}
+#stage-room-flood .artifact-modal.is-open{opacity:1; pointer-events:auto;}
+#stage-room-flood .artifact-card{
+    background:var(--whisper); color:var(--ground-deep);
+    max-width:480px; width:100%;
+    padding:2.4rem 2.2rem;
+    border-radius:20px;
+    position:relative;
+    transform:translateY(14px) scale(0.97);
+    transition:transform 0.34s cubic-bezier(0.22,1,0.36,1);
+  }
+#stage-room-flood .artifact-modal.is-open .artifact-card{transform:translateY(0) scale(1);}
+#stage-room-flood .artifact-modal.is-closing .artifact-card{transition:transform 0.22s cubic-bezier(0.4,0,1,1);}
+#stage-room-flood .modal-close{
+    position:absolute; top:1rem; right:1.1rem;
+    background:none; border:none; font-size:1.4rem; line-height:1;
+    color:var(--brass-dim); cursor:pointer; padding:0.3rem;
+  }
+#stage-room-flood .modal-close:focus-visible{outline:2px solid var(--brass); outline-offset:2px;}
+#stage-room-flood .artifact-card .icon{width:40px; height:40px; opacity:0.7; margin-bottom:1rem;}
+#stage-room-flood .artifact-photo{
+    display:none;
+    width:100%; height:220px; object-fit:cover;
+    border-radius:14px; margin-bottom:1.2rem;
+    background:rgba(0,0,0,0.08);
+    opacity:0;
+    transition:opacity 0.4s ease;
+  }
+#stage-room-flood .artifact-photo.is-loading{display:block;}
+#stage-room-flood .artifact-photo.is-visible{opacity:1;}
+#stage-room-flood .artifact-photo.is-loading + .icon{display:none;}
+#stage-room-flood .photo-credit{
+    font-family:'Instrument Sans', sans-serif; font-weight:600; font-size:0.68rem;
+    letter-spacing:0.03em; opacity:0.55; margin:1rem 0 0;
+  }
+#stage-room-flood .artifact-card h3{font-family:'Fraunces', serif; font-weight:500; font-size:1.5rem; margin:0 0 0.9rem;}
+#stage-room-flood .artifact-card .artifact-quote{font-family:'Fraunces', serif; font-style:italic; line-height:1.6; margin:0 0 1.5rem; opacity:0.85;}
+#stage-room-flood .spec-table{width:100%; border-collapse:collapse; font-family:'Instrument Sans', sans-serif; font-size:0.82rem;}
+#stage-room-flood .spec-table th{
+    text-align:left; text-transform:uppercase; letter-spacing:0.08em;
+    color:var(--brass-dim); font-weight:500; padding:0.5rem 0.8rem 0.5rem 0; width:38%;
+    border-top:1px solid rgba(0,0,0,0.12); vertical-align:top;
+  }
+#stage-room-flood .spec-table td{padding:0.5rem 0; border-top:1px solid rgba(0,0,0,0.12);}
+#stage-room-flood .word-history{
+    display:none;
+    margin-top:1.3rem; margin-bottom:1.6rem; padding:1rem 1.1rem;
+    background:rgba(95,140,184,0.08); border-left:2px solid var(--brass);
+    border-radius:0 12px 12px 0;
+  }
+#stage-room-flood .word-history.is-visible{display:block;}
+#stage-room-flood .word-history-label{
+    display:block; font-family:'Instrument Sans', sans-serif; font-weight:600; font-size:0.68rem;
+    letter-spacing:0.08em; text-transform:uppercase; color:var(--brass-dim); margin-bottom:0.4rem;
+  }
+#stage-room-flood .word-history p{
+    margin:0; font-family:'Instrument Sans', sans-serif; font-size:0.86rem; line-height:1.55; color:var(--ground-deep);
+  }
+#stage-room-flood .parallel-reveal{
+    grid-column:1 / -1;
+    max-width:820px; margin:0.6rem auto 0;
+    background:rgba(12,28,40,0.8);
+    border:1px solid rgba(98,154,189,0.22);
+    border-radius:20px;
+    padding:1.8rem 2rem;
+    text-align:center;
+    opacity:0; transform:translateY(16px);
+    transition:opacity 0.9s cubic-bezier(.2,.7,.2,1) 0.5s, transform 0.9s cubic-bezier(.2,.7,.2,1) 0.5s;
+  }
+#stage-room-flood .beat.is-revealed .parallel-reveal{opacity:1; transform:translateY(0);}
+#stage-room-flood .parallel-reveal-eyebrow{
+    display:flex; align-items:center; justify-content:center; gap:0.9rem;
+    font-family:'Instrument Sans', sans-serif; font-weight:600; font-size:0.66rem;
+    letter-spacing:0.13em; text-transform:uppercase; color:var(--brass);
+    margin-bottom:1rem;
+  }
+#stage-room-flood .parallel-reveal-eyebrow::before, #stage-room-flood .parallel-reveal-eyebrow::after{
+    content:''; flex:1; height:1px; background:rgba(98,154,189,0.3);
+  }
+#stage-room-flood .parallel-reveal-headline{
+    font-family:'Fraunces', serif; font-weight:300; font-size:1.32rem; line-height:1.38;
+    color:var(--whisper); margin:0 0 0.8rem;
+  }
+#stage-room-flood .parallel-reveal-sub{
+    font-family:'Instrument Sans', sans-serif; font-size:0.92rem; line-height:1.55;
+    color:var(--bone-dim); margin:0;
+  }
+
+@media (max-width: 780px){#stage-room-flood .beat-inner{grid-template-columns:1fr; gap:1.4rem;}
+#stage-room-flood .stratum-tag{grid-column:1; writing-mode:horizontal-tb; opacity:0.8 !important; order:-1;}
+#stage-room-flood .panel-wrap.clay{grid-column:1;}
+#stage-room-flood .panel-wrap.parchment{grid-column:1;}
+#stage-room-flood .site-line{left:1.4rem;}
+#stage-room-flood .panel{padding:2rem 1.6rem;}
+#stage-room-flood .parallel-reveal{padding:1.5rem 1.4rem;}
+#stage-room-flood .stratum-rail{display:none;}}
+@media (prefers-reduced-motion: reduce){#stage-room-flood *{transition-duration:0.01ms !important; animation:none !important;}
+#stage-room-flood .panel-wrap{opacity:1; transform:none;}
+#stage-room-flood .stratum-tag, #stage-room-flood .hush-line{opacity:1;}
+#stage-room-flood .panel{transform:none !important;}}
+
+  /* ---------- stage: room-covenant ---------- */
+#stage-room-covenant{
+    --ground: #14181C;
+    --ground-deep: #0B0E11;
+    --clay: #C29970;
+    --clay-deep: #A67C53;
+    --clay-ink: #2A1F12;
+    --parchment: #D9C1A9;
+    --parchment-deep: #C4A98D;
+    --parchment-ink: #201B14;
+    --brass: #A6763D;
+    --brass-dim: #6E5330;
+    --accent-deep: #2C1E10;
+    --whisper: #F2EFE8;
+    --fog: rgba(242,239,232,0.55);
+    --mist: rgba(220,215,205,0.35);
+  }
+#stage-room-covenant *{box-sizing:border-box;}
+#stage-room-covenant{scroll-behavior:smooth;}
+#stage-room-covenant{
+    margin:0;
+    background:var(--ground);
+    color:var(--whisper);
+    font-family:'Instrument Sans', sans-serif;
+    overflow-x:hidden;
+  }
+#stage-room-covenant svg{display:block;}
+#stage-room-covenant .page-bg{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    width:100%; height:100%;
+    object-fit:cover; object-position:center top;
+    filter:brightness(0.62);
+  }
+#stage-room-covenant .r3_intro{
+    position:relative;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:2rem;
+  }
+#stage-room-covenant .eyebrow{
+    font-family:'Instrument Sans', sans-serif;
+    font-weight:600;
+    letter-spacing:0.22em;
+    font-size:0.74rem;
+    color:var(--brass);
+    text-transform:uppercase;
+    margin-bottom:1.4rem;
+  }
+#stage-room-covenant .r3_intro h1{
+    font-family:'Fraunces', serif;
+    font-weight:500;
+    font-optical-sizing:auto;
+    font-size:clamp(2.2rem, 6vw, 4.4rem);
+    line-height:1.05;
+    margin:0;
+    letter-spacing:-0.01em;
+    position:relative;
+    z-index:1;
+  }
+#stage-room-covenant .r3_intro h1 em{
+    font-style:italic;
+    font-weight:300;
+    color:var(--fog);
+  }
+#stage-room-covenant .scroll-cue{
+    margin-top:2.6rem;
+    font-family:'Instrument Sans', sans-serif;
+    font-weight:600;
+    font-size:0.72rem;
+    letter-spacing:0.14em;
+    color:var(--brass-dim);
+    text-transform:uppercase;
+    animation:r3-kf1-driftDown 2.2s ease-in-out infinite;
+  }
+@keyframes r3-kf1-driftDown{
+    0%,100%{transform:translateY(0);opacity:0.6;}
+    50%{transform:translateY(6px);opacity:1;}
+  }
+#stage-room-covenant .room-back{
+    position:fixed; top:1.4rem; left:1.4rem; z-index:25;
+    display:flex; align-items:center; gap:0.5rem;
+    font-family:'Instrument Sans', sans-serif; font-weight:600; font-size:0.72rem; letter-spacing:0.08em;
+    color:var(--fog); text-decoration:none; text-transform:uppercase;
+    opacity:0.68;
+    transition:opacity 0.25s ease, color 0.25s ease;
+  }
+#stage-room-covenant .room-back:hover, #stage-room-covenant .room-back:focus-visible{opacity:1; color:var(--brass); outline:none;}
+@media (max-width:780px){#stage-room-covenant .room-back{font-size:0.66rem; top:1rem; left:1rem;}}
+#stage-room-covenant .site-line{
+    position:absolute;
+    left:50%;
+    top:0;
+    bottom:0;
+    width:1px;
+    background:linear-gradient(to bottom, transparent, var(--brass-dim) 8%, var(--brass-dim) 92%, transparent);
+    opacity:0.35;
+    z-index:0;
+  }
+#stage-room-covenant .exhibit{position:relative;}
+#stage-room-covenant .beat{
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:100vh;
+    padding:5rem 1.5rem;
+    z-index:1;
+  }
+#stage-room-covenant .beat-inner{
+    position:relative;
+    width:100%;
+    max-width:1180px;
+    display:grid;
+    grid-template-columns:1fr auto 1fr;
+    gap:2.2rem;
+    align-items:stretch;
+  }
+#stage-room-covenant .stratum-tag{
+    grid-column:2;
+    align-self:center;
+    font-family:'Instrument Sans', sans-serif;
+    font-weight:600;
+    font-size:0.7rem;
+    letter-spacing:0.13em;
+    color:var(--brass);
+    text-transform:uppercase;
+    background:var(--ground);
+    border-radius:999px;
+    padding:0.6rem 0.3rem;
+    text-align:center;
+    writing-mode:vertical-rl;
+    opacity:0;
+    transition:opacity 1.1s ease 0.9s;
+  }
+#stage-room-covenant .beat.is-revealed .stratum-tag{opacity:0.8;}
+#stage-room-covenant .panel-wrap{
+    display:flex;
+    opacity:0;
+    transform:translateY(28px);
+    transition:opacity 0.9s cubic-bezier(.2,.7,.2,1), transform 0.9s cubic-bezier(.2,.7,.2,1);
+  }
+#stage-room-covenant .panel-wrap.clay{grid-column:1;}
+#stage-room-covenant .panel-wrap.parchment{grid-column:3; transition-delay:0.28s;}
+#stage-room-covenant .beat.is-revealed .panel-wrap{opacity:1; transform:translateY(0);}
+#stage-room-covenant .panel{
+    position:relative;
+    width:100%;
+    height:100%;
+    min-height:291px;
+    display:flex;
+    flex-direction:column;
+    text-align:left;
+    font:inherit;
+    border:1px solid rgba(166,130,80,0.4);
+    border-radius:24px;
+    padding:2.8rem 3.2rem 3rem;
+    cursor:pointer;
+    overflow:hidden;
+    --rx:0deg; --ry:0deg; --gx:50%; --gy:50%;
+    transform:perspective(900px) rotateX(var(--rx)) rotateY(var(--ry));
+    transition:transform 0.2s ease-out, box-shadow 0.2s ease-out, border-color 0.2s ease-out, background 0.2s ease-out;
+  }
+#stage-room-covenant .panel:hover, #stage-room-covenant .panel:focus-visible{border-color:rgba(196,160,110,0.55);}
+#stage-room-covenant .panel::after{
+    content:"";
+    position:absolute; inset:0;
+    background:radial-gradient(circle at var(--gx) var(--gy), rgba(255,255,255,0.08), transparent 55%);
+    opacity:0;
+    transition:opacity 0.25s ease;
+    mix-blend-mode:overlay;
+    pointer-events:none;
+  }
+#stage-room-covenant .panel:hover::after, #stage-room-covenant .panel:focus-visible::after{opacity:0.6;}
+#stage-room-covenant .panel:focus-visible{outline:2px solid var(--brass); outline-offset:3px;}
+#stage-room-covenant .panel.clay, #stage-room-covenant .panel.parchment{
+    background:rgba(58,42,26,0.65);
+    -webkit-backdrop-filter:blur(8px);
+    backdrop-filter:blur(8px);
+    color:var(--whisper);
+  }
+#stage-room-covenant .panel .source{
+    font-family:'Instrument Sans', sans-serif;
+    font-weight:500;
+    font-size:0.7rem;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:rgba(224,208,188,0.72);
+    margin-bottom:1.1rem;
+    display:block;
+  }
+#stage-room-covenant .panel p{font-family:'Fraunces', serif; font-weight:400; font-size:1.2rem; line-height:1.6; color:#F0ECE3; margin:0 0 1.4rem;}
+#stage-room-covenant .panel.clay p, #stage-room-covenant .panel.parchment p{font-style:italic;}
+#stage-room-covenant .panel .examine{
+    display:inline-flex;
+    align-items:center;
+    gap:0.4em;
+    align-self:flex-start;
+    margin-top:auto;
+    padding:0.7rem 1.4rem;
+    border-radius:999px;
+    background:rgba(41,26,10,0.92);
+    border:1px solid rgba(166,130,80,0.4);
+    color:#F3F1EB;
+    font-family:'Instrument Sans', sans-serif;
+    font-weight:600;
+    font-size:0.68rem;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    transition:background .2s ease, border-color .2s ease, transform .2s ease;
+  }
+#stage-room-covenant .panel .examine .arrow{display:inline-block; transition:transform .25s ease;}
+#stage-room-covenant .panel:hover .examine, #stage-room-covenant .panel:focus-visible .examine{
+    background:rgba(58,38,16,0.96);
+    border-color:rgba(196,160,110,0.55);
+    transform:translateY(-2px);
+  }
+#stage-room-covenant .panel:hover .examine .arrow, #stage-room-covenant .panel:focus-visible .examine .arrow{
+    transform:translateX(4px);
+  }
+#stage-room-covenant .trace-word{
+    border-bottom:1px dotted currentColor;
+    opacity:0.92;
+    padding:0 1px;
+    transition:background 0.35s ease, color 0.2s ease, border-color 0.35s ease;
+  }
+#stage-room-covenant .trace-word.is-traced{
+    background:rgba(172,165,59,0.28);
+    border-bottom-style:solid;
+    border-bottom-color:#aca53b;
+  }
+#stage-room-covenant #r3_traceOverlay{position:fixed; inset:0; pointer-events:none; z-index:15;}
+#stage-room-covenant #r3_tracePath{stroke:#aca53b; stroke-width:1.6; fill:none; opacity:0; filter:drop-shadow(0 0 3px rgba(172,165,59,0.55));}
+#stage-room-covenant .beat[data-beat="5"]{min-height:auto; padding-bottom:2.5rem;}
+#stage-room-covenant .room-exit-nav{
+    display:flex; align-items:center; justify-content:center; gap:2.75rem; flex-wrap:wrap;
+    margin:1.4rem 0 2.6rem; padding:0 1.5rem;
+  }
+#stage-room-covenant .room-exit-btn{
+    display:inline-flex; align-items:center; gap:0.5em;
+    font-family:'Instrument Sans', sans-serif; font-weight:600; font-size:0.76rem; letter-spacing:0.08em;
+    text-transform:uppercase; color:var(--whisper); background:var(--accent-deep);
+    border:none; border-radius:999px; padding:0.9rem 1.9rem;
+    text-decoration:none; cursor:pointer;
+    box-shadow:0 0.5rem 1.1rem rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+    transition:filter .2s ease, box-shadow .2s ease, transform .2s ease;
+  }
+#stage-room-covenant .room-exit-btn:hover, #stage-room-covenant .room-exit-btn:focus-visible{
+    filter:brightness(1.15); transform:translateY(-2px); outline:none;
+  }
+#stage-room-covenant .room-exit-btn .arrow{ transition:transform .25s ease; }
+#stage-room-covenant .room-exit-btn:hover .arrow{ transform:translateX(4px); }
+#stage-room-covenant .room-exit-btn--quiet{
+    background:none; color:var(--brass);
+    border:1.5px solid var(--brass); box-shadow:none;
+  }
+#stage-room-covenant .room-exit-btn--quiet:hover{
+    background:rgba(98,154,189,0.14); transform:translateY(-2px); box-shadow:none; filter:none;
+  }
+@media (max-width:480px){#stage-room-covenant .room-exit-btn{padding:0.8rem 1.4rem; font-size:0.68rem;}}
+#stage-room-covenant .stratum-rail{
+    position:fixed; right:1.6rem; top:50%; transform:translateY(-50%);
+    display:flex; flex-direction:column; gap:0.9rem; z-index:20;
+  }
+#stage-room-covenant .stratum-rail button{
+    width:26px; height:26px; border-radius:50%;
+    border:1px solid rgba(166,118,61,0.3); background:transparent; color:rgba(166,118,61,0.65);
+    font-family:'Instrument Sans', sans-serif; font-weight:600; font-size:0.64rem;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; transition:all 0.3s ease;
+  }
+#stage-room-covenant .stratum-rail button:hover{border-color:rgba(166,118,61,0.55); color:var(--brass);}
+#stage-room-covenant .stratum-rail button.active{background:var(--brass); color:var(--ground-deep); border-color:var(--brass);}
+#stage-room-covenant .stratum-rail button:focus-visible{outline:2px solid var(--whisper); outline-offset:2px;}
+#stage-room-covenant .artifact-modal{
+    position:fixed; inset:0; z-index:50;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(11,14,17,0.82);
+    opacity:0; pointer-events:none;
+    transition:opacity 0.34s cubic-bezier(0.22,1,0.36,1);
+    padding:1.5rem;
+  }
+#stage-room-covenant .artifact-modal.is-closing{transition:opacity 0.22s cubic-bezier(0.4,0,1,1);}
+#stage-room-covenant .artifact-modal.is-open{opacity:1; pointer-events:auto;}
+#stage-room-covenant .artifact-card{
+    background:var(--whisper); color:var(--ground-deep);
+    max-width:480px; width:100%;
+    padding:2.4rem 2.2rem;
+    border-radius:20px;
+    position:relative;
+    transform:translateY(14px) scale(0.97);
+    transition:transform 0.34s cubic-bezier(0.22,1,0.36,1);
+  }
+#stage-room-covenant .artifact-modal.is-open .artifact-card{transform:translateY(0) scale(1);}
+#stage-room-covenant .artifact-modal.is-closing .artifact-card{transition:transform 0.22s cubic-bezier(0.4,0,1,1);}
+#stage-room-covenant .modal-close{
+    position:absolute; top:1rem; right:1.1rem;
+    background:none; border:none; font-size:1.4rem; line-height:1;
+    color:var(--brass-dim); cursor:pointer; padding:0.3rem;
+  }
+#stage-room-covenant .modal-close:focus-visible{outline:2px solid var(--brass); outline-offset:2px;}
+#stage-room-covenant .artifact-card .icon{width:40px; height:40px; opacity:0.7; margin-bottom:1rem;}
+#stage-room-covenant .artifact-photo{
+    display:none;
+    width:100%; height:220px; object-fit:cover;
+    border-radius:14px; margin-bottom:1.2rem;
+    background:rgba(0,0,0,0.08);
+    opacity:0;
+    transition:opacity 0.4s ease;
+  }
+#stage-room-covenant .artifact-photo.is-loading{display:block;}
+#stage-room-covenant .artifact-photo.is-visible{opacity:1;}
+#stage-room-covenant .artifact-photo.is-loading + .icon{display:none;}
+#stage-room-covenant .photo-credit{
+    font-family:'Instrument Sans', sans-serif; font-weight:600; font-size:0.68rem;
+    letter-spacing:0.03em; opacity:0.55; margin:1rem 0 0;
+  }
+#stage-room-covenant .artifact-card h3{font-family:'Fraunces', serif; font-weight:500; font-size:1.5rem; margin:0 0 0.9rem;}
+#stage-room-covenant .artifact-card .artifact-quote{font-family:'Fraunces', serif; font-style:italic; line-height:1.6; margin:0 0 1.5rem; opacity:0.85;}
+#stage-room-covenant .spec-table{width:100%; border-collapse:collapse; font-family:'Instrument Sans', sans-serif; font-size:0.82rem;}
+#stage-room-covenant .spec-table th{
+    text-align:left; text-transform:uppercase; letter-spacing:0.08em;
+    color:var(--brass-dim); font-weight:500; padding:0.5rem 0.8rem 0.5rem 0; width:38%;
+    border-top:1px solid rgba(0,0,0,0.12); vertical-align:top;
+  }
+#stage-room-covenant .spec-table td{padding:0.5rem 0; border-top:1px solid rgba(0,0,0,0.12);}
+#stage-room-covenant .word-history{
+    display:none;
+    margin-top:1.3rem; margin-bottom:1.6rem; padding:1rem 1.1rem;
+    background:rgba(166,118,61,0.08); border-left:2px solid var(--brass);
+    border-radius:0 12px 12px 0;
+  }
+#stage-room-covenant .word-history.is-visible{display:block;}
+#stage-room-covenant .word-history-label{
+    display:block; font-family:'Instrument Sans', sans-serif; font-weight:600; font-size:0.68rem;
+    letter-spacing:0.08em; text-transform:uppercase; color:var(--brass-dim); margin-bottom:0.4rem;
+  }
+#stage-room-covenant .word-history p{
+    margin:0; font-family:'Instrument Sans', sans-serif; font-size:0.86rem; line-height:1.55; color:var(--ground-deep);
+  }
+#stage-room-covenant .parallel-reveal{
+    grid-column:1 / -1;
+    max-width:820px; margin:0.6rem auto 0;
+    background:rgba(28,18,8,0.8);
+    border:1px solid rgba(166,118,61,0.22);
+    border-radius:20px;
+    padding:1.8rem 2rem;
+    text-align:center;
+    opacity:0; transform:translateY(16px);
+    transition:opacity 0.9s cubic-bezier(.2,.7,.2,1) 0.5s, transform 0.9s cubic-bezier(.2,.7,.2,1) 0.5s;
+  }
+#stage-room-covenant .beat.is-revealed .parallel-reveal{opacity:1; transform:translateY(0);}
+#stage-room-covenant .parallel-reveal-eyebrow{
+    display:flex; align-items:center; justify-content:center; gap:0.9rem;
+    font-family:'Instrument Sans', sans-serif; font-weight:600; font-size:0.66rem;
+    letter-spacing:0.13em; text-transform:uppercase; color:var(--brass);
+    margin-bottom:1rem;
+  }
+#stage-room-covenant .parallel-reveal-eyebrow::before, #stage-room-covenant .parallel-reveal-eyebrow::after{
+    content:''; flex:1; height:1px; background:rgba(166,118,61,0.3);
+  }
+#stage-room-covenant .parallel-reveal-headline{
+    font-family:'Fraunces', serif; font-weight:300; font-size:1.32rem; line-height:1.38;
+    color:var(--whisper); margin:0 0 0.8rem;
+  }
+#stage-room-covenant .parallel-reveal-sub{
+    font-family:'Instrument Sans', sans-serif; font-size:0.92rem; line-height:1.55;
+    color:var(--bone-dim); margin:0;
+  }
+
+@media (max-width: 780px){#stage-room-covenant .beat-inner{grid-template-columns:1fr; gap:1.4rem;}
+#stage-room-covenant .stratum-tag{grid-column:1; writing-mode:horizontal-tb; opacity:0.8 !important; order:-1;}
+#stage-room-covenant .panel-wrap.clay{grid-column:1;}
+#stage-room-covenant .panel-wrap.parchment{grid-column:1;}
+#stage-room-covenant .site-line{left:1.4rem;}
+#stage-room-covenant .panel{padding:2rem 1.6rem;}
+#stage-room-covenant .parallel-reveal{padding:1.5rem 1.4rem;}
+#stage-room-covenant .stratum-rail{display:none;}}
+@media (prefers-reduced-motion: reduce){#stage-room-covenant *{transition-duration:0.01ms !important; animation:none !important;}
+#stage-room-covenant .panel-wrap{opacity:1; transform:none;}
+#stage-room-covenant .stratum-tag, #stage-room-covenant .hush-line{opacity:1;}
+#stage-room-covenant .panel{transform:none !important;}}
 </style>
 </head>
 <body class="page-transition">
 <noscript><style>body.page-transition{opacity:1 !important;}</style></noscript>
 
-  <button class="audio-toggle" id="audioToggle" type="button" aria-pressed="false" aria-label="Mute background music">
+<button class="audio-toggle" id="audioToggle" type="button" aria-pressed="false" aria-label="Mute background music">
     <svg class="audio-icon audio-icon-on" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/>
       <path d="M16.3 8.7a5 5 0 0 1 0 6.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
@@ -144,22 +1534,886 @@
     </div>
   </div>
 
-  <a class="lobby-return" href="index.html#corridor-cards-start" aria-label="Return to the first exhibit">&larr; Return to Entrance</a>
-
   <div class="dust-layer" id="dustLayer" aria-hidden="true"></div>
 
-  <section class="hero">
+  <div id="stageRoot">
+    <section class="stage is-active" id="stage-parallel-intro" data-stage="parallel-intro">
+      <div class="stage-fade is-shown">
+  <a class="lobby-return" href="index.html#corridor-cards-start" aria-label="Return to the first exhibit">&larr; Return to Entrance</a>
+
+    <section class="hero">
     <div class="hero-inner">
       <p class="parallel-eyebrow" data-reveal-manual>The Parallel Exhibit</p>
       <h1 data-reveal-manual>Same World, Different Voices</h1>
       <p class="hero-lede" data-reveal-manual>Biblical texts emerged within a world already full of stories, laws, images, and ideas. When we place them beside other writings from the ancient Near East, familiar patterns begin to surface.</p>
       <p class="hero-lede" data-reveal-manual>The Parallel is designed to make that shared cultural world visible. You&rsquo;ll read biblical passages alongside related ancient texts, noticing where their language, structure, and ideas resemble one another and where they begin to diverge.</p>
       <p class="hero-lede" data-reveal-manual>Similarity does not necessarily mean direct borrowing, and difference does not always tell us why a writer made a particular choice. But together they can help us see the larger conversation biblical writers inherited, participated in, and reshaped. The invitation is to notice both what is shared and what becomes distinctive.</p>
-      <a class="parallel-cta" href="parallel-comparisons.html" data-reveal-manual>Choose a Comparison <span class="arrow">&rarr;</span></a>
+      <a class="parallel-cta" href="#" data-goto="comparisons" data-reveal-manual>Choose a Comparison <span class="arrow">&rarr;</span></a>
+    </div>
+  </section>
+      </div>
+    </section>
+
+    <section class="stage" id="stage-comparisons" data-stage="comparisons">
+      <div class="stage-fade">
+  <a class="lobby-return" href="#" data-goto="parallel-intro" aria-label="Return to the Parallel Exhibit">&larr; The Parallel Exhibit</a>
+
+    <section class="page-head">
+    <div class="page-head-inner">
+      <p class="parallel-eyebrow" data-reveal-manual>The Parallel Exhibit</p>
+      <h1 data-reveal-manual>Choose a Comparison</h1>
+      <p class="page-head-lede" data-reveal-manual>Each comparison places a biblical text beside a related writing from the ancient Near East. Read them together to notice what they share, and where the biblical writers begin to say something distinct.</p>
     </div>
   </section>
 
+  <section class="comparisons">
+    <div class="comparisons-grid">
+      <div class="comparison-card-wrap" data-reveal-manual>
+        <div class="comparison-card-shadow" aria-hidden="true">
+          <img src="creation_tradition_card.png" alt="" aria-hidden="true" loading="lazy">
+        </div>
+        <a class="comparison-card comparison-card--bg" href="#" data-goto="room-creation">
+          <img class="comparison-card-bg-img" src="creation_tradition_bg.jpg" alt="" aria-hidden="true" loading="lazy">
+          <div class="comparison-card-bg-fade" aria-hidden="true"></div>
+          <div class="comparison-body">
+            <span class="comparison-chip">Creation &amp; Chaos</span>
+            <h2>Ordering the World</h2>
+            <p class="comparison-subtitle">En&#363;ma Eli&scaron; &amp; Genesis 1</p>
+            <span class="comparison-status">Enter <span class="arrow">&rarr;</span></span>
+          </div>
+        </a>
+      </div>
+      <div class="comparison-card-wrap" data-reveal-manual>
+        <div class="comparison-card-shadow" aria-hidden="true">
+          <img src="flood_tradition_card.png" alt="" aria-hidden="true" loading="lazy">
+        </div>
+        <a class="comparison-card comparison-card--bg" href="#" data-goto="room-flood">
+          <img class="comparison-card-bg-img" src="flood_tradition_bg.jpg" alt="" aria-hidden="true" loading="lazy">
+          <div class="comparison-card-bg-fade" aria-hidden="true"></div>
+          <div class="comparison-body">
+            <span class="comparison-chip">Flood &amp; Survival</span>
+            <h2>Surviving the Flood</h2>
+            <p class="comparison-subtitle">Gilgamesh XI &amp; Genesis 6&ndash;9</p>
+            <span class="comparison-status">Enter <span class="arrow">&rarr;</span></span>
+          </div>
+        </a>
+      </div>
+      <div class="comparison-card-wrap" data-reveal-manual>
+        <div class="comparison-card-shadow" aria-hidden="true">
+          <img src="legal_tradition_card.png" alt="" aria-hidden="true" loading="lazy">
+        </div>
+        <a class="comparison-card comparison-card--bg" href="#" data-goto="room-covenant">
+          <img class="comparison-card-bg-img" src="legal_tradition_bg.jpg" alt="" aria-hidden="true" loading="lazy">
+          <div class="comparison-card-bg-fade" aria-hidden="true"></div>
+          <div class="comparison-body">
+            <span class="comparison-chip">Law &amp; Justice</span>
+            <h2>Defining Justice</h2>
+            <p class="comparison-subtitle">Hammurabi &amp; Exodus 21&ndash;23</p>
+            <span class="comparison-status">Enter <span class="arrow">&rarr;</span></span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+      </div>
+    </section>
+
+    <section class="stage" id="stage-room-creation" data-stage="room-creation">
+      <div class="stage-fade">
+  <!-- reusable icon defs -->
+  <svg width="0" height="0" style="position:absolute">
+    <defs>
+      <symbol id="r1_icon-tablet" viewBox="0 0 40 40">
+        <rect x="4" y="6" width="32" height="28" rx="2" fill="none" stroke="currentColor" stroke-width="1.4"/>
+        <line x1="10" y1="13" x2="16" y2="17" stroke="currentColor" stroke-width="1.4"/>
+        <line x1="18" y1="13" x2="24" y2="17" stroke="currentColor" stroke-width="1.4"/>
+        <line x1="26" y1="13" x2="32" y2="17" stroke="currentColor" stroke-width="1.4"/>
+        <line x1="10" y1="21" x2="16" y2="25" stroke="currentColor" stroke-width="1.4"/>
+        <line x1="18" y1="21" x2="24" y2="25" stroke="currentColor" stroke-width="1.4"/>
+        <line x1="26" y1="21" x2="32" y2="25" stroke="currentColor" stroke-width="1.4"/>
+      </symbol>
+      <symbol id="r1_icon-scroll" viewBox="0 0 40 40">
+        <circle cx="8" cy="10" r="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+        <circle cx="32" cy="30" r="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+        <path d="M8 14 L8 30 L32 30 M8 10 L32 10 L32 26" fill="none" stroke="currentColor" stroke-width="1.4"/>
+        <line x1="13" y1="17" x2="27" y2="17" stroke="currentColor" stroke-width="1.2"/>
+        <line x1="13" y1="21" x2="24" y2="21" stroke="currentColor" stroke-width="1.2"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <svg id="r1_traceOverlay"><path id="r1_tracePath" d=""/></svg>
+
+  <img class="page-bg" src="creation_tradition_card.png" alt="" aria-hidden="true">
+  <div class="page-bg-scrim" aria-hidden="true"></div>
+
+  <a class="room-back" href="#" data-goto="comparisons">← Choose a Comparison</a>
+
+  <div class="r1_intro" id="r1_intro">
+    <div class="eyebrow" data-reveal>The Parallel Exhibit — Creation &amp; Chaos</div>
+    <h1 data-reveal>Enūma Eliš<br><em>&amp;</em><br>Genesis 1</h1>
+    <div class="scroll-cue" data-reveal>Scroll ↓</div>
+  </div>
+
+  <nav class="stratum-rail" aria-label="Jump to stratum">
+    <button data-target="1" aria-label="Stratum I — The Waters">I</button>
+    <button data-target="2" aria-label="Stratum II — The Split">II</button>
+    <button data-target="3" aria-label="Stratum III — The Lights">III</button>
+    <button data-target="4" aria-label="Stratum IV — Humanity">IV</button>
+    <button data-target="5" aria-label="Stratum V — Rest">V</button>
+  </nav>
+
+  <div class="exhibit">
+    <div class="site-line" aria-hidden="true"></div>
+
+    <section class="beat" data-beat="1">
+      <div class="beat-inner">
+        <div class="panel-wrap clay">
+          <button type="button" class="panel clay" data-icon="tablet"
+            data-title="Enūma Eliš — Tablet I" data-material="Fired clay" data-script="Akkadian, cuneiform"
+            data-findspot="Library of Ashurbanipal, Nineveh" data-translator="L.W. King, 1902" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Enuma_elish_AN1926.373.jpg" data-photo-credit="Enūma Eliš Tablet I fragment (Kish, 1924) · Ashmolean Museum, AN1926.373 · CC BY-SA 4.0 — shown for illustration" data-photo-position="20% 15%"
+            data-wordhistory="Tiamat's name is Akkadian tiāmtu, &quot;sea.&quot; Many scholars connect it to a shared Semitic root with Hebrew tehom, &quot;the deep&quot; — the word used two lines into Genesis 1."
+            data-quote="&quot;When in the height heaven was not named, and the earth beneath did not yet bear a name&hellip; Their waters were mingled together, and no field was formed, no marsh was to be seen.&quot;">
+            <span class="source">Enūma Eliš · Tablet I · trans. L.W. King, 1902</span>
+            <p>"When in the height heaven was not named, and the earth beneath did not yet bear a name&hellip; Their <span class="trace-word" data-trace="1">waters</span> were mingled together, and no field was formed, no marsh was to be seen."</p>
+            <span class="examine">Look closer <span class="arrow">→</span></span>
+          </button>
+        </div>
+        <div class="stratum-tag">Stratum I — The Waters</div>
+        <div class="panel-wrap parchment">
+          <button type="button" class="panel parchment" data-icon="scroll"
+            data-title="Genesis 1:2" data-material="Ink on parchment (tradition)" data-script="Hebrew"
+            data-findspot="Masoretic textual tradition" data-translator="American Standard Version, 1901" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Leningrad_Codex_Folio_008a.jpg" data-photo-credit="Leningrad Codex, folio 8a · National Library of Russia · Public domain"
+            data-wordhistory="Hebrew tehom (&quot;the deep,&quot; v.2) shares a common Semitic root with Akkadian tiāmtu — the word behind Tiamat's name. Scholars are divided on whether one borrows from the other, or both descend from an older shared word for the depths."
+            data-quote="&quot;And the earth was waste and void; and darkness was upon the face of the deep: and the Spirit of God moved upon the face of the waters.&quot;">
+            <span class="source">Genesis 1:2 · ASV, 1901</span>
+            <p>"And the earth was waste and void; and darkness was upon the face of the deep: and the Spirit of God moved upon the face of the <span class="trace-word" data-trace="1">waters</span>."</p>
+            <span class="examine">Look closer <span class="arrow">→</span></span>
+          </button>
+        </div>
+        <div class="parallel-reveal">
+          <div class="parallel-reveal-eyebrow"><span>What This Parallel Reveals</span></div>
+          <p class="parallel-reveal-headline">Both texts open with the same picture: a formless, watery deep before anything exists.</p>
+          <p class="parallel-reveal-sub">Genesis even keeps the word — tehom shares a root with Tiamat’s name — but leaves the goddess out of it.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="beat" data-beat="2">
+      <div class="beat-inner">
+        <div class="panel-wrap clay">
+          <button type="button" class="panel clay" data-icon="tablet"
+            data-title="Enūma Eliš — Tablet IV" data-material="Fired clay" data-script="Akkadian, cuneiform"
+            data-findspot="Library of Ashurbanipal, Nineveh" data-translator="L.W. King, 1902" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Enuma_elish_AN1926.373.jpg" data-photo-credit="Enūma Eliš Tablet I fragment (Kish, 1924) · Ashmolean Museum, AN1926.373 · CC BY-SA 4.0 — shown for illustration" data-photo-position="75% 30%"
+            data-notelabel="A Shared Motif"
+            data-wordhistory="Splitting a primordial sea in two to form sky above and waters below is a structural device Genesis shares beat for beat: scholars describe Genesis 1's solid sky-barrier as a residual echo of this exact scene, even with Tiamat's body removed from the picture."
+            data-quote="&quot;He split her like a shellfish into two parts: half of her he set up and ceiled as sky&hellip; the Great Abode, its likeness, he fixed as Esharra, which he made as the firmament.&quot;">
+            <span class="source">Enūma Eliš · Tablet IV · trans. L.W. King, 1902</span>
+            <p>"He split her like a shellfish into two parts: half of her he set up and ceiled as sky&hellip; the Great Abode, its likeness, he fixed as Esharra, which he made as the <span class="trace-word" data-trace="2">firmament</span>."</p>
+            <span class="examine">Look closer <span class="arrow">→</span></span>
+          </button>
+        </div>
+        <div class="stratum-tag">Stratum II — The Split</div>
+        <div class="panel-wrap parchment">
+          <button type="button" class="panel parchment" data-icon="scroll"
+            data-title="Genesis 1:6–7" data-material="Ink on parchment (tradition)" data-script="Hebrew"
+            data-findspot="Masoretic textual tradition" data-translator="American Standard Version, 1901" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Leningrad_Codex_Folio_009a.jpg" data-photo-credit="Leningrad Codex, folio 9a · National Library of Russia · Public domain"
+            data-notelabel="A Shared Motif"
+            data-wordhistory="Genesis's sky-barrier holding back the waters above matches Enūma Eliš's cosmology closely enough that scholars describe it as a residual echo of Marduk's scene — the same structure, with the mythic combat stripped away."
+            data-quote="&quot;And God said, Let there be a firmament in the midst of the waters, and let it divide the waters from the waters&hellip; and it was so.&quot;">
+            <span class="source">Genesis 1:6–7 · ASV, 1901</span>
+            <p>"And God said, Let there be a <span class="trace-word" data-trace="2">firmament</span> in the midst of the waters, and let it divide the waters from the waters&hellip; and it was so."</p>
+            <span class="examine">Look closer <span class="arrow">→</span></span>
+          </button>
+        </div>
+        <div class="parallel-reveal">
+          <div class="parallel-reveal-eyebrow"><span>What This Parallel Reveals</span></div>
+          <p class="parallel-reveal-headline">Both texts picture the world emerging as waters are divided into an ordered cosmos.</p>
+          <p class="parallel-reveal-sub">Genesis shares the same world-picture, but replaces divine conflict with the effortless speech of one God.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="beat" data-beat="3">
+      <div class="beat-inner">
+        <div class="panel-wrap clay">
+          <button type="button" class="panel clay" data-icon="tablet"
+            data-title="Enūma Eliš — Tablet V" data-material="Fired clay" data-script="Akkadian, cuneiform"
+            data-findspot="Library of Ashurbanipal, Nineveh" data-translator="L.W. King, 1902" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Enuma_elish_AN1926.373.jpg" data-photo-credit="Enūma Eliš Tablet I fragment (Kish, 1924) · Ashmolean Museum, AN1926.373 · CC BY-SA 4.0 — shown for illustration" data-photo-position="40% 80%"
+            data-notelabel="A Shared Convention"
+            data-wordhistory="Enūma Eliš V describes its stars and constellations almost entirely by their calendrical job — marking months, fixing the year. Genesis 1:14 gives its lights the identical assignment: signs, seasons, days, years. Both texts are far more interested in what the lights do than what they're made of."
+            data-quote="&quot;He made the stations for the great gods; the stars, their images&hellip; he fixed. He ordained the year and into sections he divided it; for the twelve months he fixed three stars.&quot;">
+            <span class="source">Enūma Eliš · Tablet V · trans. L.W. King, 1902</span>
+            <p>"He made the stations for the great gods; the stars, their images&hellip; he fixed. He ordained the <span class="trace-word" data-trace="3">year</span> and into sections he divided it; for the twelve months he fixed three stars."</p>
+            <span class="examine">Look closer <span class="arrow">→</span></span>
+          </button>
+        </div>
+        <div class="stratum-tag">Stratum III — The Lights</div>
+        <div class="panel-wrap parchment">
+          <button type="button" class="panel parchment" data-icon="scroll"
+            data-title="Genesis 1:14" data-material="Ink on parchment (tradition)" data-script="Hebrew"
+            data-findspot="Masoretic textual tradition" data-translator="American Standard Version, 1901" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Leningrad_Codex_Folio_010a.jpg" data-photo-credit="Leningrad Codex, folio 10a · National Library of Russia · Public domain"
+            data-notelabel="A Shared Convention"
+            data-wordhistory="Genesis 1:14 defines its lights by function — signs, seasons, days, years — not material. Enūma Eliš V does the same for its stars: they exist to fix months and mark the year. Scholars (notably John Walton) treat this shared functional framing as one of the strongest structural links between the two texts."
+            data-quote="&quot;Let there be lights in the firmament of heaven to divide the day from the night; and let them be for signs, and for seasons, and for days and years.&quot;">
+            <span class="source">Genesis 1:14 · ASV, 1901</span>
+            <p>"Let there be lights in the firmament of heaven to divide the day from the night; and let them be for signs, and for seasons, and for days and <span class="trace-word" data-trace="3">years</span>."</p>
+            <span class="examine">Look closer <span class="arrow">→</span></span>
+          </button>
+        </div>
+        <div class="parallel-reveal">
+          <div class="parallel-reveal-eyebrow"><span>What This Parallel Reveals</span></div>
+          <p class="parallel-reveal-headline">Both texts describe the sky’s lights by the job they do, not what they’re made of.</p>
+          <p class="parallel-reveal-sub">Genesis assigns the sun, moon, and stars to mark seasons and years — exactly what Enūma Eliš’s stars are for.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="beat" data-beat="4">
+      <div class="beat-inner">
+        <div class="panel-wrap clay">
+          <button type="button" class="panel clay" data-icon="tablet"
+            data-title="Enūma Eliš — Tablet VI" data-material="Fired clay" data-script="Akkadian, cuneiform"
+            data-findspot="Library of Ashurbanipal, Nineveh" data-translator="L.W. King, 1902" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Enuma_elish_AN1926.373.jpg" data-photo-credit="Enūma Eliš Tablet I fragment (Kish, 1924) · Ashmolean Museum, AN1926.373 · CC BY-SA 4.0 — shown for illustration" data-photo-position="85% 75%"
+            data-notelabel="A Shared Structure"
+            data-wordhistory="Both epics place humanity's creation in the very same narrative slot — the last deliberate act before the gods' rest. Assyriologist Alexander Heidel's classic side-by-side outline of the two texts lines up their sequences almost beat for beat."
+            data-quote="&quot;Blood I will mass and cause bones to be. I will establish a savage, man shall be his name&hellip; Verily, savage-man I will create. He shall be charged with the service of the gods, that they might be at ease.&quot;">
+            <span class="source">Enūma Eliš · Tablet VI · trans. L.W. King, 1902</span>
+            <p>"Blood I will mass and cause bones to be. I will establish a savage, <span class="trace-word" data-trace="4">man</span> shall be his name&hellip; Verily, savage-man I will create. He shall be charged with the service of the gods, that they might be at ease."</p>
+            <span class="examine">Look closer <span class="arrow">→</span></span>
+          </button>
+        </div>
+        <div class="stratum-tag">Stratum IV — Humanity</div>
+        <div class="panel-wrap parchment">
+          <button type="button" class="panel parchment" data-icon="scroll"
+            data-title="Genesis 1:27–28" data-material="Ink on parchment (tradition)" data-script="Hebrew"
+            data-findspot="Masoretic textual tradition" data-translator="American Standard Version, 1901" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Leningrad_Codex_Folio_011a.jpg" data-photo-credit="Leningrad Codex, folio 11a · National Library of Russia · Public domain"
+            data-notelabel="A Shared Structure"
+            data-wordhistory="Genesis places humanity's creation exactly where Enūma Eliš does — the final deliberate act before rest. The two sequences, compared side by side since Heidel's classic outline, track each other almost beat for beat."
+            data-quote="&quot;And God created man in his own image&hellip; and God blessed them: and God said unto them, Be fruitful, and multiply, and replenish the earth, and subdue it.&quot;">
+            <span class="source">Genesis 1:27–28 · ASV, 1901</span>
+            <p>"And God created <span class="trace-word" data-trace="4">man</span> in his own image&hellip; and God blessed them: and God said unto them, Be fruitful, and multiply, and replenish the earth, and subdue it."</p>
+            <span class="examine">Look closer <span class="arrow">→</span></span>
+          </button>
+        </div>
+        <div class="parallel-reveal">
+          <div class="parallel-reveal-eyebrow"><span>What This Parallel Reveals</span></div>
+          <p class="parallel-reveal-headline">Both texts place humanity’s creation in the very same spot — the last act before the gods rest.</p>
+          <p class="parallel-reveal-sub">Genesis follows the identical sequence, even as it reshapes why humanity exists.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="beat" data-beat="5">
+      <div class="beat-inner">
+        <div class="panel-wrap clay">
+          <button type="button" class="panel clay" data-icon="tablet"
+            data-title="Enūma Eliš — Tablet VI–VII" data-material="Fired clay" data-script="Akkadian, cuneiform"
+            data-findspot="Library of Ashurbanipal, Nineveh" data-translator="Editorial paraphrase — King's 1902 text is fragmentary at this passage" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Enuma_elish_AN1926.373.jpg" data-photo-credit="Enūma Eliš Tablet I fragment (Kish, 1924) · Ashmolean Museum, AN1926.373 · CC BY-SA 4.0 — shown for illustration" data-photo-position="50% 50%"
+            data-notelabel="A Shared Convention"
+            data-wordhistory="A god's rest immediately after order is established marks the completion of a cosmic temple across multiple ANE traditions — not fatigue, but a deity taking up residence in a finished house. Genesis's seventh-day rest follows the identical pattern."
+            data-quote="The gods built a house for their king &mdash; and there, the work finished, he took his rest.">
+            <span class="source">Enūma Eliš · Tablet VI–VII · paraphrase — tablet fragmentary here</span>
+            <p>The gods built a house for their king — and there, the work finished, he took his <span class="trace-word" data-trace="5">rest</span>.</p>
+            <span class="examine">Look closer <span class="arrow">→</span></span>
+          </button>
+        </div>
+        <div class="stratum-tag">Stratum V — Rest</div>
+        <div class="panel-wrap parchment">
+          <button type="button" class="panel parchment" data-icon="scroll"
+            data-title="Genesis 2:2–3" data-material="Ink on parchment (tradition)" data-script="Hebrew"
+            data-findspot="Masoretic textual tradition" data-translator="American Standard Version, 1901" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Leningrad_Codex_Folio_013a.jpg" data-photo-credit="Leningrad Codex, folio 13a · National Library of Russia · Public domain"
+            data-notelabel="A Shared Convention"
+            data-wordhistory="A deity's rest marking the completion of a newly built cosmic dwelling — not fatigue — is a recognized convention across ANE literature. Genesis's seventh day follows the identical pattern."
+            data-quote="&quot;And on the seventh day God finished his work which he had made; and he rested&hellip; and God blessed the seventh day, and hallowed it.&quot;">
+            <span class="source">Genesis 2:2–3 · ASV, 1901</span>
+            <p>"And on the seventh day God finished his work which he had made; and he <span class="trace-word" data-trace="5">rested</span>&hellip; and God blessed the seventh day, and hallowed it."</p>
+            <span class="examine">Look closer <span class="arrow">→</span></span>
+          </button>
+        </div>
+        <div class="parallel-reveal">
+          <div class="parallel-reveal-eyebrow"><span>What This Parallel Reveals</span></div>
+          <p class="parallel-reveal-headline">Both texts end the same way: a god resting once the ordered world is complete.</p>
+          <p class="parallel-reveal-sub">Genesis reframes that rest as a blessing, but the pattern — a finished cosmic house, now occupied — stays the same.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="room-exit-nav">
+      <a class="room-exit-btn" href="#" data-goto="room-covenant">&larr; Law &amp; Justice</a>
+      <a class="room-exit-btn room-exit-btn--quiet" href="#" data-coming-soon aria-disabled="true">Next Exhibit</a>
+      <a class="room-exit-btn" href="#" data-goto="room-flood">Flood &amp; Survival <span class="arrow">&rarr;</span></a>
+    </div>
+  </div>
+
+  <!-- artifact modal -->
+  <div class="artifact-modal" id="r1_artifactModal" aria-hidden="true">
+    <div class="artifact-card" role="dialog" aria-modal="true" aria-labelledby="r1_artifactTitle">
+      <button class="modal-close" id="r1_modalClose" aria-label="Close">&times;</button>
+      <img class="artifact-photo" id="r1_modalPhoto" alt="" />
+      <svg class="icon" id="r1_modalIcon"><use id="r1_modalIconUse" href="#r1_icon-tablet"/></svg>
+      <h3 id="r1_artifactTitle"></h3>
+      <div class="word-history" id="r1_modalWordHistory">
+        <span class="word-history-label" id="r1_modalWordHistoryLabel">Word History</span>
+        <p id="r1_modalWordHistoryText"></p>
+      </div>
+      <p class="artifact-quote" id="r1_modalQuote"></p>
+      <table class="spec-table">
+        <tr><th>Material</th><td id="r1_modalMaterial"></td></tr>
+        <tr><th>Script</th><td id="r1_modalScript"></td></tr>
+        <tr><th>Findspot</th><td id="r1_modalFindspot"></td></tr>
+        <tr><th>Translator</th><td id="r1_modalTranslator"></td></tr>
+      </table>
+      <p class="photo-credit" id="r1_modalPhotoCredit"></p>
+    </div>
+  </div>
+      </div>
+    </section>
+
+    <section class="stage" id="stage-room-flood" data-stage="room-flood">
+      <div class="stage-fade">
+  <!-- reusable icon defs -->
+  <svg width="0" height="0" style="position:absolute">
+    <defs>
+      <symbol id="r2_icon-tablet" viewBox="0 0 40 40">
+        <rect x="4" y="6" width="32" height="28" rx="2" fill="none" stroke="currentColor" stroke-width="1.4"/>
+        <line x1="10" y1="13" x2="16" y2="17" stroke="currentColor" stroke-width="1.4"/>
+        <line x1="18" y1="13" x2="24" y2="17" stroke="currentColor" stroke-width="1.4"/>
+        <line x1="26" y1="13" x2="32" y2="17" stroke="currentColor" stroke-width="1.4"/>
+        <line x1="10" y1="21" x2="16" y2="25" stroke="currentColor" stroke-width="1.4"/>
+        <line x1="18" y1="21" x2="24" y2="25" stroke="currentColor" stroke-width="1.4"/>
+        <line x1="26" y1="21" x2="32" y2="25" stroke="currentColor" stroke-width="1.4"/>
+      </symbol>
+      <symbol id="r2_icon-scroll" viewBox="0 0 40 40">
+        <circle cx="8" cy="10" r="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+        <circle cx="32" cy="30" r="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+        <path d="M8 14 L8 30 L32 30 M8 10 L32 10 L32 26" fill="none" stroke="currentColor" stroke-width="1.4"/>
+        <line x1="13" y1="17" x2="27" y2="17" stroke="currentColor" stroke-width="1.2"/>
+        <line x1="13" y1="21" x2="24" y2="21" stroke="currentColor" stroke-width="1.2"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <svg id="r2_traceOverlay"><path id="r2_tracePath" d=""/></svg>
+
+  <img class="page-bg" src="flood_tradition_card.png" alt="" aria-hidden="true">
+
+  <a class="room-back" href="#" data-goto="comparisons">← Choose a Comparison</a>
+
+  <div class="r2_intro" id="r2_intro">
+    <div class="eyebrow">The Parallel Exhibit — The Flood</div>
+    <h1>Gilgamesh XI<br><em>&amp;</em><br>Genesis 6–9</h1>
+    <div class="scroll-cue">Scroll ↓</div>
+  </div>
+
+  <nav class="stratum-rail" aria-label="Jump to stratum">
+    <button data-target="1" aria-label="Stratum I — The Sealing">I</button>
+    <button data-target="2" aria-label="Stratum II — The Boarding">II</button>
+    <button data-target="3" aria-label="Stratum III — The Storm">III</button>
+    <button data-target="4" aria-label="Stratum IV — The Dove">IV</button>
+    <button data-target="5" aria-label="Stratum V — The Offering">V</button>
+  </nav>
+
+  <div class="exhibit">
+    <div class="site-line" aria-hidden="true"></div>
+
+    <section class="beat" data-beat="1">
+      <div class="beat-inner">
+        <div class="panel-wrap clay">
+          <button type="button" class="panel clay" data-icon="tablet"
+            data-title="Gilgamesh XI — The Flood Tablet" data-material="Fired clay" data-script="Akkadian, cuneiform"
+            data-findspot="Library of Ashurbanipal, Nineveh" data-translator="R. Campbell Thompson, 1928" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/British_Museum_Flood_Tablet_1.jpg" data-photo-credit="The Flood Tablet, K.3375 · British Museum · Photo: Mike Peel · CC BY-SA 4.0" data-photo-position="20% 15%"
+            data-wordhistory="Akkadian kupru — &quot;bitumen, pitch&quot; — is the term standard Assyriology lexicons cross-reference directly to the Hebrew word used for Noah's pitch."
+            data-quote="&quot;&hellip;the hull with six shar of bitumen smear&rsquo;d I, and three shar of pitch did I smear on the inside.&quot;">
+            <span class="source">Gilgamesh XI · Flood Tablet, K.3375 · trans. R. Campbell Thompson, 1928</span>
+            <p>"&hellip;the hull with six shar of bitumen smear'd I, and three shar of <span class="trace-word" data-trace="1">pitch</span> did I smear on the inside."</p>
+            <span class="examine">Look closer <span class="arrow">→</span></span>
+          </button>
+        </div>
+        <div class="stratum-tag">Stratum I — The Sealing</div>
+        <div class="panel-wrap parchment">
+          <button type="button" class="panel parchment" data-icon="scroll"
+            data-title="Genesis 6:14" data-material="Ink on parchment (tradition)" data-script="Hebrew"
+            data-findspot="Masoretic textual tradition" data-translator="American Standard Version, 1901" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Leningrad_Codex_Folio_025a.jpg" data-photo-credit="Leningrad Codex, folio 25a · National Library of Russia · Public domain"
+            data-wordhistory="Hebrew kopher (&quot;pitch&quot;) is cross-referenced in standard lexicons (BDB, Strong's) to Akkadian kupru — quite possibly the very same word, borrowed, used to seal both vessels."
+            data-quote="&quot;Make thee an ark of gopher wood; rooms shalt thou make in the ark, and shalt pitch it within and without with pitch.&quot;">
+            <span class="source">Genesis 6:14 · ASV, 1901</span>
+            <p>"Make thee an ark of gopher wood; rooms shalt thou make in the ark, and shalt pitch it within and without with <span class="trace-word" data-trace="1">pitch</span>."</p>
+            <span class="examine">Look closer <span class="arrow">→</span></span>
+          </button>
+        </div>
+        <div class="parallel-reveal">
+          <div class="parallel-reveal-eyebrow"><span>What This Parallel Reveals</span></div>
+          <p class="parallel-reveal-headline">Both texts seal their vessel with the same word for the substance that seals it.</p>
+          <p class="parallel-reveal-sub">Hebrew kopher and Akkadian kupru are close enough that standard lexicons cross-reference them directly — the same term for pitch, doing the same job.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="beat" data-beat="2">
+      <div class="beat-inner">
+        <div class="panel-wrap clay">
+          <button type="button" class="panel clay" data-icon="tablet"
+            data-title="Gilgamesh XI — The Flood Tablet" data-material="Fired clay" data-script="Akkadian, cuneiform"
+            data-findspot="Library of Ashurbanipal, Nineveh" data-translator="R. Campbell Thompson, 1928" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/British_Museum_Flood_Tablet_1.jpg" data-photo-credit="The Flood Tablet, K.3375 · British Museum · Photo: Mike Peel · CC BY-SA 4.0" data-photo-position="75% 30%"
+            data-notelabel="A Shared Motif"
+            data-wordhistory="Both texts frame survival the same way: not one man alone, but a whole living system — family, livestock, every creature — carried through together. Comparative flood-myth scholarship treats this &quot;preserved microcosm&quot; as one of the tradition's most consistent shared beats."
+            data-quote="&quot;Into the ship I embark&rsquo;d all my kindred and family, cattle and beasts of the field and all handicraftsmen embarking.&quot;">
+            <span class="source">Gilgamesh XI · Flood Tablet, K.3375 · trans. R. Campbell Thompson, 1928</span>
+            <p>"Into the ship I embark'd all my kindred and family, <span class="trace-word" data-trace="2">cattle</span> and beasts of the field and all handicraftsmen embarking."</p>
+            <span class="examine">Look closer <span class="arrow">→</span></span>
+          </button>
+        </div>
+        <div class="stratum-tag">Stratum II — The Boarding</div>
+        <div class="panel-wrap parchment">
+          <button type="button" class="panel parchment" data-icon="scroll"
+            data-title="Genesis 6:20" data-material="Ink on parchment (tradition)" data-script="Hebrew"
+            data-findspot="Masoretic textual tradition" data-translator="American Standard Version, 1901" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Leningrad_Codex_Folio_026a.jpg" data-photo-credit="Leningrad Codex, folio 26a · National Library of Russia · Public domain"
+            data-notelabel="A Shared Motif"
+            data-wordhistory="Preserving a working microcosm of life — not just the hero, but &quot;every living thing... to keep them alive&quot; — is a beat this story shares with every major Mesopotamian flood account that survives."
+            data-quote="&quot;Of the birds after their kind, and of the cattle after their kind, of every creeping thing of the ground after its kind, two of every sort shall come unto thee, to keep them alive.&quot;">
+            <span class="source">Genesis 6:20 · ASV, 1901</span>
+            <p>"Of the birds after their kind, and of the <span class="trace-word" data-trace="2">cattle</span> after their kind, of every creeping thing of the ground after its kind, two of every sort shall come unto thee, to keep them alive."</p>
+            <span class="examine">Look closer <span class="arrow">→</span></span>
+          </button>
+        </div>
+        <div class="parallel-reveal">
+          <div class="parallel-reveal-eyebrow"><span>What This Parallel Reveals</span></div>
+          <p class="parallel-reveal-headline">Both texts save more than one man — a whole living system boards together.</p>
+          <p class="parallel-reveal-sub">Family, livestock, every kind of creature: scholars treat this ‘preserved microcosm’ as one of the flood tradition’s most consistent shared beats.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="beat" data-beat="3">
+      <div class="beat-inner">
+        <div class="panel-wrap clay">
+          <button type="button" class="panel clay" data-icon="tablet"
+            data-title="Gilgamesh XI — The Flood Tablet" data-material="Fired clay" data-script="Akkadian, cuneiform"
+            data-findspot="Library of Ashurbanipal, Nineveh" data-translator="R. Campbell Thompson, 1928" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/British_Museum_Flood_Tablet_1.jpg" data-photo-credit="The Flood Tablet, K.3375 · British Museum · Photo: Mike Peel · CC BY-SA 4.0" data-photo-position="40% 80%"
+            data-notelabel="A Shared Convention"
+            data-wordhistory="Every surviving Mesopotamian flood account — the Sumerian version, Atrahasis, and this one — times its storm to seven days and nights. Genesis's own chronology opens the same way: a seven-day warning before the rain begins (7:4)."
+            data-quote="&quot;Six days, a se&rsquo;nnight the hurricane, deluge, and tempest continued sweeping the land: when the seventh day came, were quell&rsquo;d the warfare.&quot;">
+            <span class="source">Gilgamesh XI · Flood Tablet, K.3375 · trans. R. Campbell Thompson, 1928</span>
+            <p>"Six <span class="trace-word" data-trace="3">days</span>, a se'nnight the hurricane, deluge, and tempest continued sweeping the land: when the seventh day came, were quell'd the warfare."</p>
+            <span class="examine">Look closer <span class="arrow">→</span></span>
+          </button>
+        </div>
+        <div class="stratum-tag">Stratum III — The Storm</div>
+        <div class="panel-wrap parchment">
+          <button type="button" class="panel parchment" data-icon="scroll"
+            data-title="Genesis 7:17" data-material="Ink on parchment (tradition)" data-script="Hebrew"
+            data-findspot="Masoretic textual tradition" data-translator="American Standard Version, 1901" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Leningrad_Codex_Folio_027a.jpg" data-photo-credit="Leningrad Codex, folio 27a · National Library of Russia · Public domain"
+            data-notelabel="A Shared Convention"
+            data-wordhistory="Genesis's flood is timed in sevens from its very first verse (7:4) — the same convention structuring every Mesopotamian flood account that survives, including this one."
+            data-quote="&quot;And the flood was forty days upon the earth; and the waters increased, and bare up the ark, and it was lifted up above the earth.&quot;">
+            <span class="source">Genesis 7:17 · ASV, 1901</span>
+            <p>"And the flood was forty <span class="trace-word" data-trace="3">days</span> upon the earth; and the waters increased, and bare up the ark, and it was lifted up above the earth."</p>
+            <span class="examine">Look closer <span class="arrow">→</span></span>
+          </button>
+        </div>
+        <div class="parallel-reveal">
+          <div class="parallel-reveal-eyebrow"><span>What This Parallel Reveals</span></div>
+          <p class="parallel-reveal-headline">Both floods run on the same clock: trouble measured in sevens.</p>
+          <p class="parallel-reveal-sub">Every surviving Mesopotamian flood account times its storm to seven days and nights — and Genesis opens its own countdown the same way.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="beat" data-beat="4">
+      <div class="beat-inner">
+        <div class="panel-wrap clay">
+          <button type="button" class="panel clay" data-icon="tablet"
+            data-title="Gilgamesh XI — The Flood Tablet" data-material="Fired clay" data-script="Akkadian, cuneiform"
+            data-findspot="Library of Ashurbanipal, Nineveh" data-translator="R. Campbell Thompson, 1928" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/British_Museum_Flood_Tablet_1.jpg" data-photo-credit="The Flood Tablet, K.3375 · British Museum · Photo: Mike Peel · CC BY-SA 4.0" data-photo-position="85% 75%"
+            data-notelabel="A Shared Motif"
+            data-wordhistory="Testing the flood's end by releasing a bird is itself the shared device — this scene, or one very like it, appears across the Mesopotamian flood tradition, Genesis included."
+            data-quote="&quot;&hellip;the Ark on the Mountain of Nisir grounded&hellip; I put forth a dove, and released her; to and fro went the dove, and return&rsquo;d, for a resting-place was not.&quot;">
+            <span class="source">Gilgamesh XI · Flood Tablet, K.3375 · trans. R. Campbell Thompson, 1928</span>
+            <p>"&hellip;the Ark on the Mountain of Nisir grounded&hellip; I put forth a <span class="trace-word" data-trace="4">dove</span>, and released her; to and fro went the dove, and return'd, for a resting-place was not."</p>
+            <span class="examine">Look closer <span class="arrow">→</span></span>
+          </button>
+        </div>
+        <div class="stratum-tag">Stratum IV — The Dove</div>
+        <div class="panel-wrap parchment">
+          <button type="button" class="panel parchment" data-icon="scroll"
+            data-title="Genesis 8:8–9" data-material="Ink on parchment (tradition)" data-script="Hebrew"
+            data-findspot="Masoretic textual tradition" data-translator="American Standard Version, 1901" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Leningrad_Codex_Folio_028a.jpg" data-photo-credit="Leningrad Codex, folio 28a · National Library of Russia · Public domain"
+            data-notelabel="A Shared Motif"
+            data-wordhistory="Sending a bird out to test whether the waters have receded is a device Genesis shares with Gilgamesh and the wider Mesopotamian flood tradition — a recurring way ancient audiences pictured a hero waiting for dry land."
+            data-quote="&quot;And he sent forth a dove from him, to see if the waters were abated from off the face of the ground: but the dove found no rest for the sole of her foot, and she returned unto him into the ark.&quot;">
+            <span class="source">Genesis 8:8–9 · ASV, 1901</span>
+            <p>"And he sent forth a <span class="trace-word" data-trace="4">dove</span> from him, to see if the waters were abated from off the face of the ground: but the dove found no rest for the sole of her foot, and she returned unto him into the ark."</p>
+            <span class="examine">Look closer <span class="arrow">→</span></span>
+          </button>
+        </div>
+        <div class="parallel-reveal">
+          <div class="parallel-reveal-eyebrow"><span>What This Parallel Reveals</span></div>
+          <p class="parallel-reveal-headline">Both heroes test the flood’s end the same way: sending a bird out to look for land.</p>
+          <p class="parallel-reveal-sub">The device itself is the parallel — this scene, or one very like it, recurs across the Mesopotamian flood tradition, Genesis included.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="beat" data-beat="5">
+      <div class="beat-inner">
+        <div class="panel-wrap clay">
+          <button type="button" class="panel clay" data-icon="tablet"
+            data-title="Gilgamesh XI — The Flood Tablet" data-material="Fired clay" data-script="Akkadian, cuneiform"
+            data-findspot="Library of Ashurbanipal, Nineveh" data-translator="R. Campbell Thompson, 1928" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/British_Museum_Flood_Tablet_1.jpg" data-photo-credit="The Flood Tablet, K.3375 · British Museum · Photo: Mike Peel · CC BY-SA 4.0" data-photo-position="50% 50%"
+            data-notelabel="A Telling Contrast"
+            data-wordhistory="&quot;Like flies&quot; — the gods are hungry, since the flood had cut off their supply of sacrifices. Genesis keeps the sweet savor of this same scene, but drops that image of divine hunger entirely."
+            data-quote="&quot;&hellip;an off&rsquo;ring sacrificed, and a libation I pour&rsquo;d on the peak of the mountain&hellip; the gods smelt the savour, the gods the sweet savour smelt; (aye,) the gods did assemble like flies o&rsquo;er him making the off&rsquo;ring.&quot;">
+            <span class="source">Gilgamesh XI · Flood Tablet, K.3375 · trans. R. Campbell Thompson, 1928</span>
+            <p>"&hellip;an off'ring sacrificed, and a libation I pour'd on the peak of the mountain&hellip; the gods smelt the <span class="trace-word" data-trace="5">savour</span>, the gods the sweet savour smelt; (aye,) the gods did assemble like flies o'er him making the off'ring."</p>
+            <span class="examine">Look closer <span class="arrow">→</span></span>
+          </button>
+        </div>
+        <div class="stratum-tag">Stratum V — The Offering</div>
+        <div class="panel-wrap parchment">
+          <button type="button" class="panel parchment" data-icon="scroll"
+            data-title="Genesis 8:20–21" data-material="Ink on parchment (tradition)" data-script="Hebrew"
+            data-findspot="Masoretic textual tradition" data-translator="American Standard Version, 1901" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Leningrad_Codex_Folio_029a.jpg" data-photo-credit="Leningrad Codex, folio 29a · National Library of Russia · Public domain"
+            data-notelabel="A Telling Contrast"
+            data-wordhistory="Gilgamesh's version of this scene has the gods gather &quot;like flies&quot; over the sacrifice, hungry. Genesis keeps the sweet savor but drops the hunger — a restraint toward its own deity that commentators often point to."
+            data-quote="&quot;And Noah builded an altar unto Jehovah&hellip; and offered burnt-offerings on the altar. And Jehovah smelled the sweet savor.&quot;">
+            <span class="source">Genesis 8:20–21 · ASV, 1901</span>
+            <p>"And Noah builded an altar unto Jehovah&hellip; and offered burnt-offerings on the altar. And Jehovah smelled the sweet <span class="trace-word" data-trace="5">savor</span>."</p>
+            <span class="examine">Look closer <span class="arrow">→</span></span>
+          </button>
+        </div>
+        <div class="parallel-reveal">
+          <div class="parallel-reveal-eyebrow"><span>What This Parallel Reveals</span></div>
+          <p class="parallel-reveal-headline">Both survivors step off the boat and do the same thing first: burn an offering the gods can smell.</p>
+          <p class="parallel-reveal-sub">Gilgamesh has the gods swarm the sacrifice ‘like flies,’ starved without it; Genesis keeps the sweet savor but quietly drops the hunger.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="room-exit-nav">
+      <a class="room-exit-btn" href="#" data-goto="room-creation">&larr; Creation &amp; Chaos</a>
+      <a class="room-exit-btn room-exit-btn--quiet" href="#" data-coming-soon aria-disabled="true">Next Exhibit</a>
+      <a class="room-exit-btn" href="#" data-goto="room-covenant">Law &amp; Justice <span class="arrow">&rarr;</span></a>
+    </div>
+  </div>
+
+  <!-- artifact modal -->
+  <div class="artifact-modal" id="r2_artifactModal" aria-hidden="true">
+    <div class="artifact-card" role="dialog" aria-modal="true" aria-labelledby="r2_artifactTitle">
+      <button class="modal-close" id="r2_modalClose" aria-label="Close">&times;</button>
+      <img class="artifact-photo" id="r2_modalPhoto" alt="" />
+      <svg class="icon" id="r2_modalIcon"><use id="r2_modalIconUse" href="#r2_icon-tablet"/></svg>
+      <h3 id="r2_artifactTitle"></h3>
+      <div class="word-history" id="r2_modalWordHistory">
+        <span class="word-history-label" id="r2_modalWordHistoryLabel">Word History</span>
+        <p id="r2_modalWordHistoryText"></p>
+      </div>
+      <p class="artifact-quote" id="r2_modalQuote"></p>
+      <table class="spec-table">
+        <tr><th>Material</th><td id="r2_modalMaterial"></td></tr>
+        <tr><th>Script</th><td id="r2_modalScript"></td></tr>
+        <tr><th>Findspot</th><td id="r2_modalFindspot"></td></tr>
+        <tr><th>Translator</th><td id="r2_modalTranslator"></td></tr>
+      </table>
+      <p class="photo-credit" id="r2_modalPhotoCredit"></p>
+    </div>
+  </div>
+      </div>
+    </section>
+
+    <section class="stage" id="stage-room-covenant" data-stage="room-covenant">
+      <div class="stage-fade">
+  <!-- reusable icon defs -->
+  <svg width="0" height="0" style="position:absolute">
+    <defs>
+      <symbol id="r3_icon-tablet" viewBox="0 0 40 40">
+        <rect x="4" y="6" width="32" height="28" rx="2" fill="none" stroke="currentColor" stroke-width="1.4"/>
+        <line x1="10" y1="13" x2="16" y2="17" stroke="currentColor" stroke-width="1.4"/>
+        <line x1="18" y1="13" x2="24" y2="17" stroke="currentColor" stroke-width="1.4"/>
+        <line x1="26" y1="13" x2="32" y2="17" stroke="currentColor" stroke-width="1.4"/>
+        <line x1="10" y1="21" x2="16" y2="25" stroke="currentColor" stroke-width="1.4"/>
+        <line x1="18" y1="21" x2="24" y2="25" stroke="currentColor" stroke-width="1.4"/>
+        <line x1="26" y1="21" x2="32" y2="25" stroke="currentColor" stroke-width="1.4"/>
+      </symbol>
+      <symbol id="r3_icon-scroll" viewBox="0 0 40 40">
+        <circle cx="8" cy="10" r="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+        <circle cx="32" cy="30" r="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+        <path d="M8 14 L8 30 L32 30 M8 10 L32 10 L32 26" fill="none" stroke="currentColor" stroke-width="1.4"/>
+        <line x1="13" y1="17" x2="27" y2="17" stroke="currentColor" stroke-width="1.2"/>
+        <line x1="13" y1="21" x2="24" y2="21" stroke="currentColor" stroke-width="1.2"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <svg id="r3_traceOverlay"><path id="r3_tracePath" d=""/></svg>
+
+  <img class="page-bg" src="legal_tradition_card.png" alt="" aria-hidden="true">
+
+  <a class="room-back" href="#" data-goto="comparisons">← Choose a Comparison</a>
+
+  <div class="r3_intro" id="r3_intro">
+    <div class="eyebrow">The Parallel Exhibit — The Covenant Code</div>
+    <h1>Code of Hammurabi<br><em>&amp;</em><br>Exodus</h1>
+    <div class="scroll-cue">Scroll ↓</div>
+  </div>
+
+  <nav class="stratum-rail" aria-label="Jump to stratum">
+    <button data-target="1" aria-label="Stratum I — The Talion">I</button>
+    <button data-target="2" aria-label="Stratum II — The Ox">II</button>
+    <button data-target="3" aria-label="Stratum III — The Theft">III</button>
+    <button data-target="4" aria-label="Stratum IV — The Kidnapping">IV</button>
+    <button data-target="5" aria-label="Stratum V — The Fire">V</button>
+  </nav>
+
+  <div class="exhibit">
+    <div class="site-line" aria-hidden="true"></div>
+
+    <section class="beat" data-beat="1">
+      <div class="beat-inner">
+        <div class="panel-wrap clay">
+          <button type="button" class="panel clay" data-icon="tablet"
+            data-title="Code of Hammurabi — Laws 196–197" data-material="Basalt stele" data-script="Akkadian, cuneiform"
+            data-findspot="Louvre Museum (Sb 8); found at Susa, likely erected at Sippar" data-translator="L.W. King, 1910" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/P1050763_Louvre_code_Hammurabi_face_rwk.JPG" data-photo-credit="Code of Hammurabi stele, Louvre Sb 8 · Photo: Mbzt · CC BY 3.0" data-photo-position="30% 20%"
+            data-wordhistory="Hebrew ayin and Akkadian īnu — both &quot;eye&quot; — descend from the same Proto-Semitic root, as do Hebrew shen and Akkadian šinnu, &quot;tooth.&quot; The lex talionis isn't only a shared law; the words for what's at stake are the same words, worn into two languages."
+            data-quote="&quot;If a man put out the eye of another man, his eye shall be put out. If he break another man's bone, his bone shall be broken.&quot;">
+            <span class="source">Code of Hammurabi · Laws 196–197 · trans. L.W. King, 1910</span>
+            <p>"If a man put out the <span class="trace-word" data-trace="1">eye</span> of another man, his eye shall be put out. If he break another man's bone, his bone shall be broken."</p>
+            <span class="examine">Look closer <span class="arrow">→</span></span>
+          </button>
+        </div>
+        <div class="stratum-tag">Stratum I — The Talion</div>
+        <div class="panel-wrap parchment">
+          <button type="button" class="panel parchment" data-icon="scroll"
+            data-title="Exodus 21:23–25" data-material="Ink on parchment (tradition)" data-script="Hebrew"
+            data-findspot="Masoretic textual tradition" data-translator="American Standard Version, 1901" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Leningrad_Codex_Folio_071a.jpg" data-photo-credit="Leningrad Codex, folio 71a · National Library of Russia · Public domain"
+            data-wordhistory="Hebrew ayin (&quot;eye&quot;) shares its Proto-Semitic root with Akkadian īnu. The formula and the words behind it are both inherited, not borrowed for the occasion."
+            data-quote="&quot;But if any harm follow, then thou shalt give life for life, eye for eye, tooth for tooth, hand for hand, foot for foot.&quot;">
+            <span class="source">Exodus 21:23–25 · ASV, 1901</span>
+            <p>"But if any harm follow, then thou shalt give life for life, <span class="trace-word" data-trace="1">eye</span> for eye, tooth for tooth, hand for hand, foot for foot."</p>
+            <span class="examine">Look closer <span class="arrow">→</span></span>
+          </button>
+        </div>
+        <div class="parallel-reveal">
+          <div class="parallel-reveal-eyebrow"><span>What This Parallel Reveals</span></div>
+          <p class="parallel-reveal-headline">Both codes answer harm with the same measure — and the very words for what’s at stake share a root.</p>
+          <p class="parallel-reveal-sub">Hebrew ayin and Akkadian īnu, both ‘eye,’ descend from the same Proto-Semitic word — as do the terms for ‘tooth.’ The law and its vocabulary are inherited together.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="beat" data-beat="2">
+      <div class="beat-inner">
+        <div class="panel-wrap clay">
+          <button type="button" class="panel clay" data-icon="tablet"
+            data-title="Code of Hammurabi — Laws 250–251" data-material="Basalt stele" data-script="Akkadian, cuneiform"
+            data-findspot="Louvre Museum (Sb 8); found at Susa, likely erected at Sippar" data-translator="L.W. King, 1910" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/P1050763_Louvre_code_Hammurabi_face_rwk.JPG" data-photo-credit="Code of Hammurabi stele, Louvre Sb 8 · Photo: Mbzt · CC BY 3.0" data-photo-position="70% 40%"
+            data-notelabel="A Shared Convention"
+            data-wordhistory="Both codes are written in the same distinctive legal form — &quot;if a man does X, then Y&quot; — the casuistic form that dominates ancient Near Eastern law generally. The goring ox is one of its most famous recurring case studies, showing up in law collections centuries apart."
+            data-quote="&quot;If an ox be a goring ox, and it shown that he is a gorer, and he do not bind his horns, or fasten the ox up, and the ox gore a free-born man and kill him, the owner shall pay one-half a mina in money.&quot;">
+            <span class="source">Code of Hammurabi · Laws 250–251 · trans. L.W. King, 1910</span>
+            <p>"If an <span class="trace-word" data-trace="2">ox</span> be a goring ox, and it shown that he is a gorer, and he do not bind his horns, or fasten the ox up, and the ox gore a free-born man and kill him, the owner shall pay one-half a mina in money."</p>
+            <span class="examine">Look closer <span class="arrow">→</span></span>
+          </button>
+        </div>
+        <div class="stratum-tag">Stratum II — The Ox</div>
+        <div class="panel-wrap parchment">
+          <button type="button" class="panel parchment" data-icon="scroll"
+            data-title="Exodus 21:28–29" data-material="Ink on parchment (tradition)" data-script="Hebrew"
+            data-findspot="Masoretic textual tradition" data-translator="American Standard Version, 1901" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Leningrad_Codex_Folio_072a.jpg" data-photo-credit="Leningrad Codex, folio 72a · National Library of Russia · Public domain"
+            data-notelabel="A Shared Convention"
+            data-wordhistory="The goring ox is a stock case in ancient Near Eastern law — the same scenario, refined across centuries of legal tradition, showing up independently in Israelite and Mesopotamian codes alike as the go-to example for owner liability."
+            data-quote="&quot;But if the ox was wont to gore in time past, and it hath been testified to its owner, and he hath not kept it in, but it hath killed a man or a woman, the ox shall be stoned, and its owner also shall be put to death.&quot;">
+            <span class="source">Exodus 21:28–29 · ASV, 1901</span>
+            <p>"But if the <span class="trace-word" data-trace="2">ox</span> was wont to gore in time past, and it hath been testified to its owner, and he hath not kept it in, but it hath killed a man or a woman, the ox shall be stoned, and its owner also shall be put to death."</p>
+            <span class="examine">Look closer <span class="arrow">→</span></span>
+          </button>
+        </div>
+        <div class="parallel-reveal">
+          <div class="parallel-reveal-eyebrow"><span>What This Parallel Reveals</span></div>
+          <p class="parallel-reveal-headline">Both codes are built from the same legal sentence — ‘if a man does X, then Y’ — and reach for the same test case.</p>
+          <p class="parallel-reveal-sub">The goring ox is one of that casuistic form’s most famous recurring examples, showing up in law collections centuries apart.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="beat" data-beat="3">
+      <div class="beat-inner">
+        <div class="panel-wrap clay">
+          <button type="button" class="panel clay" data-icon="tablet"
+            data-title="Code of Hammurabi — Law 8" data-material="Basalt stele" data-script="Akkadian, cuneiform"
+            data-findspot="Louvre Museum (Sb 8); found at Susa, likely erected at Sippar" data-translator="L.W. King, 1910" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/P1050763_Louvre_code_Hammurabi_face_rwk.JPG" data-photo-credit="Code of Hammurabi stele, Louvre Sb 8 · Photo: Mbzt · CC BY 3.0" data-photo-position="45% 65%"
+            data-notelabel="A Shared Convention"
+            data-wordhistory="Multiplied restitution for theft — paying back several times what was taken, not just the item itself — is a documented convention across Mesopotamian and Israelite law alike, even where the exact multiples differ from code to code."
+            data-quote="&quot;If any one steal cattle or sheep, or an ass, or a pig or a goat, if it belong to a god or to the court, the thief shall pay thirtyfold therefor; if they belonged to a freed man of the king he shall pay tenfold.&quot;">
+            <span class="source">Code of Hammurabi · Law 8 · trans. L.W. King, 1910</span>
+            <p>"If any one steal cattle or <span class="trace-word" data-trace="3">sheep</span>, or an ass, or a pig or a goat, if it belong to a god or to the court, the thief shall pay thirtyfold therefor; if they belonged to a freed man of the king he shall pay tenfold."</p>
+            <span class="examine">Look closer <span class="arrow">→</span></span>
+          </button>
+        </div>
+        <div class="stratum-tag">Stratum III — The Theft</div>
+        <div class="panel-wrap parchment">
+          <button type="button" class="panel parchment" data-icon="scroll"
+            data-title="Exodus 22:1" data-material="Ink on parchment (tradition)" data-script="Hebrew"
+            data-findspot="Masoretic textual tradition" data-translator="American Standard Version, 1901" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Leningrad_Codex_Folio_073a.jpg" data-photo-credit="Leningrad Codex, folio 73a · National Library of Russia · Public domain"
+            data-notelabel="A Shared Convention"
+            data-wordhistory="Exodus's fivefold and fourfold repayments belong to the same legal convention as Hammurabi's thirtyfold and tenfold — theft answered with multiplied restitution, a principle shared across the region even as the exact ratios vary by code."
+            data-quote="&quot;If a man steal an ox, or a sheep, and kill it, or sell it; he shall pay five oxen for an ox, and four sheep for a sheep.&quot;">
+            <span class="source">Exodus 22:1 · ASV, 1901</span>
+            <p>"If a man steal an ox, or a sheep, and kill it, or sell it; he shall pay five oxen for an ox, and four <span class="trace-word" data-trace="3">sheep</span> for a sheep."</p>
+            <span class="examine">Look closer <span class="arrow">→</span></span>
+          </button>
+        </div>
+        <div class="parallel-reveal">
+          <div class="parallel-reveal-eyebrow"><span>What This Parallel Reveals</span></div>
+          <p class="parallel-reveal-headline">Both codes punish theft the same way: pay back more than what was taken.</p>
+          <p class="parallel-reveal-sub">Hammurabi’s thirtyfold and tenfold, Exodus’s fivefold and fourfold — the ratios differ, but multiplied restitution is the shared convention underneath.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="beat" data-beat="4">
+      <div class="beat-inner">
+        <div class="panel-wrap clay">
+          <button type="button" class="panel clay" data-icon="tablet"
+            data-title="Code of Hammurabi — Law 14" data-material="Basalt stele" data-script="Akkadian, cuneiform"
+            data-findspot="Louvre Museum (Sb 8); found at Susa, likely erected at Sippar" data-translator="L.W. King, 1910" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/P1050763_Louvre_code_Hammurabi_face_rwk.JPG" data-photo-credit="Code of Hammurabi stele, Louvre Sb 8 · Photo: Mbzt · CC BY 3.0" data-photo-position="55% 85%"
+            data-notelabel="A Shared Structure"
+            data-wordhistory="Both codes draw the identical legal line: stealing property is punished by repayment, but stealing a person is punished by death. Kidnapping is treated as categorically different from theft in both traditions — not a matter of degree, but of kind."
+            data-quote="&quot;If any one steal the minor son of another, he shall be put to death.&quot;">
+            <span class="source">Code of Hammurabi · Law 14 · trans. L.W. King, 1910</span>
+            <p>"If any one steal the minor son of another, he shall be put to <span class="trace-word" data-trace="4">death</span>."</p>
+            <span class="examine">Look closer <span class="arrow">→</span></span>
+          </button>
+        </div>
+        <div class="stratum-tag">Stratum IV — The Kidnapping</div>
+        <div class="panel-wrap parchment">
+          <button type="button" class="panel parchment" data-icon="scroll"
+            data-title="Exodus 21:16" data-material="Ink on parchment (tradition)" data-script="Hebrew"
+            data-findspot="Masoretic textual tradition" data-translator="American Standard Version, 1901" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Leningrad_Codex_Folio_074a.jpg" data-photo-credit="Leningrad Codex, folio 74a · National Library of Russia · Public domain"
+            data-notelabel="A Shared Structure"
+            data-wordhistory="Exodus draws the same line Hammurabi does, in the same law-code position, just a few verses after its own property-theft laws: ordinary theft costs money; stealing a person costs the thief his life."
+            data-quote="&quot;And he that stealeth a man, and selleth him, or if he be found in his hand, he shall surely be put to death.&quot;">
+            <span class="source">Exodus 21:16 · ASV, 1901</span>
+            <p>"And he that stealeth a man, and selleth him, or if he be found in his hand, he shall surely be put to <span class="trace-word" data-trace="4">death</span>."</p>
+            <span class="examine">Look closer <span class="arrow">→</span></span>
+          </button>
+        </div>
+        <div class="parallel-reveal">
+          <div class="parallel-reveal-eyebrow"><span>What This Parallel Reveals</span></div>
+          <p class="parallel-reveal-headline">Both codes draw the identical line: stealing property costs money, stealing a person costs a life.</p>
+          <p class="parallel-reveal-sub">Kidnapping sits apart from ordinary theft in both traditions — not a matter of degree, but of kind.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="beat" data-beat="5">
+      <div class="beat-inner">
+        <div class="panel-wrap clay">
+          <button type="button" class="panel clay" data-icon="tablet"
+            data-title="Code of Hammurabi — Law 25" data-material="Basalt stele" data-script="Akkadian, cuneiform"
+            data-findspot="Louvre Museum (Sb 8); found at Susa, likely erected at Sippar" data-translator="L.W. King, 1910" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/P1050763_Louvre_code_Hammurabi_face_rwk.JPG" data-photo-credit="Code of Hammurabi stele, Louvre Sb 8 · Photo: Mbzt · CC BY 3.0" data-photo-position="60% 30%"
+            data-notelabel="A Shared Convention"
+            data-wordhistory="Opening a law with its triggering event — &quot;if fire break out&quot; — is a stock formula of ancient casuistic law. Both codes use nearly the identical phrase to introduce this case, among dozens of others built the same way."
+            data-quote="&quot;If fire break out in a house, and some one who comes to put it out cast his eye upon the property of the owner of the house, and take the property of the master of the house, he shall be thrown into that self-same fire.&quot;">
+            <span class="source">Code of Hammurabi · Law 25 · trans. L.W. King, 1910</span>
+            <p>"If <span class="trace-word" data-trace="5">fire</span> break out in a house, and some one who comes to put it out cast his eye upon the property of the owner of the house, and take the property of the master of the house, he shall be thrown into that self-same fire."</p>
+            <span class="examine">Look closer <span class="arrow">→</span></span>
+          </button>
+        </div>
+        <div class="stratum-tag">Stratum V — The Fire</div>
+        <div class="panel-wrap parchment">
+          <button type="button" class="panel parchment" data-icon="scroll"
+            data-title="Exodus 22:6" data-material="Ink on parchment (tradition)" data-script="Hebrew"
+            data-findspot="Masoretic textual tradition" data-translator="American Standard Version, 1901" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Leningrad_Codex_Folio_075a.jpg" data-photo-credit="Leningrad Codex, folio 75a · National Library of Russia · Public domain"
+            data-notelabel="A Shared Convention"
+            data-wordhistory="Exodus opens this law almost word for word the way Hammurabi opens his: with the fire itself as the trigger, before either code even gets to who's liable. Same legal instinct, two law codes, centuries and cultures apart."
+            data-quote="&quot;If fire break out, and catch in thorns, so that the shocks of grain, or the standing grain, or the field are consumed; he that kindled the fire shall surely make restitution.&quot;">
+            <span class="source">Exodus 22:6 · ASV, 1901</span>
+            <p>"If <span class="trace-word" data-trace="5">fire</span> break out, and catch in thorns, so that the shocks of grain, or the standing grain, or the field are consumed; he that kindled the fire shall surely make restitution."</p>
+            <span class="examine">Look closer <span class="arrow">→</span></span>
+          </button>
+        </div>
+        <div class="parallel-reveal">
+          <div class="parallel-reveal-eyebrow"><span>What This Parallel Reveals</span></div>
+          <p class="parallel-reveal-headline">Both codes open this law the same way: with the fire itself, before anyone asks who’s liable.</p>
+          <p class="parallel-reveal-sub">Exodus’s opening words echo Hammurabi’s almost exactly — the same casuistic instinct, two law codes, centuries and cultures apart.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="room-exit-nav">
+      <a class="room-exit-btn" href="#" data-goto="room-creation">&larr; Creation &amp; Chaos</a>
+      <a class="room-exit-btn room-exit-btn--quiet" href="#" data-coming-soon aria-disabled="true">Next Exhibit</a>
+      <a class="room-exit-btn" href="#" data-goto="room-flood">Flood &amp; Survival <span class="arrow">&rarr;</span></a>
+    </div>
+  </div>
+
+  <!-- artifact modal -->
+  <div class="artifact-modal" id="r3_artifactModal" aria-hidden="true">
+    <div class="artifact-card" role="dialog" aria-modal="true" aria-labelledby="r3_artifactTitle">
+      <button class="modal-close" id="r3_modalClose" aria-label="Close">&times;</button>
+      <img class="artifact-photo" id="r3_modalPhoto" alt="" />
+      <svg class="icon" id="r3_modalIcon"><use id="r3_modalIconUse" href="#r3_icon-tablet"/></svg>
+      <h3 id="r3_artifactTitle"></h3>
+      <div class="word-history" id="r3_modalWordHistory">
+        <span class="word-history-label" id="r3_modalWordHistoryLabel">Word History</span>
+        <p id="r3_modalWordHistoryText"></p>
+      </div>
+      <p class="artifact-quote" id="r3_modalQuote"></p>
+      <table class="spec-table">
+        <tr><th>Material</th><td id="r3_modalMaterial"></td></tr>
+        <tr><th>Script</th><td id="r3_modalScript"></td></tr>
+        <tr><th>Findspot</th><td id="r3_modalFindspot"></td></tr>
+        <tr><th>Translator</th><td id="r3_modalTranslator"></td></tr>
+      </table>
+      <p class="photo-credit" id="r3_modalPhotoCredit"></p>
+    </div>
+  </div>
+      </div>
+    </section>
+
+  </div>
+
 <script>
+(function(){
+  var stages = Array.prototype.slice.call(document.querySelectorAll('#stageRoot > .stage'));
+  var dustLayer = document.getElementById('dustLayer');
+  var HUB_STAGES = { 'parallel-intro': true, 'comparisons': true };
+
+  function goToStage(name) {
+    stages.forEach(function (s) {
+      var active = s.dataset.stage === name;
+      s.classList.toggle('is-active', active);
+      var fade = s.querySelector('.stage-fade');
+      if (fade) fade.classList.remove('is-shown');
+    });
+    if (dustLayer) dustLayer.style.display = HUB_STAGES[name] ? '' : 'none';
+    window.scrollTo({ top: 0, behavior: 'auto' });
+    var activeFade = document.querySelector('#stageRoot > .stage.is-active > .stage-fade');
+    if (activeFade) {
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          activeFade.classList.add('is-shown');
+        });
+      });
+    }
+  }
+  window.__goToStage = goToStage;
+
+  document.addEventListener('click', function (e) {
+    var trigger = e.target.closest('[data-goto]');
+    if (!trigger) return;
+    e.preventDefault();
+    goToStage(trigger.getAttribute('data-goto'));
+  });
+
+  document.querySelectorAll('[data-coming-soon]').forEach(function (link) {
+    link.addEventListener('click', function (e) { e.preventDefault(); });
+  });
+})();
+</script>
+<script>
+(function(){
 (function(){
   // Quick, responsive reveal ported from the Mirror exhibit's intro
   // stage (revealCascade() there): each beat is a group of elements
@@ -197,6 +2451,708 @@
     { els: Array.prototype.slice.call(document.querySelectorAll('.hero-lede')) },
     { els: [document.querySelector('.parallel-cta')] }
   ]);
+})();
+})();
+</script>
+<script>
+(function(){
+(function(){
+  // Quick, responsive reveal ported from the Mirror exhibit's intro
+  // stage (revealCascade() there): each beat is a group of elements
+  // that starts fading in together, one flat stagger apart, in order.
+  function revealCascade(beats) {
+    var DEFAULT_STAGGER = 100; // ms between each element's start, unless a beat overrides it
+    var INITIAL = 80;          // delay before the very first element begins
+
+    var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var allEls = [];
+    beats.forEach(function (b) { allEls = allEls.concat(b.els); });
+    allEls.forEach(function (el) { if (el) el.classList.remove('is-revealed'); });
+
+    if (reduceMotion) {
+      allEls.forEach(function (el) { if (el) el.classList.add('is-revealed'); });
+      return;
+    }
+
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        var delay = INITIAL;
+        beats.forEach(function (b) {
+          var stagger = (typeof b.stagger === 'number') ? b.stagger : DEFAULT_STAGGER;
+          b.els.forEach(function (el) {
+            (function (d) {
+              if (el) setTimeout(function () { el.classList.add('is-revealed'); }, d);
+            })(delay);
+            delay += stagger;
+          });
+        });
+      });
+    });
+  }
+
+  revealCascade([
+    { els: [document.querySelector('.parallel-eyebrow'), document.querySelector('.page-head-inner h1')] },
+    { els: [document.querySelector('.page-head-lede')] },
+    // Cards reveal left to right (source order: creation, flood, legal)
+    // on their own, slightly slower 150ms cadence - cinematic rather
+    // than brisk, and independent of the header's stagger above.
+    { els: Array.prototype.slice.call(document.querySelectorAll('.comparison-card-wrap')), stagger: 150 }
+  ]);
+})();
+})();
+</script>
+<script>
+(function(){
+  var stageRoot = document.getElementById('stage-room-creation');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const beats = stageRoot.querySelectorAll('.beat');
+
+  /* scroll reveal + automatic trace */
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting && !entry.target.classList.contains('is-revealed')) {
+        const beatEl = entry.target;
+        beatEl.classList.add('is-revealed');
+
+        const revealDelay = reduceMotion ? 200 : 1300;
+        setTimeout(() => {
+          const words = beatEl.querySelectorAll('.trace-word');
+          if (words.length === 2) {
+            showTrace(words[0], words[1], reduceMotion ? 0 : 2600);
+          }
+        }, revealDelay);
+      }
+    });
+  }, { threshold: 0.4 });
+  beats.forEach(beat => revealObserver.observe(beat));
+
+  /* stratum rail active state */
+  const railButtons = stageRoot.querySelectorAll('.stratum-rail button');
+  const railObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const idx = entry.target.dataset.beat;
+        railButtons.forEach(b => b.classList.toggle('active', b.dataset.target === idx));
+      }
+    });
+  }, { threshold: 0.5 });
+  beats.forEach(beat => railObserver.observe(beat));
+
+  railButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = stageRoot.querySelector(`.beat[data-beat="${btn.dataset.target}"]`);
+      if (target) target.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
+    });
+  });
+
+  /* panel tilt + glow */
+  if (!reduceMotion) {
+    stageRoot.querySelectorAll('.panel').forEach(panel => {
+      panel.addEventListener('mousemove', (e) => {
+        const rect = panel.getBoundingClientRect();
+        const x = e.clientX - rect.left, y = e.clientY - rect.top;
+        const rx = ((y - rect.height / 2) / (rect.height / 2)) * -4;
+        const ry = ((x - rect.width / 2) / (rect.width / 2)) * 4;
+        panel.style.setProperty('--rx', rx + 'deg');
+        panel.style.setProperty('--ry', ry + 'deg');
+        panel.style.setProperty('--gx', (x / rect.width * 100) + '%');
+        panel.style.setProperty('--gy', (y / rect.height * 100) + '%');
+      });
+      panel.addEventListener('mouseleave', () => {
+        panel.style.setProperty('--rx', '0deg');
+        panel.style.setProperty('--ry', '0deg');
+      });
+    });
+  }
+
+  /* artifact modal */
+  const modal = document.getElementById('r1_artifactModal');
+  const r1_modalClose = document.getElementById('r1_modalClose');
+  let lastFocused = null;
+  let r1_closeTimeout = null;
+
+  function openModal(panel) {
+    if (r1_closeTimeout) { window.clearTimeout(r1_closeTimeout); r1_closeTimeout = null; }
+    modal.classList.remove('is-closing');
+    lastFocused = panel;
+    document.getElementById('r1_artifactTitle').textContent = panel.dataset.title;
+    document.getElementById('r1_modalQuote').innerHTML = panel.dataset.quote;
+    document.getElementById('r1_modalMaterial').textContent = panel.dataset.material;
+    document.getElementById('r1_modalScript').textContent = panel.dataset.script;
+    document.getElementById('r1_modalFindspot').textContent = panel.dataset.findspot;
+    document.getElementById('r1_modalTranslator').textContent = panel.dataset.translator;
+    document.getElementById('r1_modalIconUse').setAttribute('href', '#icon-' + panel.dataset.icon);
+
+    const wordHistory = document.getElementById('r1_modalWordHistory');
+    if (panel.dataset.wordhistory) {
+      document.getElementById('r1_modalWordHistoryText').textContent = panel.dataset.wordhistory;
+      document.getElementById('r1_modalWordHistoryLabel').textContent = panel.dataset.notelabel || 'Word History';
+      wordHistory.classList.add('is-visible');
+    } else {
+      wordHistory.classList.remove('is-visible');
+    }
+
+    const photo = document.getElementById('r1_modalPhoto');
+    const credit = document.getElementById('r1_modalPhotoCredit');
+    photo.classList.remove('is-visible', 'is-loading');
+    credit.textContent = '';
+    if (panel.dataset.photo) {
+      photo.classList.add('is-loading'); // reserve the frame's space right away, no late pop-in
+      photo.onload = () => photo.classList.add('is-visible');
+      photo.onerror = () => { photo.classList.remove('is-visible', 'is-loading'); }; // fall back to icon
+      photo.src = panel.dataset.photo;
+      photo.style.objectPosition = panel.dataset.photoPosition || '50% 50%';
+      photo.alt = panel.dataset.title;
+      credit.textContent = panel.dataset.photoCredit || '';
+    } else {
+      photo.removeAttribute('src');
+    }
+
+    modal.classList.add('is-open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.documentElement.classList.add('modal-lock');
+    r1_modalClose.focus();
+  }
+  function closeModal() {
+    if (r1_closeTimeout) { window.clearTimeout(r1_closeTimeout); r1_closeTimeout = null; }
+    modal.classList.add('is-closing');
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.documentElement.classList.remove('modal-lock');
+    if (lastFocused) lastFocused.focus();
+    r1_closeTimeout = window.setTimeout(() => { modal.classList.remove('is-closing'); r1_closeTimeout = null; }, 260);
+  }
+
+  stageRoot.querySelectorAll('.panel').forEach(panel => {
+    panel.addEventListener('click', () => openModal(panel));
+  });
+  r1_modalClose.addEventListener('click', closeModal);
+  modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.classList.contains('is-open')) closeModal();
+  });
+
+  /* ---------- Trace: connect matching words across panels ---------- */
+  const r1_traceOverlay = document.getElementById('r1_traceOverlay');
+  const r1_tracePath = document.getElementById('r1_tracePath');
+
+  function sizeOverlay() {
+    r1_traceOverlay.setAttribute('width', window.innerWidth);
+    r1_traceOverlay.setAttribute('height', window.innerHeight);
+  }
+  sizeOverlay();
+  window.addEventListener('resize', sizeOverlay);
+
+  function drawTrace(elA, elB) {
+    const a = elA.getBoundingClientRect();
+    const b = elB.getBoundingClientRect();
+    const x1 = a.left + a.width / 2, y1 = a.top + a.height / 2;
+    const x2 = b.left + b.width / 2, y2 = b.top + b.height / 2;
+    const mx = (x1 + x2) / 2;
+    const my = (y1 + y2) / 2 - Math.min(60, Math.abs(x2 - x1) / 4);
+    r1_tracePath.setAttribute('d', `M ${x1} ${y1} Q ${mx} ${my} ${x2} ${y2}`);
+    if (reduceMotion) { r1_tracePath.style.opacity = 0.9; return; }
+    const len = r1_tracePath.getTotalLength();
+    r1_tracePath.style.transition = 'none';
+    r1_tracePath.style.strokeDasharray = len;
+    r1_tracePath.style.strokeDashoffset = len;
+    r1_tracePath.style.opacity = 1;
+    r1_tracePath.getBoundingClientRect(); // force reflow
+    r1_tracePath.style.transition = 'stroke-dashoffset 0.7s cubic-bezier(.2,.7,.2,1)';
+    r1_tracePath.style.strokeDashoffset = 0;
+  }
+  function hideTrace() {
+    r1_tracePath.style.transition = 'opacity 0.4s ease';
+    r1_tracePath.style.opacity = 0;
+  }
+
+  // A drawn trace line is a snapshot of two words' screen positions at
+  // the instant it's drawn - fixed-position, it can't follow the
+  // panels as the page scrolls. Rather than leave it hanging there,
+  // stale and disconnected from the words it's supposed to connect,
+  // the moment scrolling starts while a trace is showing this cancels
+  // it immediately (line and word highlight together) instead of
+  // waiting for its own timer to run out.
+  let activeTraceWords = null;
+  let activeTraceTimer = null;
+
+  function clearActiveTrace() {
+    if (activeTraceTimer) { clearTimeout(activeTraceTimer); activeTraceTimer = null; }
+    if (activeTraceWords) {
+      activeTraceWords.forEach(w => w.classList.remove('is-traced'));
+      activeTraceWords = null;
+    }
+    hideTrace();
+  }
+
+  function showTrace(wordA, wordB, autoHideMs) {
+    if (activeTraceTimer) { clearTimeout(activeTraceTimer); activeTraceTimer = null; }
+    if (activeTraceWords) { activeTraceWords.forEach(w => w.classList.remove('is-traced')); }
+    wordA.classList.add('is-traced');
+    wordB.classList.add('is-traced');
+    drawTrace(wordA, wordB);
+    activeTraceWords = [wordA, wordB];
+    if (autoHideMs !== null) activeTraceTimer = setTimeout(clearActiveTrace, autoHideMs);
+  }
+
+  window.addEventListener('scroll', () => {
+    if (activeTraceWords) clearActiveTrace();
+  }, { passive: true });
+
+  stageRoot.querySelectorAll('.trace-word').forEach(word => {
+    const pairId = word.dataset.trace;
+    const twin = [...stageRoot.querySelectorAll(`[data-trace="${pairId}"]`)].find(w => w !== word);
+    word.addEventListener('mouseenter', () => {
+      if (twin) showTrace(word, twin, null);
+    });
+    word.addEventListener('mouseleave', () => {
+      clearActiveTrace();
+    });
+  });
+})();
+</script>
+<script>
+(function(){
+  var stageRoot = document.getElementById('stage-room-flood');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const beats = stageRoot.querySelectorAll('.beat');
+
+  // seeded PRNG so the starfield/glint arrangement is identical on every load, every browser
+  function mulberry32(seed) {
+    return function () {
+      seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+      let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  const rand = mulberry32(2024);
+
+  /* scroll reveal + automatic trace */
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting && !entry.target.classList.contains('is-revealed')) {
+        const beatEl = entry.target;
+        beatEl.classList.add('is-revealed');
+
+        const revealDelay = reduceMotion ? 200 : 1300;
+        setTimeout(() => {
+          const words = beatEl.querySelectorAll('.trace-word');
+          if (words.length === 2) {
+            showTrace(words[0], words[1], reduceMotion ? 0 : 2600);
+          }
+        }, revealDelay);
+      }
+    });
+  }, { threshold: 0.4 });
+  beats.forEach(beat => revealObserver.observe(beat));
+
+  /* stratum rail active state */
+  const railButtons = stageRoot.querySelectorAll('.stratum-rail button');
+  const railObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const idx = entry.target.dataset.beat;
+        railButtons.forEach(b => b.classList.toggle('active', b.dataset.target === idx));
+      }
+    });
+  }, { threshold: 0.5 });
+  beats.forEach(beat => railObserver.observe(beat));
+
+  railButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = stageRoot.querySelector(`.beat[data-beat="${btn.dataset.target}"]`);
+      if (target) target.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
+    });
+  });
+
+  /* panel tilt + glow */
+  if (!reduceMotion) {
+    stageRoot.querySelectorAll('.panel').forEach(panel => {
+      panel.addEventListener('mousemove', (e) => {
+        const rect = panel.getBoundingClientRect();
+        const x = e.clientX - rect.left, y = e.clientY - rect.top;
+        const rx = ((y - rect.height / 2) / (rect.height / 2)) * -4;
+        const ry = ((x - rect.width / 2) / (rect.width / 2)) * 4;
+        panel.style.setProperty('--rx', rx + 'deg');
+        panel.style.setProperty('--ry', ry + 'deg');
+        panel.style.setProperty('--gx', (x / rect.width * 100) + '%');
+        panel.style.setProperty('--gy', (y / rect.height * 100) + '%');
+      });
+      panel.addEventListener('mouseleave', () => {
+        panel.style.setProperty('--rx', '0deg');
+        panel.style.setProperty('--ry', '0deg');
+      });
+    });
+  }
+
+  /* artifact modal */
+  const modal = document.getElementById('r2_artifactModal');
+  const r2_modalClose = document.getElementById('r2_modalClose');
+  let lastFocused = null;
+  let r2_closeTimeout = null;
+
+  function openModal(panel) {
+    if (r2_closeTimeout) { window.clearTimeout(r2_closeTimeout); r2_closeTimeout = null; }
+    modal.classList.remove('is-closing');
+    lastFocused = panel;
+    document.getElementById('r2_artifactTitle').textContent = panel.dataset.title;
+    document.getElementById('r2_modalQuote').innerHTML = panel.dataset.quote;
+    document.getElementById('r2_modalMaterial').textContent = panel.dataset.material;
+    document.getElementById('r2_modalScript').textContent = panel.dataset.script;
+    document.getElementById('r2_modalFindspot').textContent = panel.dataset.findspot;
+    document.getElementById('r2_modalTranslator').textContent = panel.dataset.translator;
+    document.getElementById('r2_modalIconUse').setAttribute('href', '#icon-' + panel.dataset.icon);
+
+    const wordHistory = document.getElementById('r2_modalWordHistory');
+    if (panel.dataset.wordhistory) {
+      document.getElementById('r2_modalWordHistoryText').textContent = panel.dataset.wordhistory;
+      document.getElementById('r2_modalWordHistoryLabel').textContent = panel.dataset.notelabel || 'Word History';
+      wordHistory.classList.add('is-visible');
+    } else {
+      wordHistory.classList.remove('is-visible');
+    }
+
+    const photo = document.getElementById('r2_modalPhoto');
+    const credit = document.getElementById('r2_modalPhotoCredit');
+    photo.classList.remove('is-visible', 'is-loading');
+    credit.textContent = '';
+    if (panel.dataset.photo) {
+      photo.classList.add('is-loading'); // reserve the frame's space right away, no late pop-in
+      photo.onload = () => photo.classList.add('is-visible');
+      photo.onerror = () => { photo.classList.remove('is-visible', 'is-loading'); }; // fall back to icon
+      photo.src = panel.dataset.photo;
+      photo.style.objectPosition = panel.dataset.photoPosition || '50% 50%';
+      photo.alt = panel.dataset.title;
+      credit.textContent = panel.dataset.photoCredit || '';
+    } else {
+      photo.removeAttribute('src');
+    }
+
+    modal.classList.add('is-open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.documentElement.classList.add('modal-lock');
+    r2_modalClose.focus();
+  }
+  function closeModal() {
+    if (r2_closeTimeout) { window.clearTimeout(r2_closeTimeout); r2_closeTimeout = null; }
+    modal.classList.add('is-closing');
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.documentElement.classList.remove('modal-lock');
+    if (lastFocused) lastFocused.focus();
+    r2_closeTimeout = window.setTimeout(() => { modal.classList.remove('is-closing'); r2_closeTimeout = null; }, 260);
+  }
+
+  stageRoot.querySelectorAll('.panel').forEach(panel => {
+    panel.addEventListener('click', () => openModal(panel));
+  });
+  r2_modalClose.addEventListener('click', closeModal);
+  modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.classList.contains('is-open')) closeModal();
+  });
+
+  /* ---------- Trace: connect matching words across panels ---------- */
+  const r2_traceOverlay = document.getElementById('r2_traceOverlay');
+  const r2_tracePath = document.getElementById('r2_tracePath');
+
+  function sizeOverlay() {
+    r2_traceOverlay.setAttribute('width', window.innerWidth);
+    r2_traceOverlay.setAttribute('height', window.innerHeight);
+  }
+  sizeOverlay();
+  window.addEventListener('resize', sizeOverlay);
+
+  function drawTrace(elA, elB) {
+    const a = elA.getBoundingClientRect();
+    const b = elB.getBoundingClientRect();
+    const x1 = a.left + a.width / 2, y1 = a.top + a.height / 2;
+    const x2 = b.left + b.width / 2, y2 = b.top + b.height / 2;
+    const mx = (x1 + x2) / 2;
+    const my = (y1 + y2) / 2 - Math.min(60, Math.abs(x2 - x1) / 4);
+    r2_tracePath.setAttribute('d', `M ${x1} ${y1} Q ${mx} ${my} ${x2} ${y2}`);
+    if (reduceMotion) { r2_tracePath.style.opacity = 0.9; return; }
+    const len = r2_tracePath.getTotalLength();
+    r2_tracePath.style.transition = 'none';
+    r2_tracePath.style.strokeDasharray = len;
+    r2_tracePath.style.strokeDashoffset = len;
+    r2_tracePath.style.opacity = 1;
+    r2_tracePath.getBoundingClientRect(); // force reflow
+    r2_tracePath.style.transition = 'stroke-dashoffset 0.7s cubic-bezier(.2,.7,.2,1)';
+    r2_tracePath.style.strokeDashoffset = 0;
+  }
+  function hideTrace() {
+    r2_tracePath.style.transition = 'opacity 0.4s ease';
+    r2_tracePath.style.opacity = 0;
+  }
+
+  // A drawn trace line is a snapshot of two words' screen positions at
+  // the instant it's drawn - fixed-position, it can't follow the
+  // panels as the page scrolls. Rather than leave it hanging there,
+  // stale and disconnected from the words it's supposed to connect,
+  // the moment scrolling starts while a trace is showing this cancels
+  // it immediately (line and word highlight together) instead of
+  // waiting for its own timer to run out.
+  let activeTraceWords = null;
+  let activeTraceTimer = null;
+
+  function clearActiveTrace() {
+    if (activeTraceTimer) { clearTimeout(activeTraceTimer); activeTraceTimer = null; }
+    if (activeTraceWords) {
+      activeTraceWords.forEach(w => w.classList.remove('is-traced'));
+      activeTraceWords = null;
+    }
+    hideTrace();
+  }
+
+  function showTrace(wordA, wordB, autoHideMs) {
+    if (activeTraceTimer) { clearTimeout(activeTraceTimer); activeTraceTimer = null; }
+    if (activeTraceWords) { activeTraceWords.forEach(w => w.classList.remove('is-traced')); }
+    wordA.classList.add('is-traced');
+    wordB.classList.add('is-traced');
+    drawTrace(wordA, wordB);
+    activeTraceWords = [wordA, wordB];
+    if (autoHideMs !== null) activeTraceTimer = setTimeout(clearActiveTrace, autoHideMs);
+  }
+
+  window.addEventListener('scroll', () => {
+    if (activeTraceWords) clearActiveTrace();
+  }, { passive: true });
+
+  stageRoot.querySelectorAll('.trace-word').forEach(word => {
+    const pairId = word.dataset.trace;
+    const twin = [...stageRoot.querySelectorAll(`[data-trace="${pairId}"]`)].find(w => w !== word);
+    word.addEventListener('mouseenter', () => {
+      if (twin) showTrace(word, twin, null);
+    });
+    word.addEventListener('mouseleave', () => {
+      clearActiveTrace();
+    });
+  });
+
+})();
+</script>
+<script>
+(function(){
+  var stageRoot = document.getElementById('stage-room-covenant');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const beats = stageRoot.querySelectorAll('.beat');
+
+  // seeded PRNG so the starfield/glint arrangement is identical on every load, every browser
+  function mulberry32(seed) {
+    return function () {
+      seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+      let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  const rand = mulberry32(2024);
+
+  /* scroll reveal + automatic trace */
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting && !entry.target.classList.contains('is-revealed')) {
+        const beatEl = entry.target;
+        beatEl.classList.add('is-revealed');
+
+        const revealDelay = reduceMotion ? 200 : 1300;
+        setTimeout(() => {
+          const words = beatEl.querySelectorAll('.trace-word');
+          if (words.length === 2) {
+            showTrace(words[0], words[1], reduceMotion ? 0 : 2600);
+          }
+        }, revealDelay);
+      }
+    });
+  }, { threshold: 0.4 });
+  beats.forEach(beat => revealObserver.observe(beat));
+
+  /* stratum rail active state */
+  const railButtons = stageRoot.querySelectorAll('.stratum-rail button');
+  const railObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const idx = entry.target.dataset.beat;
+        railButtons.forEach(b => b.classList.toggle('active', b.dataset.target === idx));
+      }
+    });
+  }, { threshold: 0.5 });
+  beats.forEach(beat => railObserver.observe(beat));
+
+  railButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = stageRoot.querySelector(`.beat[data-beat="${btn.dataset.target}"]`);
+      if (target) target.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
+    });
+  });
+
+  /* panel tilt + glow */
+  if (!reduceMotion) {
+    stageRoot.querySelectorAll('.panel').forEach(panel => {
+      panel.addEventListener('mousemove', (e) => {
+        const rect = panel.getBoundingClientRect();
+        const x = e.clientX - rect.left, y = e.clientY - rect.top;
+        const rx = ((y - rect.height / 2) / (rect.height / 2)) * -4;
+        const ry = ((x - rect.width / 2) / (rect.width / 2)) * 4;
+        panel.style.setProperty('--rx', rx + 'deg');
+        panel.style.setProperty('--ry', ry + 'deg');
+        panel.style.setProperty('--gx', (x / rect.width * 100) + '%');
+        panel.style.setProperty('--gy', (y / rect.height * 100) + '%');
+      });
+      panel.addEventListener('mouseleave', () => {
+        panel.style.setProperty('--rx', '0deg');
+        panel.style.setProperty('--ry', '0deg');
+      });
+    });
+  }
+
+  /* artifact modal */
+  const modal = document.getElementById('r3_artifactModal');
+  const r3_modalClose = document.getElementById('r3_modalClose');
+  let lastFocused = null;
+  let r3_closeTimeout = null;
+
+  function openModal(panel) {
+    if (r3_closeTimeout) { window.clearTimeout(r3_closeTimeout); r3_closeTimeout = null; }
+    modal.classList.remove('is-closing');
+    lastFocused = panel;
+    document.getElementById('r3_artifactTitle').textContent = panel.dataset.title;
+    document.getElementById('r3_modalQuote').innerHTML = panel.dataset.quote;
+    document.getElementById('r3_modalMaterial').textContent = panel.dataset.material;
+    document.getElementById('r3_modalScript').textContent = panel.dataset.script;
+    document.getElementById('r3_modalFindspot').textContent = panel.dataset.findspot;
+    document.getElementById('r3_modalTranslator').textContent = panel.dataset.translator;
+    document.getElementById('r3_modalIconUse').setAttribute('href', '#icon-' + panel.dataset.icon);
+
+    const wordHistory = document.getElementById('r3_modalWordHistory');
+    if (panel.dataset.wordhistory) {
+      document.getElementById('r3_modalWordHistoryText').textContent = panel.dataset.wordhistory;
+      document.getElementById('r3_modalWordHistoryLabel').textContent = panel.dataset.notelabel || 'Word History';
+      wordHistory.classList.add('is-visible');
+    } else {
+      wordHistory.classList.remove('is-visible');
+    }
+
+    const photo = document.getElementById('r3_modalPhoto');
+    const credit = document.getElementById('r3_modalPhotoCredit');
+    photo.classList.remove('is-visible', 'is-loading');
+    credit.textContent = '';
+    if (panel.dataset.photo) {
+      photo.classList.add('is-loading'); // reserve the frame's space right away, no late pop-in
+      photo.onload = () => photo.classList.add('is-visible');
+      photo.onerror = () => { photo.classList.remove('is-visible', 'is-loading'); }; // fall back to icon
+      photo.src = panel.dataset.photo;
+      photo.style.objectPosition = panel.dataset.photoPosition || '50% 50%';
+      photo.alt = panel.dataset.title;
+      credit.textContent = panel.dataset.photoCredit || '';
+    } else {
+      photo.removeAttribute('src');
+    }
+
+    modal.classList.add('is-open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.documentElement.classList.add('modal-lock');
+    r3_modalClose.focus();
+  }
+  function closeModal() {
+    if (r3_closeTimeout) { window.clearTimeout(r3_closeTimeout); r3_closeTimeout = null; }
+    modal.classList.add('is-closing');
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.documentElement.classList.remove('modal-lock');
+    if (lastFocused) lastFocused.focus();
+    r3_closeTimeout = window.setTimeout(() => { modal.classList.remove('is-closing'); r3_closeTimeout = null; }, 260);
+  }
+
+  stageRoot.querySelectorAll('.panel').forEach(panel => {
+    panel.addEventListener('click', () => openModal(panel));
+  });
+  r3_modalClose.addEventListener('click', closeModal);
+  modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.classList.contains('is-open')) closeModal();
+  });
+
+  /* ---------- Trace: connect matching words across panels ---------- */
+  const r3_traceOverlay = document.getElementById('r3_traceOverlay');
+  const r3_tracePath = document.getElementById('r3_tracePath');
+
+  function sizeOverlay() {
+    r3_traceOverlay.setAttribute('width', window.innerWidth);
+    r3_traceOverlay.setAttribute('height', window.innerHeight);
+  }
+  sizeOverlay();
+  window.addEventListener('resize', sizeOverlay);
+
+  function drawTrace(elA, elB) {
+    const a = elA.getBoundingClientRect();
+    const b = elB.getBoundingClientRect();
+    const x1 = a.left + a.width / 2, y1 = a.top + a.height / 2;
+    const x2 = b.left + b.width / 2, y2 = b.top + b.height / 2;
+    const mx = (x1 + x2) / 2;
+    const my = (y1 + y2) / 2 - Math.min(60, Math.abs(x2 - x1) / 4);
+    r3_tracePath.setAttribute('d', `M ${x1} ${y1} Q ${mx} ${my} ${x2} ${y2}`);
+    if (reduceMotion) { r3_tracePath.style.opacity = 0.9; return; }
+    const len = r3_tracePath.getTotalLength();
+    r3_tracePath.style.transition = 'none';
+    r3_tracePath.style.strokeDasharray = len;
+    r3_tracePath.style.strokeDashoffset = len;
+    r3_tracePath.style.opacity = 1;
+    r3_tracePath.getBoundingClientRect(); // force reflow
+    r3_tracePath.style.transition = 'stroke-dashoffset 0.7s cubic-bezier(.2,.7,.2,1)';
+    r3_tracePath.style.strokeDashoffset = 0;
+  }
+  function hideTrace() {
+    r3_tracePath.style.transition = 'opacity 0.4s ease';
+    r3_tracePath.style.opacity = 0;
+  }
+
+  // A drawn trace line is a snapshot of two words' screen positions at
+  // the instant it's drawn - fixed-position, it can't follow the
+  // panels as the page scrolls. Rather than leave it hanging there,
+  // stale and disconnected from the words it's supposed to connect,
+  // the moment scrolling starts while a trace is showing this cancels
+  // it immediately (line and word highlight together) instead of
+  // waiting for its own timer to run out.
+  let activeTraceWords = null;
+  let activeTraceTimer = null;
+
+  function clearActiveTrace() {
+    if (activeTraceTimer) { clearTimeout(activeTraceTimer); activeTraceTimer = null; }
+    if (activeTraceWords) {
+      activeTraceWords.forEach(w => w.classList.remove('is-traced'));
+      activeTraceWords = null;
+    }
+    hideTrace();
+  }
+
+  function showTrace(wordA, wordB, autoHideMs) {
+    if (activeTraceTimer) { clearTimeout(activeTraceTimer); activeTraceTimer = null; }
+    if (activeTraceWords) { activeTraceWords.forEach(w => w.classList.remove('is-traced')); }
+    wordA.classList.add('is-traced');
+    wordB.classList.add('is-traced');
+    drawTrace(wordA, wordB);
+    activeTraceWords = [wordA, wordB];
+    if (autoHideMs !== null) activeTraceTimer = setTimeout(clearActiveTrace, autoHideMs);
+  }
+
+  window.addEventListener('scroll', () => {
+    if (activeTraceWords) clearActiveTrace();
+  }, { passive: true });
+
+  stageRoot.querySelectorAll('.trace-word').forEach(word => {
+    const pairId = word.dataset.trace;
+    const twin = [...stageRoot.querySelectorAll(`[data-trace="${pairId}"]`)].find(w => w !== word);
+    word.addEventListener('mouseenter', () => {
+      if (twin) showTrace(word, twin, null);
+    });
+    word.addEventListener('mouseleave', () => {
+      clearActiveTrace();
+    });
+  });
+
 })();
 </script>
 <script src="atmosphere.js"></script>
