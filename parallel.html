@@ -221,7 +221,7 @@
     display:flex; flex-direction:column; align-items:center;
   }
 #stage-comparisons .comparisons-grid{
-    display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr));
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));
     gap:2.5rem; width:100%; max-width:1120px;
   }
 #stage-comparisons .comparison-card-wrap{
@@ -277,15 +277,15 @@
     position:absolute; inset:0; z-index:1; pointer-events:none;
     background:linear-gradient(to bottom,
       rgba(24,8,1,0) 0%,
-      rgba(24,8,1,0.02) 30%,
-      rgba(24,8,1,0.22) 48%,
-      rgba(24,8,1,0.64) 64%,
-      rgba(24,8,1,0.93) 78%,
-      var(--ground) 92%);
+      rgba(24,8,1,0.02) 26%,
+      rgba(24,8,1,0.3) 44%,
+      rgba(24,8,1,0.72) 60%,
+      rgba(24,8,1,0.94) 74%,
+      var(--ground) 90%);
   }
 #stage-comparisons .comparison-card--bg .comparison-body{
     position:absolute; left:0; right:0; bottom:0; z-index:2;
-    padding:0 1.8rem 1.9rem;
+    padding:0 2rem 2.3rem;
     text-shadow:0 1px 4px rgba(0,0,0,0.55);
   }
 #stage-comparisons .comparison-card--bg .comparison-chip{ text-shadow:none; }
@@ -300,12 +300,13 @@
     letter-spacing:0.1em; text-transform:uppercase; color:var(--ochre);
     background:rgba(24,8,1,0.6);
     border:1px solid rgba(175,157,46,0.35);
-    padding:0.35rem 0.75rem;
+    padding:0.4rem 0.85rem;
     border-radius:999px;
-    margin-bottom:0.9rem;
+    margin-bottom:1.2rem;
   }
 #stage-comparisons .comparison-body h2{
-    font-family:'Fraunces', serif; font-weight:500; font-size:1.7rem; margin:0 0 0.5rem;
+    font-family:'Fraunces', serif; font-weight:500; font-size:1.55rem; line-height:1.22; letter-spacing:-0.005em;
+    margin:0 0 1.7rem; text-wrap:balance;
   }
 #stage-comparisons .comparison-subtitle{
     font-family:'Instrument Sans', sans-serif; font-style:italic; font-size:0.9rem;
@@ -314,7 +315,7 @@
 #stage-comparisons .comparison-status{
     margin-top:auto; align-self:flex-start;
     display:inline-flex; align-items:center; gap:0.4em;
-    padding:0.7rem 1.4rem;
+    padding:0.8rem 1.6rem;
     border-radius:999px;
     background:var(--ochre);
     color:var(--ground);
@@ -593,12 +594,15 @@
   }
 #stage-room-creation .room-exit-btn .arrow{ transition:transform .25s ease; }
 #stage-room-creation .room-exit-btn:hover .arrow{ transform:translateX(4px); }
+#stage-room-creation .room-exit-btn:hover .arrow--back{ transform:translateX(-4px); }
 #stage-room-creation .room-exit-btn--quiet{
     background:none; color:var(--brass);
     border:1.5px solid var(--brass); box-shadow:none;
   }
 #stage-room-creation .room-exit-btn--quiet:hover{
-    background:rgba(98,154,189,0.14); transform:translateY(-2px); box-shadow:none; filter:none;
+    background:var(--accent-deep); color:var(--whisper); border-color:var(--accent-deep);
+    box-shadow:0 0.5rem 1.1rem rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+    filter:brightness(1.15); transform:translateY(-2px);
   }
 @media (max-width:480px){#stage-room-creation .room-exit-btn{padding:0.8rem 1.4rem; font-size:0.68rem;}}
 #stage-room-creation .stratum-rail{
@@ -947,7 +951,7 @@
 #stage-room-flood .panel:hover .examine .arrow, #stage-room-flood .panel:focus-visible .examine .arrow{
     transform:translateX(4px);
   }
-#stage-room-flood .trace-word{
+#stage-room-flood .trace-word{white-space:nowrap; 
     border-bottom:1px dotted currentColor;
     opacity:0.92;
     padding:0 1px;
@@ -979,12 +983,15 @@
   }
 #stage-room-flood .room-exit-btn .arrow{ transition:transform .25s ease; }
 #stage-room-flood .room-exit-btn:hover .arrow{ transform:translateX(4px); }
+#stage-room-flood .room-exit-btn:hover .arrow--back{ transform:translateX(-4px); }
 #stage-room-flood .room-exit-btn--quiet{
     background:none; color:var(--brass);
     border:1.5px solid var(--brass); box-shadow:none;
   }
 #stage-room-flood .room-exit-btn--quiet:hover{
-    background:rgba(98,154,189,0.14); transform:translateY(-2px); box-shadow:none; filter:none;
+    background:var(--accent-deep); color:var(--whisper); border-color:var(--accent-deep);
+    box-shadow:0 0.5rem 1.1rem rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+    filter:brightness(1.15); transform:translateY(-2px);
   }
 @media (max-width:480px){#stage-room-flood .room-exit-btn{padding:0.8rem 1.4rem; font-size:0.68rem;}}
 #stage-room-flood .stratum-rail{
@@ -1114,15 +1121,15 @@
 #stage-room-covenant{
     --ground: #14181C;
     --ground-deep: #0B0E11;
-    --clay: #C29970;
-    --clay-deep: #A67C53;
+    --clay: #8FA5B2;
+    --clay-deep: #738A99;
     --clay-ink: #2A1F12;
-    --parchment: #D9C1A9;
-    --parchment-deep: #C4A98D;
+    --parchment: #B6C3CC;
+    --parchment-deep: #9EAEB8;
     --parchment-ink: #201B14;
-    --brass: #A6763D;
-    --brass-dim: #6E5330;
-    --accent-deep: #2C1E10;
+    --brass: #629ABD;
+    --brass-dim: #466A80;
+    --accent-deep: #1B3342;
     --whisper: #F2EFE8;
     --fog: rgba(242,239,232,0.55);
     --mist: rgba(220,215,205,0.35);
@@ -1141,7 +1148,10 @@
     position:fixed; inset:0; z-index:0; pointer-events:none;
     width:100%; height:100%;
     object-fit:cover; object-position:center top;
-    filter:brightness(0.62);
+  }
+#stage-room-covenant .page-bg-scrim{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background:rgba(11,14,17,0.58);
   }
 #stage-room-covenant .r3_intro{
     position:relative;
@@ -1161,6 +1171,7 @@
     color:var(--brass);
     text-transform:uppercase;
     margin-bottom:1.4rem;
+    text-shadow:0 1px 4px rgba(0,0,0,0.5);
   }
 #stage-room-covenant .r3_intro h1{
     font-family:'Fraunces', serif;
@@ -1170,8 +1181,10 @@
     line-height:1.05;
     margin:0;
     letter-spacing:-0.01em;
-    position:relative;
-    z-index:1;
+    text-shadow:
+      0 1px 0 rgba(255,255,255,0.07),
+      0 2px 4px rgba(0,0,0,0.55),
+      0 12px 34px rgba(0,0,0,0.55);
   }
 #stage-room-covenant .r3_intro h1 em{
     font-style:italic;
@@ -1187,6 +1200,7 @@
     color:var(--brass-dim);
     text-transform:uppercase;
     animation:r3-kf1-driftDown 2.2s ease-in-out infinite;
+    text-shadow:0 1px 4px rgba(0,0,0,0.5);
   }
 @keyframes r3-kf1-driftDown{
     0%,100%{transform:translateY(0);opacity:0.6;}
@@ -1267,7 +1281,7 @@
     flex-direction:column;
     text-align:left;
     font:inherit;
-    border:1px solid rgba(166,130,80,0.4);
+    border:1px solid rgba(98,134,155,0.4);
     border-radius:24px;
     padding:2.8rem 3.2rem 3rem;
     cursor:pointer;
@@ -1276,7 +1290,7 @@
     transform:perspective(900px) rotateX(var(--rx)) rotateY(var(--ry));
     transition:transform 0.2s ease-out, box-shadow 0.2s ease-out, border-color 0.2s ease-out, background 0.2s ease-out;
   }
-#stage-room-covenant .panel:hover, #stage-room-covenant .panel:focus-visible{border-color:rgba(196,160,110,0.55);}
+#stage-room-covenant .panel:hover, #stage-room-covenant .panel:focus-visible{border-color:rgba(130,165,185,0.55);}
 #stage-room-covenant .panel::after{
     content:"";
     position:absolute; inset:0;
@@ -1289,7 +1303,7 @@
 #stage-room-covenant .panel:hover::after, #stage-room-covenant .panel:focus-visible::after{opacity:0.6;}
 #stage-room-covenant .panel:focus-visible{outline:2px solid var(--brass); outline-offset:3px;}
 #stage-room-covenant .panel.clay, #stage-room-covenant .panel.parchment{
-    background:rgba(58,42,26,0.65);
+    background:rgba(39,55,67,0.65);
     -webkit-backdrop-filter:blur(8px);
     backdrop-filter:blur(8px);
     color:var(--whisper);
@@ -1300,7 +1314,7 @@
     font-size:0.7rem;
     letter-spacing:0.06em;
     text-transform:uppercase;
-    color:rgba(224,208,188,0.72);
+    color:rgba(210,220,223,0.72);
     margin-bottom:1.1rem;
     display:block;
   }
@@ -1314,8 +1328,8 @@
     margin-top:auto;
     padding:0.7rem 1.4rem;
     border-radius:999px;
-    background:rgba(41,26,10,0.92);
-    border:1px solid rgba(166,130,80,0.4);
+    background:rgba(7,28,41,0.92);
+    border:1px solid rgba(98,134,155,0.4);
     color:#F3F1EB;
     font-family:'Instrument Sans', sans-serif;
     font-weight:600;
@@ -1326,8 +1340,8 @@
   }
 #stage-room-covenant .panel .examine .arrow{display:inline-block; transition:transform .25s ease;}
 #stage-room-covenant .panel:hover .examine, #stage-room-covenant .panel:focus-visible .examine{
-    background:rgba(58,38,16,0.96);
-    border-color:rgba(196,160,110,0.55);
+    background:rgba(11,40,58,0.96);
+    border-color:rgba(130,165,185,0.55);
     transform:translateY(-2px);
   }
 #stage-room-covenant .panel:hover .examine .arrow, #stage-room-covenant .panel:focus-visible .examine .arrow{
@@ -1365,12 +1379,15 @@
   }
 #stage-room-covenant .room-exit-btn .arrow{ transition:transform .25s ease; }
 #stage-room-covenant .room-exit-btn:hover .arrow{ transform:translateX(4px); }
+#stage-room-covenant .room-exit-btn:hover .arrow--back{ transform:translateX(-4px); }
 #stage-room-covenant .room-exit-btn--quiet{
     background:none; color:var(--brass);
     border:1.5px solid var(--brass); box-shadow:none;
   }
 #stage-room-covenant .room-exit-btn--quiet:hover{
-    background:rgba(98,154,189,0.14); transform:translateY(-2px); box-shadow:none; filter:none;
+    background:var(--accent-deep); color:var(--whisper); border-color:var(--accent-deep);
+    box-shadow:0 0.5rem 1.1rem rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+    filter:brightness(1.15); transform:translateY(-2px);
   }
 @media (max-width:480px){#stage-room-covenant .room-exit-btn{padding:0.8rem 1.4rem; font-size:0.68rem;}}
 #stage-room-covenant .stratum-rail{
@@ -1379,12 +1396,12 @@
   }
 #stage-room-covenant .stratum-rail button{
     width:26px; height:26px; border-radius:50%;
-    border:1px solid rgba(166,118,61,0.3); background:transparent; color:rgba(166,118,61,0.65);
+    border:1px solid rgba(98,154,189,0.3); background:transparent; color:rgba(98,154,189,0.65);
     font-family:'Instrument Sans', sans-serif; font-weight:600; font-size:0.64rem;
     display:flex; align-items:center; justify-content:center;
     cursor:pointer; transition:all 0.3s ease;
   }
-#stage-room-covenant .stratum-rail button:hover{border-color:rgba(166,118,61,0.55); color:var(--brass);}
+#stage-room-covenant .stratum-rail button:hover{border-color:rgba(98,154,189,0.55); color:var(--brass);}
 #stage-room-covenant .stratum-rail button.active{background:var(--brass); color:var(--ground-deep); border-color:var(--brass);}
 #stage-room-covenant .stratum-rail button:focus-visible{outline:2px solid var(--whisper); outline-offset:2px;}
 #stage-room-covenant .artifact-modal{
@@ -1442,7 +1459,7 @@
 #stage-room-covenant .word-history{
     display:none;
     margin-top:1.3rem; margin-bottom:1.6rem; padding:1rem 1.1rem;
-    background:rgba(166,118,61,0.08); border-left:2px solid var(--brass);
+    background:rgba(98,154,189,0.08); border-left:2px solid var(--brass);
     border-radius:0 12px 12px 0;
   }
 #stage-room-covenant .word-history.is-visible{display:block;}
@@ -1456,8 +1473,8 @@
 #stage-room-covenant .parallel-reveal{
     grid-column:1 / -1;
     max-width:820px; margin:0.6rem auto 0;
-    background:rgba(28,18,8,0.8);
-    border:1px solid rgba(166,118,61,0.22);
+    background:rgba(12,28,40,0.8);
+    border:1px solid rgba(98,154,189,0.22);
     border-radius:20px;
     padding:1.8rem 2rem;
     text-align:center;
@@ -1472,7 +1489,7 @@
     margin-bottom:1rem;
   }
 #stage-room-covenant .parallel-reveal-eyebrow::before, #stage-room-covenant .parallel-reveal-eyebrow::after{
-    content:''; flex:1; height:1px; background:rgba(166,118,61,0.3);
+    content:''; flex:1; height:1px; background:rgba(98,154,189,0.3);
   }
 #stage-room-covenant .parallel-reveal-headline{
     font-family:'Fraunces', serif; font-weight:300; font-size:1.32rem; line-height:1.38;
@@ -1499,6 +1516,17 @@
 </head>
 <body class="page-transition">
 <noscript><style>body.page-transition{opacity:1 !important;}</style></noscript>
+
+<div class="desktop-gate" role="region" aria-label="Best viewed on a desktop or laptop">
+  <div class="desktop-gate-inner">
+    <svg class="desktop-gate-icon" viewBox="0 0 48 34" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="3" width="34" height="21" rx="2"/><path d="M2 30h44M2 30l3-6h38l3 6"/></svg>
+    <p class="desktop-gate-eyebrow">A World Rediscovered</p>
+    <h1>Some worlds need a little more room.</h1>
+    <span class="desktop-gate-rule" aria-hidden="true"></span>
+    <p>A World Rediscovered is an interactive exploration designed for larger screens, where the connections, comparisons, and details can be experienced together.</p>
+    <p class="desktop-gate-cta">Visit on a desktop or laptop to explore.</p>
+  </div>
+</div>
 
 <button class="audio-toggle" id="audioToggle" type="button" aria-pressed="false" aria-label="Mute background music">
     <svg class="audio-icon audio-icon-on" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -1570,45 +1598,42 @@
     <div class="comparisons-grid">
       <div class="comparison-card-wrap" data-reveal-manual>
         <div class="comparison-card-shadow" aria-hidden="true">
-          <img src="creation_tradition_card.png" alt="" aria-hidden="true" loading="lazy">
+          <img src="creation_tradition_card.jpg" alt="" aria-hidden="true" loading="lazy">
         </div>
         <a class="comparison-card comparison-card--bg" href="#" data-goto="room-creation">
-          <img class="comparison-card-bg-img" src="creation_tradition_bg.jpg" alt="" aria-hidden="true" loading="lazy">
+          <img class="comparison-card-bg-img" src="creation_tradition_bg_v2.jpg" alt="" aria-hidden="true" loading="lazy">
           <div class="comparison-card-bg-fade" aria-hidden="true"></div>
           <div class="comparison-body">
             <span class="comparison-chip">Creation &amp; Chaos</span>
-            <h2>Ordering the World</h2>
-            <p class="comparison-subtitle">En&#363;ma Eli&scaron; &amp; Genesis 1</p>
+            <h2>En&#363;ma Eli&scaron; &amp;<br>Genesis&nbsp;1</h2>
             <span class="comparison-status">Enter <span class="arrow">&rarr;</span></span>
           </div>
         </a>
       </div>
       <div class="comparison-card-wrap" data-reveal-manual>
         <div class="comparison-card-shadow" aria-hidden="true">
-          <img src="flood_tradition_card.png" alt="" aria-hidden="true" loading="lazy">
+          <img src="flood_tradition_card.jpg" alt="" aria-hidden="true" loading="lazy">
         </div>
         <a class="comparison-card comparison-card--bg" href="#" data-goto="room-flood">
-          <img class="comparison-card-bg-img" src="flood_tradition_bg.jpg" alt="" aria-hidden="true" loading="lazy">
+          <img class="comparison-card-bg-img" src="flood_tradition_bg_v2.jpg" alt="" aria-hidden="true" loading="lazy">
           <div class="comparison-card-bg-fade" aria-hidden="true"></div>
           <div class="comparison-body">
             <span class="comparison-chip">Flood &amp; Survival</span>
-            <h2>Surviving the Flood</h2>
-            <p class="comparison-subtitle">Gilgamesh XI &amp; Genesis 6&ndash;9</p>
+            <h2>Gilgamesh XI &amp; Genesis&nbsp;6&ndash;9</h2>
             <span class="comparison-status">Enter <span class="arrow">&rarr;</span></span>
           </div>
         </a>
       </div>
       <div class="comparison-card-wrap" data-reveal-manual>
         <div class="comparison-card-shadow" aria-hidden="true">
-          <img src="legal_tradition_card.png" alt="" aria-hidden="true" loading="lazy">
+          <img src="kingship_tradition_card.jpg" alt="" aria-hidden="true" loading="lazy">
         </div>
         <a class="comparison-card comparison-card--bg" href="#" data-goto="room-covenant">
-          <img class="comparison-card-bg-img" src="legal_tradition_bg.jpg" alt="" aria-hidden="true" loading="lazy">
+          <img class="comparison-card-bg-img" src="kingship_tradition_bg.jpg" alt="" aria-hidden="true" loading="lazy">
           <div class="comparison-card-bg-fade" aria-hidden="true"></div>
           <div class="comparison-body">
-            <span class="comparison-chip">Law &amp; Justice</span>
-            <h2>Defining Justice</h2>
-            <p class="comparison-subtitle">Hammurabi &amp; Exodus 21&ndash;23</p>
+            <span class="comparison-chip">Storm &amp; Kingship</span>
+            <h2>Ugaritic Baal Traditions &amp; Psalm&nbsp;29</h2>
             <span class="comparison-status">Enter <span class="arrow">&rarr;</span></span>
           </div>
         </a>
@@ -1644,7 +1669,7 @@
 
   <svg id="r1_traceOverlay"><path id="r1_tracePath" d=""/></svg>
 
-  <img class="page-bg" src="creation_tradition_card.png" alt="" aria-hidden="true">
+  <img class="page-bg" src="creation_tradition_card.jpg" alt="" aria-hidden="true">
   <div class="page-bg-scrim" aria-hidden="true"></div>
 
   <a class="room-back" href="#" data-goto="comparisons">← Choose a Comparison</a>
@@ -1671,7 +1696,7 @@
         <div class="panel-wrap clay">
           <button type="button" class="panel clay" data-icon="tablet"
             data-title="Enūma Eliš — Tablet I" data-material="Fired clay" data-script="Akkadian, cuneiform"
-            data-findspot="Library of Ashurbanipal, Nineveh" data-translator="L.W. King, 1902" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Enuma_elish_AN1926.373.jpg" data-photo-credit="Enūma Eliš Tablet I fragment (Kish, 1924) · Ashmolean Museum, AN1926.373 · CC BY-SA 4.0 — shown for illustration" data-photo-position="20% 15%"
+            data-findspot="Library of Ashurbanipal, Nineveh" data-translator="L.W. King, 1902" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Enuma_elish_AN1926.373.jpg" data-photo-credit="Enūma Eliš tablet fragment from Kish (1924) · Ashmolean Museum, AN1926.373 · CC BY-SA 4.0 · shown for illustration (not the Nineveh copy)" data-photo-position="20% 15%"
             data-wordhistory="Akkadian tiāmtu means “sea” and is closely related to Tiamat’s name. Hebrew tehom, “the deep,” belongs to the same Semitic word family. The linguistic connection is real, though it does not by itself show that Genesis borrowed directly from Enūma Eliš."
             data-quote="&quot;When in the height heaven was not named, and the earth beneath did not yet bear a name&hellip; Their waters were mingled together, and no field was formed, no marsh was to be seen.&quot;">
             <span class="source">Enūma Eliš · Tablet I · trans. L.W. King, 1902</span>
@@ -1683,7 +1708,7 @@
         <div class="panel-wrap parchment">
           <button type="button" class="panel parchment" data-icon="scroll"
             data-title="Genesis 1:2" data-material="Ink on parchment (tradition)" data-script="Hebrew"
-            data-findspot="Masoretic textual tradition" data-translator="American Standard Version, 1901" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Leningrad_Codex_Folio_008a.jpg" data-photo-credit="Leningrad Codex, folio 8a · National Library of Russia · Public domain"
+            data-findspot-label="Textual Witness" data-findspot="Leningrad Codex (Evr. I B 19a)" data-translator="American Standard Version, 1901" data-photo="https://manuscripts.sefaria.org/leningrad-color/BIB_LENCDX_F001B.jpg" data-photo-credit="Leningrad Codex (Evr. I B 19a), fol. 1v · Photo: Bruce Zuckerman, West Semitic Research, with the Ancient Biblical Manuscript Center · Courtesy National Library of Russia · Public domain"
             data-wordhistory="Hebrew tehom, “the deep,” is linguistically related to Akkadian tiāmtu, “sea,” the word associated with Tiamat’s name. The connection points to a shared Semitic vocabulary for the primordial deep rather than proving direct literary borrowing."
             data-quote="&quot;And the earth was waste and void; and darkness was upon the face of the deep: and the Spirit of God moved upon the face of the waters.&quot;">
             <span class="source">Genesis 1:2 · ASV, 1901</span>
@@ -1704,12 +1729,12 @@
         <div class="panel-wrap clay">
           <button type="button" class="panel clay" data-icon="tablet"
             data-title="Enūma Eliš — Tablet IV" data-material="Fired clay" data-script="Akkadian, cuneiform"
-            data-findspot="Library of Ashurbanipal, Nineveh" data-translator="L.W. King, 1902" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Enuma_elish_AN1926.373.jpg" data-photo-credit="Enūma Eliš Tablet I fragment (Kish, 1924) · Ashmolean Museum, AN1926.373 · CC BY-SA 4.0 — shown for illustration" data-photo-position="75% 30%"
+            data-findspot="Library of Ashurbanipal, Nineveh" data-translator="L.W. King, 1902"
             data-notelabel="A Shared Cosmology"
-            data-wordhistory="Splitting a primordial sea in two to form sky above and waters below is a structural device Genesis shares beat for beat: scholars describe Genesis 1's solid sky-barrier as a residual echo of this exact scene, even with Tiamat's body removed from the picture."
-            data-quote="&quot;He split her like a shellfish into two parts: half of her he set up and ceiled as sky&hellip; the Great Abode, its likeness, he fixed as Esharra, which he made as the firmament.&quot;">
+            data-wordhistory="Splitting a primordial sea in two to form sky above and waters below is a structural device Genesis shares in outline: scholars describe Genesis 1's solid sky-barrier as a residual echo of this scene, even with Tiamat's body removed from the picture."
+            data-quote="&quot;He split her up like a flat fish into two halves; one half of her he stablished as a covering for heaven&hellip; And he founded E-shara, a mansion like unto it.&quot;">
             <span class="source">Enūma Eliš · Tablet IV · trans. L.W. King, 1902</span>
-            <p>"He split her like a shellfish into two parts: half of her he set up and ceiled as sky&hellip; the Great Abode, its likeness, he fixed as Esharra, which he made as the <span class="trace-word" data-trace="2">firmament</span>."</p>
+            <p>"He split her up like a flat fish into two halves; one half of her he stablished as a covering for <span class="trace-word" data-trace="2">heaven</span>&hellip; And he founded E-shara, a mansion like unto it."</p>
             <span class="examine">Look closer <span class="arrow">→</span></span>
           </button>
         </div>
@@ -1717,7 +1742,7 @@
         <div class="panel-wrap parchment">
           <button type="button" class="panel parchment" data-icon="scroll"
             data-title="Genesis 1:6–7" data-material="Ink on parchment (tradition)" data-script="Hebrew"
-            data-findspot="Masoretic textual tradition" data-translator="American Standard Version, 1901" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Leningrad_Codex_Folio_009a.jpg" data-photo-credit="Leningrad Codex, folio 9a · National Library of Russia · Public domain"
+            data-findspot-label="Textual Witness" data-findspot="Leningrad Codex (Evr. I B 19a)" data-translator="American Standard Version, 1901" data-photo="https://manuscripts.sefaria.org/leningrad-color/BIB_LENCDX_F001B.jpg" data-photo-credit="Leningrad Codex (Evr. I B 19a), fol. 1v · Photo: Bruce Zuckerman, West Semitic Research, with the Ancient Biblical Manuscript Center · Courtesy National Library of Russia · Public domain"
             data-notelabel="A Shared Cosmology"
             data-wordhistory="Genesis's sky-barrier holding back the waters above matches Enūma Eliš's cosmology closely enough that scholars describe it as a residual echo of Marduk's scene — the same structure, with the mythic combat stripped away."
             data-quote="&quot;And God said, Let there be a firmament in the midst of the waters, and let it divide the waters from the waters&hellip; and it was so.&quot;">
@@ -1739,7 +1764,7 @@
         <div class="panel-wrap clay">
           <button type="button" class="panel clay" data-icon="tablet"
             data-title="Enūma Eliš — Tablet V" data-material="Fired clay" data-script="Akkadian, cuneiform"
-            data-findspot="Library of Ashurbanipal, Nineveh" data-translator="L.W. King, 1902" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Enuma_elish_AN1926.373.jpg" data-photo-credit="Enūma Eliš Tablet I fragment (Kish, 1924) · Ashmolean Museum, AN1926.373 · CC BY-SA 4.0 — shown for illustration" data-photo-position="40% 80%"
+            data-findspot="Library of Ashurbanipal, Nineveh" data-translator="L.W. King, 1902"
             data-notelabel="A Shared Function"
             data-wordhistory="Enūma Eliš V assigns the stars and moon a calendrical role, using them to organize months, days, and the year. Genesis 1 gives the heavenly lights a similar function through signs, appointed times, days, and years. The details differ, but both place the lights of the sky within the ordering of time."
             data-quote="&quot;He made the stations for the great gods; the stars, their images&hellip; he fixed. He ordained the year and into sections he divided it; for the twelve months he fixed three stars.&quot;">
@@ -1752,7 +1777,7 @@
         <div class="panel-wrap parchment">
           <button type="button" class="panel parchment" data-icon="scroll"
             data-title="Genesis 1:14" data-material="Ink on parchment (tradition)" data-script="Hebrew"
-            data-findspot="Masoretic textual tradition" data-translator="American Standard Version, 1901" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Leningrad_Codex_Folio_010a.jpg" data-photo-credit="Leningrad Codex, folio 10a · National Library of Russia · Public domain"
+            data-findspot-label="Textual Witness" data-findspot="Leningrad Codex (Evr. I B 19a)" data-translator="American Standard Version, 1901" data-photo="https://manuscripts.sefaria.org/leningrad-color/BIB_LENCDX_F001B.jpg" data-photo-credit="Leningrad Codex (Evr. I B 19a), fol. 1v · Photo: Bruce Zuckerman, West Semitic Research, with the Ancient Biblical Manuscript Center · Courtesy National Library of Russia · Public domain"
             data-notelabel="A Shared Function"
             data-wordhistory="Genesis 1:14 describes the heavenly lights partly by the work they perform: separating day from night and marking signs, appointed times, days, and years. Enūma Eliš V likewise organizes the stars and moon around the calendar, assigning them stations that mark months and days."
             data-quote="&quot;Let there be lights in the firmament of heaven to divide the day from the night; and let them be for signs, and for seasons, and for days and years.&quot;">
@@ -1774,7 +1799,7 @@
         <div class="panel-wrap clay">
           <button type="button" class="panel clay" data-icon="tablet"
             data-title="Enūma Eliš — Tablet VI" data-material="Fired clay" data-script="Akkadian, cuneiform"
-            data-findspot="Library of Ashurbanipal, Nineveh" data-translator="L.W. King, 1902" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Enuma_elish_AN1926.373.jpg" data-photo-credit="Enūma Eliš Tablet I fragment (Kish, 1924) · Ashmolean Museum, AN1926.373 · CC BY-SA 4.0 — shown for illustration" data-photo-position="85% 75%"
+            data-findspot="Library of Ashurbanipal, Nineveh" data-translator="L.W. King, 1902"
             data-notelabel="A Shared Question"
             data-wordhistory="Both accounts eventually turn from ordering the cosmos to humanity’s place within it. Enūma Eliš creates humans to take on the gods’ labor so that the gods may be at rest. Genesis also gives humanity a role within the ordered world, but describes that role through divine image, blessing, and rule."
             data-quote="&quot;Blood I will mass and cause bones to be. I will establish a savage, man shall be his name&hellip; Verily, savage-man I will create. He shall be charged with the service of the gods, that they might be at ease.&quot;">
@@ -1787,7 +1812,7 @@
         <div class="panel-wrap parchment">
           <button type="button" class="panel parchment" data-icon="scroll"
             data-title="Genesis 1:27–28" data-material="Ink on parchment (tradition)" data-script="Hebrew"
-            data-findspot="Masoretic textual tradition" data-translator="American Standard Version, 1901" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Leningrad_Codex_Folio_011a.jpg" data-photo-credit="Leningrad Codex, folio 11a · National Library of Russia · Public domain"
+            data-findspot-label="Textual Witness" data-findspot="Leningrad Codex (Evr. I B 19a)" data-translator="American Standard Version, 1901" data-photo="https://manuscripts.sefaria.org/leningrad-color/BIB_LENCDX_F002A.jpg" data-photo-credit="Leningrad Codex (Evr. I B 19a), fol. 2r · Photo: Bruce Zuckerman, West Semitic Research, with the Ancient Biblical Manuscript Center · Courtesy National Library of Russia · Public domain"
             data-notelabel="A Shared Question"
             data-wordhistory="Both texts ask what humanity is for within the world that has been ordered. Genesis answers with divine image, blessing, fruitfulness, and rule over creation. Enūma Eliš gives a very different answer: humans are created to assume the gods’ labor and free them from toil."
             data-quote="&quot;And God created man in his own image&hellip; and God blessed them: and God said unto them, Be fruitful, and multiply, and replenish the earth, and subdue it.&quot;">
@@ -1809,7 +1834,7 @@
         <div class="panel-wrap clay">
           <button type="button" class="panel clay" data-icon="tablet"
             data-title="Enūma Eliš — Tablet VI–VII" data-material="Fired clay" data-script="Akkadian, cuneiform"
-            data-findspot="Library of Ashurbanipal, Nineveh" data-translator="Editorial paraphrase — King's 1902 text is fragmentary at this passage" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Enuma_elish_AN1926.373.jpg" data-photo-credit="Enūma Eliš Tablet I fragment (Kish, 1924) · Ashmolean Museum, AN1926.373 · CC BY-SA 4.0 — shown for illustration" data-photo-position="50% 50%"
+            data-findspot="Library of Ashurbanipal, Nineveh" data-translator="Editorial paraphrase — King's 1902 text is fragmentary at this passage"
             data-notelabel="A Shared Motif"
             data-wordhistory="Enūma Eliš connects the ordering of the world with divine rest. Humanity is created to take up the gods’ labor, and the gods later build a sanctuary where they may dwell and repose. Genesis also brings its creation account to divine rest, but gives that rest a different meaning."
             data-quote="Humanity was created to take on the gods’ labor, that the gods might rest.">
@@ -1822,7 +1847,7 @@
         <div class="panel-wrap parchment">
           <button type="button" class="panel parchment" data-icon="scroll"
             data-title="Genesis 2:2–3" data-material="Ink on parchment (tradition)" data-script="Hebrew"
-            data-findspot="Masoretic textual tradition" data-translator="American Standard Version, 1901" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Leningrad_Codex_Folio_013a.jpg" data-photo-credit="Leningrad Codex, folio 13a · National Library of Russia · Public domain"
+            data-findspot-label="Textual Witness" data-findspot="Leningrad Codex (Evr. I B 19a)" data-translator="American Standard Version, 1901" data-photo="https://manuscripts.sefaria.org/leningrad-color/BIB_LENCDX_F002A.jpg" data-photo-credit="Leningrad Codex (Evr. I B 19a), fol. 2r · Photo: Bruce Zuckerman, West Semitic Research, with the Ancient Biblical Manuscript Center · Courtesy National Library of Russia · Public domain"
             data-notelabel="A Shared Motif"
             data-wordhistory="Genesis brings the creation week to its climax with God resting on the seventh day and blessing it. Divine rest also appears in Enūma Eliš, where humans assume the gods’ labor and a sanctuary becomes a place of repose. Some scholars see this wider ancient temple context behind Genesis’s language of rest."
             data-quote="&quot;And on the seventh day God finished his work which he had made; and he rested&hellip; and God blessed the seventh day, and hallowed it.&quot;">
@@ -1840,7 +1865,7 @@
     </section>
 
     <div class="room-exit-nav">
-      <a class="room-exit-btn" href="#" data-goto="room-covenant">&larr; Law &amp; Justice</a>
+      <a class="room-exit-btn" href="#" data-goto="room-covenant"><span class="arrow arrow--back">&larr;</span> Storm &amp; Kingship</a>
       <a class="room-exit-btn room-exit-btn--quiet" href="#" data-coming-soon aria-disabled="true">Next Exhibit</a>
       <a class="room-exit-btn" href="#" data-goto="room-flood">Flood &amp; Survival <span class="arrow">&rarr;</span></a>
     </div>
@@ -1861,7 +1886,7 @@
       <table class="spec-table">
         <tr><th>Material</th><td id="r1_modalMaterial"></td></tr>
         <tr><th>Script</th><td id="r1_modalScript"></td></tr>
-        <tr><th>Findspot</th><td id="r1_modalFindspot"></td></tr>
+        <tr><th id="r1_modalFindspotLabel">Findspot</th><td id="r1_modalFindspot"></td></tr>
         <tr><th>Translator</th><td id="r1_modalTranslator"></td></tr>
       </table>
       <p class="photo-credit" id="r1_modalPhotoCredit"></p>
@@ -1896,12 +1921,12 @@
 
   <svg id="r2_traceOverlay"><path id="r2_tracePath" d=""/></svg>
 
-  <img class="page-bg" src="flood_tradition_card.png" alt="" aria-hidden="true">
+  <img class="page-bg" src="flood_tradition_card.jpg" alt="" aria-hidden="true">
 
   <a class="room-back" href="#" data-goto="comparisons">← Choose a Comparison</a>
 
   <div class="r2_intro" id="r2_intro">
-    <div class="eyebrow">The Parallel Exhibit — The Flood</div>
+    <div class="eyebrow">The Parallel Exhibit — Flood &amp; Survival</div>
     <h1>Gilgamesh XI<br><em>&amp;</em><br>Genesis 6–9</h1>
     <div class="scroll-cue">Scroll ↓</div>
   </div>
@@ -1909,7 +1934,7 @@
   <nav class="stratum-rail" aria-label="Jump to stratum">
     <button data-target="1" aria-label="Stratum I — The Sealing">I</button>
     <button data-target="2" aria-label="Stratum II — The Boarding">II</button>
-    <button data-target="3" aria-label="Stratum III — The Storm">III</button>
+    <button data-target="3" aria-label="Stratum III — The Mountains">III</button>
     <button data-target="4" aria-label="Stratum IV — The Dove">IV</button>
     <button data-target="5" aria-label="Stratum V — The Offering">V</button>
   </nav>
@@ -1922,8 +1947,8 @@
         <div class="panel-wrap clay">
           <button type="button" class="panel clay" data-icon="tablet"
             data-title="Gilgamesh XI — The Flood Tablet" data-material="Fired clay" data-script="Akkadian, cuneiform"
-            data-findspot="Library of Ashurbanipal, Nineveh" data-translator="R. Campbell Thompson, 1928" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/British_Museum_Flood_Tablet_1.jpg" data-photo-credit="The Flood Tablet, K.3375 · British Museum · Photo: Mike Peel · CC BY-SA 4.0" data-photo-position="20% 15%"
-            data-wordhistory="Akkadian kupru — &quot;bitumen, pitch&quot; — is the term standard Assyriology lexicons cross-reference directly to the Hebrew word used for Noah's pitch."
+            data-findspot="Kouyunjik, Nineveh" data-translator="R. Campbell Thompson, 1928" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/British_Museum_Flood_Tablet_1.jpg" data-photo-credit="The Flood Tablet, K.3375 · British Museum · Photo: Mike Peel · CC BY-SA 4.0" data-photo-position="20% 15%"
+            data-wordhistory="Akkadian kupru means “bitumen” or “pitch,” the material used to waterproof Utnapishtim’s vessel. Hebrew kōper, the rare word for “pitch” in Genesis 6:14, is closely related and is often understood as a loanword from Akkadian. The connection is especially striking because both words appear in the same flood-building context."
             data-quote="&quot;&hellip;the hull with six shar of bitumen smear&rsquo;d I, and three shar of pitch did I smear on the inside.&quot;">
             <span class="source">Gilgamesh XI · Flood Tablet, K.3375 · trans. R. Campbell Thompson, 1928</span>
             <p>"&hellip;the hull with six shar of bitumen smear'd I, and three shar of <span class="trace-word" data-trace="1">pitch</span> did I smear on the inside."</p>
@@ -1934,8 +1959,8 @@
         <div class="panel-wrap parchment">
           <button type="button" class="panel parchment" data-icon="scroll"
             data-title="Genesis 6:14" data-material="Ink on parchment (tradition)" data-script="Hebrew"
-            data-findspot="Masoretic textual tradition" data-translator="American Standard Version, 1901" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Leningrad_Codex_Folio_025a.jpg" data-photo-credit="Leningrad Codex, folio 25a · National Library of Russia · Public domain"
-            data-wordhistory="Hebrew kopher (&quot;pitch&quot;) is cross-referenced in standard lexicons (BDB, Strong's) to Akkadian kupru — quite possibly the very same word, borrowed, used to seal both vessels."
+            data-findspot-label="Textual Witness" data-findspot="Leningrad Codex (Evr. I B 19a)" data-translator="American Standard Version, 1901" data-photo="https://manuscripts.sefaria.org/leningrad-color/BIB_LENCDX_F004A.jpg" data-photo-credit="Leningrad Codex (Evr. I B 19a), fol. 4r · Photo: Bruce Zuckerman, West Semitic Research, with the Ancient Biblical Manuscript Center · Courtesy National Library of Russia · Public domain"
+            data-wordhistory="Hebrew kōper, “pitch,” occurs only here in the Bible with this meaning. It is closely related to Akkadian kupru, the bitumen used to seal Utnapishtim’s vessel, and many scholars regard the Hebrew term as an Akkadian loanword. The shared technical vocabulary strengthens the connection between the two flood traditions."
             data-quote="&quot;Make thee an ark of gopher wood; rooms shalt thou make in the ark, and shalt pitch it within and without with pitch.&quot;">
             <span class="source">Genesis 6:14 · ASV, 1901</span>
             <p>"Make thee an ark of gopher wood; rooms shalt thou make in the ark, and shalt pitch it within and without with <span class="trace-word" data-trace="1">pitch</span>."</p>
@@ -1944,8 +1969,8 @@
         </div>
         <div class="parallel-reveal">
           <div class="parallel-reveal-eyebrow"><span>What This Parallel Reveals</span></div>
-          <p class="parallel-reveal-headline">Both texts seal their vessel with the same word for the substance that seals it.</p>
-          <p class="parallel-reveal-sub">Hebrew kopher and Akkadian kupru are close enough that standard lexicons cross-reference them directly — the same term for pitch, doing the same job.</p>
+          <p class="parallel-reveal-headline">Both flood vessels are waterproofed with pitch, and even the words for the material are closely related.</p>
+          <p class="parallel-reveal-sub">That unusually specific technical overlap places Genesis within the wider world of Mesopotamian flood tradition.</p>
         </div>
       </div>
     </section>
@@ -1955,9 +1980,9 @@
         <div class="panel-wrap clay">
           <button type="button" class="panel clay" data-icon="tablet"
             data-title="Gilgamesh XI — The Flood Tablet" data-material="Fired clay" data-script="Akkadian, cuneiform"
-            data-findspot="Library of Ashurbanipal, Nineveh" data-translator="R. Campbell Thompson, 1928" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/British_Museum_Flood_Tablet_1.jpg" data-photo-credit="The Flood Tablet, K.3375 · British Museum · Photo: Mike Peel · CC BY-SA 4.0" data-photo-position="75% 30%"
+            data-findspot="Kouyunjik, Nineveh" data-translator="R. Campbell Thompson, 1928" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/British_Museum_Flood_Tablet_1.jpg" data-photo-credit="The Flood Tablet, K.3375 · British Museum · Photo: Mike Peel · CC BY-SA 4.0" data-photo-position="75% 30%"
             data-notelabel="A Shared Motif"
-            data-wordhistory="Both texts frame survival the same way: not one man alone, but a whole living system — family, livestock, every creature — carried through together. Comparative flood-myth scholarship treats this &quot;preserved microcosm&quot; as one of the tradition's most consistent shared beats."
+            data-wordhistory="Utnapishtim does not survive alone. His vessel carries his family and relations, animals, craftsmen, and the “seed of all living creatures.” Genesis likewise preserves a household together with representatives of animal life. In both stories, the vessel carries a small surviving world through the catastrophe."
             data-quote="&quot;Into the ship I embark&rsquo;d all my kindred and family, cattle and beasts of the field and all handicraftsmen embarking.&quot;">
             <span class="source">Gilgamesh XI · Flood Tablet, K.3375 · trans. R. Campbell Thompson, 1928</span>
             <p>"Into the ship I embark'd all my kindred and family, <span class="trace-word" data-trace="2">cattle</span> and beasts of the field and all handicraftsmen embarking."</p>
@@ -1968,9 +1993,9 @@
         <div class="panel-wrap parchment">
           <button type="button" class="panel parchment" data-icon="scroll"
             data-title="Genesis 6:20" data-material="Ink on parchment (tradition)" data-script="Hebrew"
-            data-findspot="Masoretic textual tradition" data-translator="American Standard Version, 1901" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Leningrad_Codex_Folio_026a.jpg" data-photo-credit="Leningrad Codex, folio 26a · National Library of Russia · Public domain"
+            data-findspot-label="Textual Witness" data-findspot="Leningrad Codex (Evr. I B 19a)" data-translator="American Standard Version, 1901" data-photo="https://manuscripts.sefaria.org/leningrad-color/BIB_LENCDX_F004B.jpg" data-photo-credit="Leningrad Codex (Evr. I B 19a), fol. 4v · Photo: Bruce Zuckerman, West Semitic Research, with the Ancient Biblical Manuscript Center · Courtesy National Library of Russia · Public domain"
             data-notelabel="A Shared Motif"
-            data-wordhistory="Preserving a working microcosm of life — not just the hero, but &quot;every living thing... to keep them alive&quot; — is a beat this story shares with every major Mesopotamian flood account that survives."
+            data-wordhistory="Genesis preserves Noah’s household and representatives of animal life “to keep them alive.” Mesopotamian flood traditions do something similar: Utnapishtim’s vessel carries family, animals, craftsmen, and the “seed of all living creatures.” Survival means preserving life beyond the flood, not simply rescuing one individual."
             data-quote="&quot;Of the birds after their kind, and of the cattle after their kind, of every creeping thing of the ground after its kind, two of every sort shall come unto thee, to keep them alive.&quot;">
             <span class="source">Genesis 6:20 · ASV, 1901</span>
             <p>"Of the birds after their kind, and of the <span class="trace-word" data-trace="2">cattle</span> after their kind, of every creeping thing of the ground after its kind, two of every sort shall come unto thee, to keep them alive."</p>
@@ -1979,8 +2004,8 @@
         </div>
         <div class="parallel-reveal">
           <div class="parallel-reveal-eyebrow"><span>What This Parallel Reveals</span></div>
-          <p class="parallel-reveal-headline">Both texts save more than one man — a whole living system boards together.</p>
-          <p class="parallel-reveal-sub">Family, livestock, every kind of creature: scholars treat this ‘preserved microcosm’ as one of the flood tradition’s most consistent shared beats.</p>
+          <p class="parallel-reveal-headline">Both vessels carry more than a single survivor; they preserve a small world of life through the flood.</p>
+          <p class="parallel-reveal-sub">The passenger lists differ, but in each story survival means carrying enough of the old world forward for life to continue afterward.</p>
         </div>
       </div>
     </section>
@@ -1990,32 +2015,32 @@
         <div class="panel-wrap clay">
           <button type="button" class="panel clay" data-icon="tablet"
             data-title="Gilgamesh XI — The Flood Tablet" data-material="Fired clay" data-script="Akkadian, cuneiform"
-            data-findspot="Library of Ashurbanipal, Nineveh" data-translator="R. Campbell Thompson, 1928" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/British_Museum_Flood_Tablet_1.jpg" data-photo-credit="The Flood Tablet, K.3375 · British Museum · Photo: Mike Peel · CC BY-SA 4.0" data-photo-position="40% 80%"
-            data-notelabel="A Shared Convention"
-            data-wordhistory="Every surviving Mesopotamian flood account — the Sumerian version, Atrahasis, and this one — times its storm to seven days and nights. Genesis's own chronology opens the same way: a seven-day warning before the rain begins (7:4)."
-            data-quote="&quot;Six days, a se&rsquo;nnight the hurricane, deluge, and tempest continued sweeping the land: when the seventh day came, were quell&rsquo;d the warfare.&quot;">
-            <span class="source">Gilgamesh XI · Flood Tablet, K.3375 · trans. R. Campbell Thompson, 1928</span>
-            <p>"Six <span class="trace-word" data-trace="3">days</span>, a se'nnight the hurricane, deluge, and tempest continued sweeping the land: when the seventh day came, were quell'd the warfare."</p>
+            data-findspot="Kouyunjik, Nineveh" data-translator="R. Campbell Thompson, 1928" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/British_Museum_Flood_Tablet_1.jpg" data-photo-credit="The Flood Tablet, K.3375 · British Museum · Photo: Mike Peel · CC BY-SA 4.0" data-photo-position="40% 80%"
+            data-notelabel="A Shared Motif"
+            data-wordhistory="After the storm subsides, Utnapishtim’s vessel comes to rest on Mount Nisir. Genesis likewise has Noah’s ark come to rest on the mountains of Ararat. The locations differ, but the mountain landing occupies the same turning point in both stories."
+            data-quote="&quot;&hellip;the Ark on the Mountain of Nisir grounded; the Mountain of Nisir held fast, nor gave lease to her shifting.&quot;">
+            <span class="source">Gilgamesh XI · The Flood Tablet · trans. R. Campbell Thompson, 1928</span>
+            <p>"&hellip;the Ark on the <span class="trace-word" data-trace="3">Mountain of Nisir</span> grounded; the Mountain of Nisir held fast, nor gave lease to her shifting."</p>
             <span class="examine">Look closer <span class="arrow">→</span></span>
           </button>
         </div>
-        <div class="stratum-tag">Stratum III — The Storm</div>
+        <div class="stratum-tag">Stratum III — The Mountains</div>
         <div class="panel-wrap parchment">
           <button type="button" class="panel parchment" data-icon="scroll"
-            data-title="Genesis 7:17" data-material="Ink on parchment (tradition)" data-script="Hebrew"
-            data-findspot="Masoretic textual tradition" data-translator="American Standard Version, 1901" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Leningrad_Codex_Folio_027a.jpg" data-photo-credit="Leningrad Codex, folio 27a · National Library of Russia · Public domain"
-            data-notelabel="A Shared Convention"
-            data-wordhistory="Genesis's flood is timed in sevens from its very first verse (7:4) — the same convention structuring every Mesopotamian flood account that survives, including this one."
-            data-quote="&quot;And the flood was forty days upon the earth; and the waters increased, and bare up the ark, and it was lifted up above the earth.&quot;">
-            <span class="source">Genesis 7:17 · ASV, 1901</span>
-            <p>"And the flood was forty <span class="trace-word" data-trace="3">days</span> upon the earth; and the waters increased, and bare up the ark, and it was lifted up above the earth."</p>
+            data-title="Genesis 8:4" data-material="Ink on parchment (tradition)" data-script="Hebrew"
+            data-findspot-label="Textual Witness" data-findspot="Leningrad Codex (Evr. I B 19a)" data-translator="American Standard Version, 1901" data-photo="https://manuscripts.sefaria.org/leningrad-color/BIB_LENCDX_F005A.jpg" data-photo-credit="Leningrad Codex (Evr. I B 19a), fol. 5r · Photo: Bruce Zuckerman, West Semitic Research, with the Ancient Biblical Manuscript Center · Courtesy National Library of Russia · Public domain"
+            data-notelabel="A Shared Motif"
+            data-wordhistory="Noah’s ark comes to rest on the mountains of Ararat as the waters begin to recede. Gilgamesh XI places Utnapishtim’s vessel on Mount Nisir. In both stories, the mountain marks the transition from surviving the flood to discovering whether the world is habitable again."
+            data-quote="&quot;And the ark rested in the seventh month, on the seventeenth day of the month, upon the mountains of Ararat.&quot;">
+            <span class="source">Genesis 8:4 · ASV, 1901</span>
+            <p>"And the ark rested in the seventh month, on the seventeenth day of the month, upon the <span class="trace-word" data-trace="3">mountains of Ararat</span>."</p>
             <span class="examine">Look closer <span class="arrow">→</span></span>
           </button>
         </div>
         <div class="parallel-reveal">
           <div class="parallel-reveal-eyebrow"><span>What This Parallel Reveals</span></div>
-          <p class="parallel-reveal-headline">Both floods run on the same clock: trouble measured in sevens.</p>
-          <p class="parallel-reveal-sub">Every surviving Mesopotamian flood account times its storm to seven days and nights — and Genesis opens its own countdown the same way.</p>
+          <p class="parallel-reveal-headline">Both flood vessels end their drifting on a mountain.</p>
+          <p class="parallel-reveal-sub">The geography changes, but the mountain landing marks the same transition: the catastrophe has passed, and the survivor is about to reenter the world.</p>
         </div>
       </div>
     </section>
@@ -2025,9 +2050,9 @@
         <div class="panel-wrap clay">
           <button type="button" class="panel clay" data-icon="tablet"
             data-title="Gilgamesh XI — The Flood Tablet" data-material="Fired clay" data-script="Akkadian, cuneiform"
-            data-findspot="Library of Ashurbanipal, Nineveh" data-translator="R. Campbell Thompson, 1928" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/British_Museum_Flood_Tablet_1.jpg" data-photo-credit="The Flood Tablet, K.3375 · British Museum · Photo: Mike Peel · CC BY-SA 4.0" data-photo-position="85% 75%"
+            data-findspot="Kouyunjik, Nineveh" data-translator="R. Campbell Thompson, 1928" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/British_Museum_Flood_Tablet_1.jpg" data-photo-credit="The Flood Tablet, K.3375 · British Museum · Photo: Mike Peel · CC BY-SA 4.0" data-photo-position="85% 75%"
             data-notelabel="A Shared Motif"
-            data-wordhistory="Testing the flood's end by releasing a bird is itself the shared device — this scene, or one very like it, appears across the Mesopotamian flood tradition, Genesis included."
+            data-wordhistory="Utnapishtim releases a dove, a swallow, and finally a raven to discover whether dry land has returned. Genesis uses a similar bird test after the flood. The sequence differs, but both survivors rely on released birds to learn whether the world outside the vessel is habitable again."
             data-quote="&quot;&hellip;the Ark on the Mountain of Nisir grounded&hellip; I put forth a dove, and released her; to and fro went the dove, and return&rsquo;d, for a resting-place was not.&quot;">
             <span class="source">Gilgamesh XI · Flood Tablet, K.3375 · trans. R. Campbell Thompson, 1928</span>
             <p>"&hellip;the Ark on the Mountain of Nisir grounded&hellip; I put forth a <span class="trace-word" data-trace="4">dove</span>, and released her; to and fro went the dove, and return'd, for a resting-place was not."</p>
@@ -2038,9 +2063,9 @@
         <div class="panel-wrap parchment">
           <button type="button" class="panel parchment" data-icon="scroll"
             data-title="Genesis 8:8–9" data-material="Ink on parchment (tradition)" data-script="Hebrew"
-            data-findspot="Masoretic textual tradition" data-translator="American Standard Version, 1901" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Leningrad_Codex_Folio_028a.jpg" data-photo-credit="Leningrad Codex, folio 28a · National Library of Russia · Public domain"
+            data-findspot-label="Textual Witness" data-findspot="Leningrad Codex (Evr. I B 19a)" data-translator="American Standard Version, 1901" data-photo="https://manuscripts.sefaria.org/leningrad-color/BIB_LENCDX_F005A.jpg" data-photo-credit="Leningrad Codex (Evr. I B 19a), fol. 5r · Photo: Bruce Zuckerman, West Semitic Research, with the Ancient Biblical Manuscript Center · Courtesy National Library of Russia · Public domain"
             data-notelabel="A Shared Motif"
-            data-wordhistory="Sending a bird out to test whether the waters have receded is a device Genesis shares with Gilgamesh and the wider Mesopotamian flood tradition — a recurring way ancient audiences pictured a hero waiting for dry land."
+            data-wordhistory="Noah sends out a raven and then repeatedly releases a dove to test whether the waters have receded. Gilgamesh XI preserves the same basic device with a dove, swallow, and raven. The details differ, but the birds serve the same narrative purpose."
             data-quote="&quot;And he sent forth a dove from him, to see if the waters were abated from off the face of the ground: but the dove found no rest for the sole of her foot, and she returned unto him into the ark.&quot;">
             <span class="source">Genesis 8:8–9 · ASV, 1901</span>
             <p>"And he sent forth a <span class="trace-word" data-trace="4">dove</span> from him, to see if the waters were abated from off the face of the ground: but the dove found no rest for the sole of her foot, and she returned unto him into the ark."</p>
@@ -2049,8 +2074,8 @@
         </div>
         <div class="parallel-reveal">
           <div class="parallel-reveal-eyebrow"><span>What This Parallel Reveals</span></div>
-          <p class="parallel-reveal-headline">Both heroes test the flood’s end the same way: sending a bird out to look for land.</p>
-          <p class="parallel-reveal-sub">The device itself is the parallel — this scene, or one very like it, recurs across the Mesopotamian flood tradition, Genesis included.</p>
+          <p class="parallel-reveal-headline">Both stories send out a dove to test whether the flood has receded.</p>
+          <p class="parallel-reveal-sub">The larger bird sequences differ, but each uses the same simple test: let a bird leave the vessel and see whether it finds a place to land.</p>
         </div>
       </div>
     </section>
@@ -2060,9 +2085,9 @@
         <div class="panel-wrap clay">
           <button type="button" class="panel clay" data-icon="tablet"
             data-title="Gilgamesh XI — The Flood Tablet" data-material="Fired clay" data-script="Akkadian, cuneiform"
-            data-findspot="Library of Ashurbanipal, Nineveh" data-translator="R. Campbell Thompson, 1928" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/British_Museum_Flood_Tablet_1.jpg" data-photo-credit="The Flood Tablet, K.3375 · British Museum · Photo: Mike Peel · CC BY-SA 4.0" data-photo-position="50% 50%"
+            data-findspot="Kouyunjik, Nineveh" data-translator="R. Campbell Thompson, 1928" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/British_Museum_Flood_Tablet_1.jpg" data-photo-credit="The Flood Tablet, K.3375 · British Museum · Photo: Mike Peel · CC BY-SA 4.0" data-photo-position="50% 50%"
             data-notelabel="A Telling Contrast"
-            data-wordhistory="&quot;Like flies&quot; — the gods are hungry, since the flood had cut off their supply of sacrifices. Genesis keeps the sweet savor of this same scene, but drops that image of divine hunger entirely."
+            data-wordhistory="Both stories end the flood with sacrifice, and both describe its pleasing aroma reaching the divine. Gilgamesh has the gods gather “like flies” around the offering, an image inherited from a Mesopotamian tradition in which the gods depend on human provision. Genesis keeps the pleasing aroma but removes that picture of divine need."
             data-quote="&quot;&hellip;an off&rsquo;ring sacrificed, and a libation I pour&rsquo;d on the peak of the mountain&hellip; the gods smelt the savour, the gods the sweet savour smelt; (aye,) the gods did assemble like flies o&rsquo;er him making the off&rsquo;ring.&quot;">
             <span class="source">Gilgamesh XI · Flood Tablet, K.3375 · trans. R. Campbell Thompson, 1928</span>
             <p>"&hellip;an off'ring sacrificed, and a libation I pour'd on the peak of the mountain&hellip; the gods smelt the <span class="trace-word" data-trace="5">savour</span>, the gods the sweet savour smelt; (aye,) the gods did assemble like flies o'er him making the off'ring."</p>
@@ -2073,9 +2098,9 @@
         <div class="panel-wrap parchment">
           <button type="button" class="panel parchment" data-icon="scroll"
             data-title="Genesis 8:20–21" data-material="Ink on parchment (tradition)" data-script="Hebrew"
-            data-findspot="Masoretic textual tradition" data-translator="American Standard Version, 1901" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Leningrad_Codex_Folio_029a.jpg" data-photo-credit="Leningrad Codex, folio 29a · National Library of Russia · Public domain"
+            data-findspot-label="Textual Witness" data-findspot="Leningrad Codex (Evr. I B 19a)" data-translator="American Standard Version, 1901" data-photo="https://manuscripts.sefaria.org/leningrad-color/BIB_LENCDX_F005A.jpg" data-photo-credit="Leningrad Codex (Evr. I B 19a), fol. 5r · Photo: Bruce Zuckerman, West Semitic Research, with the Ancient Biblical Manuscript Center · Courtesy National Library of Russia · Public domain"
             data-notelabel="A Telling Contrast"
-            data-wordhistory="Gilgamesh's version of this scene has the gods gather &quot;like flies&quot; over the sacrifice, hungry. Genesis keeps the sweet savor but drops the hunger — a restraint toward its own deity that commentators often point to."
+            data-wordhistory="Genesis preserves the same post-flood sequence: the survivor offers sacrifice, and God receives its pleasing aroma. But where Gilgamesh pictures the gods crowding around the offering “like flies,” Genesis gives no hint that God needs the sacrifice for sustenance. Instead, the scene leads into God’s resolve concerning the future of the earth."
             data-quote="&quot;And Noah builded an altar unto Jehovah&hellip; and offered burnt-offerings on the altar. And Jehovah smelled the sweet savor.&quot;">
             <span class="source">Genesis 8:20–21 · ASV, 1901</span>
             <p>"And Noah builded an altar unto Jehovah&hellip; and offered burnt-offerings on the altar. And Jehovah smelled the sweet <span class="trace-word" data-trace="5">savor</span>."</p>
@@ -2084,16 +2109,16 @@
         </div>
         <div class="parallel-reveal">
           <div class="parallel-reveal-eyebrow"><span>What This Parallel Reveals</span></div>
-          <p class="parallel-reveal-headline">Both survivors step off the boat and do the same thing first: burn an offering the gods can smell.</p>
-          <p class="parallel-reveal-sub">Gilgamesh has the gods swarm the sacrifice ‘like flies,’ starved without it; Genesis keeps the sweet savor but quietly drops the hunger.</p>
+          <p class="parallel-reveal-headline">Both flood stories end with sacrifice, and both describe its pleasing aroma reaching the divine.</p>
+          <p class="parallel-reveal-sub">But Gilgamesh pictures the gods gathering eagerly around the offering, while Genesis shifts the focus to God’s response and the future of the world.</p>
         </div>
       </div>
     </section>
 
     <div class="room-exit-nav">
-      <a class="room-exit-btn" href="#" data-goto="room-creation">&larr; Creation &amp; Chaos</a>
+      <a class="room-exit-btn" href="#" data-goto="room-creation"><span class="arrow arrow--back">&larr;</span> Creation &amp; Chaos</a>
       <a class="room-exit-btn room-exit-btn--quiet" href="#" data-coming-soon aria-disabled="true">Next Exhibit</a>
-      <a class="room-exit-btn" href="#" data-goto="room-covenant">Law &amp; Justice <span class="arrow">&rarr;</span></a>
+      <a class="room-exit-btn" href="#" data-goto="room-covenant">Storm &amp; Kingship <span class="arrow">&rarr;</span></a>
     </div>
   </div>
 
@@ -2112,7 +2137,7 @@
       <table class="spec-table">
         <tr><th>Material</th><td id="r2_modalMaterial"></td></tr>
         <tr><th>Script</th><td id="r2_modalScript"></td></tr>
-        <tr><th>Findspot</th><td id="r2_modalFindspot"></td></tr>
+        <tr><th id="r2_modalFindspotLabel">Findspot</th><td id="r2_modalFindspot"></td></tr>
         <tr><th>Translator</th><td id="r2_modalTranslator"></td></tr>
       </table>
       <p class="photo-credit" id="r2_modalPhotoCredit"></p>
@@ -2147,22 +2172,23 @@
 
   <svg id="r3_traceOverlay"><path id="r3_tracePath" d=""/></svg>
 
-  <img class="page-bg" src="legal_tradition_card.png" alt="" aria-hidden="true">
+  <img class="page-bg" src="kingship_tradition_card.jpg" alt="" aria-hidden="true">
+  <div class="page-bg-scrim" aria-hidden="true"></div>
 
   <a class="room-back" href="#" data-goto="comparisons">← Choose a Comparison</a>
 
   <div class="r3_intro" id="r3_intro">
-    <div class="eyebrow">The Parallel Exhibit — The Covenant Code</div>
-    <h1>Code of Hammurabi<br><em>&amp;</em><br>Exodus</h1>
+    <div class="eyebrow">The Parallel Exhibit — Storm &amp; Kingship</div>
+    <h1>Ugaritic Baal Traditions<br><em>&amp;</em><br>Psalm 29</h1>
     <div class="scroll-cue">Scroll ↓</div>
   </div>
 
   <nav class="stratum-rail" aria-label="Jump to stratum">
-    <button data-target="1" aria-label="Stratum I — The Talion">I</button>
-    <button data-target="2" aria-label="Stratum II — The Ox">II</button>
-    <button data-target="3" aria-label="Stratum III — The Theft">III</button>
-    <button data-target="4" aria-label="Stratum IV — The Kidnapping">IV</button>
-    <button data-target="5" aria-label="Stratum V — The Fire">V</button>
+    <button data-target="1" aria-label="Stratum I — The Assembly">I</button>
+    <button data-target="2" aria-label="Stratum II — The Voice">II</button>
+    <button data-target="3" aria-label="Stratum III — The Cedars">III</button>
+    <button data-target="4" aria-label="Stratum IV — The Shaking">IV</button>
+    <button data-target="5" aria-label="Stratum V — The King">V</button>
   </nav>
 
   <div class="exhibit">
@@ -2172,31 +2198,33 @@
       <div class="beat-inner">
         <div class="panel-wrap clay">
           <button type="button" class="panel clay" data-icon="tablet"
-            data-title="Code of Hammurabi — Laws 196–197" data-material="Basalt stele" data-script="Akkadian, cuneiform"
-            data-findspot="Louvre Museum (Sb 8); found at Susa, likely erected at Sippar" data-translator="L.W. King, 1910" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/P1050763_Louvre_code_Hammurabi_face_rwk.JPG" data-photo-credit="Code of Hammurabi stele, Louvre Sb 8 · Photo: Mbzt · CC BY 3.0" data-photo-position="30% 20%"
-            data-wordhistory="Hebrew ayin and Akkadian īnu — both &quot;eye&quot; — descend from the same Proto-Semitic root, as do Hebrew shen and Akkadian šinnu, &quot;tooth.&quot; The lex talionis isn't only a shared law; the words for what's at stake are the same words, worn into two languages."
-            data-quote="&quot;If a man put out the eye of another man, his eye shall be put out. If he break another man's bone, his bone shall be broken.&quot;">
-            <span class="source">Code of Hammurabi · Laws 196–197 · trans. L.W. King, 1910</span>
-            <p>"If a man put out the <span class="trace-word" data-trace="1">eye</span> of another man, his eye shall be put out. If he break another man's bone, his bone shall be broken."</p>
+            data-title="Ugaritic Text — KTU 1.65" data-material="Clay tablet" data-script="Ugaritic, cuneiform alphabet"
+            data-findspot="Ras Shamra (ancient Ugarit), Acropolis, House of the High Priest, Room 1" data-translator="Editorial rendering" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Baal_Ugarit_Louvre_AO17329.jpg" data-photo-credit="Bronze figurine of Baal, Ras Shamra (Ugarit) · Louvre AO 17329 · Photo: Jastrow · Public domain · shown for illustration" data-photo-position="50% 25%"
+            data-notelabel="A Shared Divine Council"
+            data-wordhistory="Ugaritic texts describe the gods as El’s divine family, using expressions such as “sons of El” and “assembly of the sons of the gods.” Psalm 29 opens in similarly heavenly company, but directs the assembly’s praise toward YHWH."
+            data-quote="&quot;El, the sons of El, the circle of the sons of El&hellip;&quot;">
+            <span class="source">Ugaritic Text · KTU 1.65 · Editorial rendering</span>
+            <p>"El, the <span class="trace-word" data-trace="1">sons</span> of El, the circle of the sons of El&hellip;"</p>
             <span class="examine">Look closer <span class="arrow">→</span></span>
           </button>
         </div>
-        <div class="stratum-tag">Stratum I — The Talion</div>
+        <div class="stratum-tag">Stratum I — The Assembly</div>
         <div class="panel-wrap parchment">
           <button type="button" class="panel parchment" data-icon="scroll"
-            data-title="Exodus 21:23–25" data-material="Ink on parchment (tradition)" data-script="Hebrew"
-            data-findspot="Masoretic textual tradition" data-translator="American Standard Version, 1901" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Leningrad_Codex_Folio_071a.jpg" data-photo-credit="Leningrad Codex, folio 71a · National Library of Russia · Public domain"
-            data-wordhistory="Hebrew ayin (&quot;eye&quot;) shares its Proto-Semitic root with Akkadian īnu. The formula and the words behind it are both inherited, not borrowed for the occasion."
-            data-quote="&quot;But if any harm follow, then thou shalt give life for life, eye for eye, tooth for tooth, hand for hand, foot for foot.&quot;">
-            <span class="source">Exodus 21:23–25 · ASV, 1901</span>
-            <p>"But if any harm follow, then thou shalt give life for life, <span class="trace-word" data-trace="1">eye</span> for eye, tooth for tooth, hand for hand, foot for foot."</p>
+            data-title="Psalm 29:1" data-material="Ink on parchment (tradition)" data-script="Hebrew"
+            data-findspot-label="Textual Witness" data-findspot="Leningrad Codex (Firkovich B19a), fol. 370v" data-translator="American Standard Version, 1901" data-photo="https://manuscripts.sefaria.org/leningrad-color/BIB_LENCDX_F370B.jpg" data-photo-credit="Leningrad Codex (Firkovich B19a), fol. 370v · Psalm 29 · Photo: Bruce Zuckerman, West Semitic Research, with the Ancient Biblical Manuscript Center · Courtesy National Library of Russia · Public domain" data-photo-position="50% 50%"
+            data-notelabel="A Shared Divine Council"
+            data-wordhistory="Psalm 29 begins by summoning the benê ʾelim, divine or heavenly beings, to give YHWH glory and strength. The language belongs to the same West Semitic world of a divine assembly known from Ugarit, while making YHWH the object of its worship."
+            data-quote="&quot;Ascribe unto Jehovah, O ye sons of the mighty, ascribe unto Jehovah glory and strength.&quot;">
+            <span class="source">Psalm 29:1 · ASV, 1901</span>
+            <p>"Ascribe unto Jehovah, O ye <span class="trace-word" data-trace="1">sons</span> of the mighty, ascribe unto Jehovah glory and strength."</p>
             <span class="examine">Look closer <span class="arrow">→</span></span>
           </button>
         </div>
         <div class="parallel-reveal">
           <div class="parallel-reveal-eyebrow"><span>What This Parallel Reveals</span></div>
-          <p class="parallel-reveal-headline">Both codes answer harm with the same measure — and the very words for what’s at stake share a root.</p>
-          <p class="parallel-reveal-sub">Hebrew ayin and Akkadian īnu, both ‘eye,’ descend from the same Proto-Semitic word — as do the terms for ‘tooth.’ The law and its vocabulary are inherited together.</p>
+          <p class="parallel-reveal-headline">Both texts imagine a heavenly world populated by divine beings.</p>
+          <p class="parallel-reveal-sub">Psalm 29 opens inside that familiar divine-council world, but immediately turns every voice in the assembly toward YHWH.</p>
         </div>
       </div>
     </section>
@@ -2205,33 +2233,33 @@
       <div class="beat-inner">
         <div class="panel-wrap clay">
           <button type="button" class="panel clay" data-icon="tablet"
-            data-title="Code of Hammurabi — Laws 250–251" data-material="Basalt stele" data-script="Akkadian, cuneiform"
-            data-findspot="Louvre Museum (Sb 8); found at Susa, likely erected at Sippar" data-translator="L.W. King, 1910" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/P1050763_Louvre_code_Hammurabi_face_rwk.JPG" data-photo-credit="Code of Hammurabi stele, Louvre Sb 8 · Photo: Mbzt · CC BY 3.0" data-photo-position="70% 40%"
-            data-notelabel="A Shared Convention"
-            data-wordhistory="Both codes are written in the same distinctive legal form — &quot;if a man does X, then Y&quot; — the casuistic form that dominates ancient Near Eastern law generally. The goring ox is one of its most famous recurring case studies, showing up in law collections centuries apart."
-            data-quote="&quot;If an ox be a goring ox, and it shown that he is a gorer, and he do not bind his horns, or fasten the ox up, and the ox gore a free-born man and kill him, the owner shall pay one-half a mina in money.&quot;">
-            <span class="source">Code of Hammurabi · Laws 250–251 · trans. L.W. King, 1910</span>
-            <p>"If an <span class="trace-word" data-trace="2">ox</span> be a goring ox, and it shown that he is a gorer, and he do not bind his horns, or fasten the ox up, and the ox gore a free-born man and kill him, the owner shall pay one-half a mina in money."</p>
+            data-title="Baal Cycle — KTU 1.4 VII" data-material="Clay tablet" data-script="Ugaritic, cuneiform alphabet"
+            data-findspot="House of the High Priest, Acropolis of Ugarit, Ras Shamra, Syria" data-translator="Editorial rendering" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Baal_Ugarit_Louvre_AO17329.jpg" data-photo-credit="Bronze figurine of Baal, Ras Shamra (Ugarit) · Louvre AO 17329 · Photo: Jastrow · Public domain · shown for illustration" data-photo-position="50% 25%"
+            data-notelabel="A Shared Storm Image"
+            data-wordhistory="Baal’s “voice” is his thunder, sounding from the clouds as the storm god manifests his power. Ugaritic poetry repeatedly uses this image. Psalm 29 builds its central section around the same storm language, repeating “the voice of YHWH” seven times."
+            data-quote="&quot;His holy voice shakes the earth&hellip; the issue of his lips shakes the mountains.&quot;">
+            <span class="source">Baal Cycle · KTU 1.4 VII 25–42 · Editorial rendering</span>
+            <p>"His holy <span class="trace-word" data-trace="2">voice</span> shakes the earth&hellip; the issue of his lips shakes the mountains."</p>
             <span class="examine">Look closer <span class="arrow">→</span></span>
           </button>
         </div>
-        <div class="stratum-tag">Stratum II — The Ox</div>
+        <div class="stratum-tag">Stratum II — The Voice</div>
         <div class="panel-wrap parchment">
           <button type="button" class="panel parchment" data-icon="scroll"
-            data-title="Exodus 21:28–29" data-material="Ink on parchment (tradition)" data-script="Hebrew"
-            data-findspot="Masoretic textual tradition" data-translator="American Standard Version, 1901" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Leningrad_Codex_Folio_072a.jpg" data-photo-credit="Leningrad Codex, folio 72a · National Library of Russia · Public domain"
-            data-notelabel="A Shared Convention"
-            data-wordhistory="The goring ox is a stock case in ancient Near Eastern law — the same scenario, refined across centuries of legal tradition, showing up independently in Israelite and Mesopotamian codes alike as the go-to example for owner liability."
-            data-quote="&quot;But if the ox was wont to gore in time past, and it hath been testified to its owner, and he hath not kept it in, but it hath killed a man or a woman, the ox shall be stoned, and its owner also shall be put to death.&quot;">
-            <span class="source">Exodus 21:28–29 · ASV, 1901</span>
-            <p>"But if the <span class="trace-word" data-trace="2">ox</span> was wont to gore in time past, and it hath been testified to its owner, and he hath not kept it in, but it hath killed a man or a woman, the ox shall be stoned, and its owner also shall be put to death."</p>
+            data-title="Psalm 29:3–4" data-material="Ink on parchment (tradition)" data-script="Hebrew"
+            data-findspot-label="Textual Witness" data-findspot="Leningrad Codex (Firkovich B19a), fol. 370v" data-translator="American Standard Version, 1901" data-photo="https://manuscripts.sefaria.org/leningrad-color/BIB_LENCDX_F370B.jpg" data-photo-credit="Leningrad Codex (Firkovich B19a), fol. 370v · Psalm 29 · Photo: Bruce Zuckerman, West Semitic Research, with the Ancient Biblical Manuscript Center · Courtesy National Library of Russia · Public domain" data-photo-position="50% 50%"
+            data-notelabel="A Shared Storm Image"
+            data-wordhistory="Psalm 29 turns thunder into “the voice of YHWH,” the same basic image used for Baal’s storm voice in Ugaritic poetry. What an ancient audience could recognize as the language of storm-god power is here attached to YHWH."
+            data-quote="&quot;The voice of Jehovah is upon the waters; the God of glory thundereth, even Jehovah upon many waters. The voice of Jehovah is powerful.&quot;">
+            <span class="source">Psalm 29:3–4 · ASV, 1901</span>
+            <p>"The <span class="trace-word" data-trace="2">voice</span> of Jehovah is upon the waters; the God of glory thundereth, even Jehovah upon many waters. The voice of Jehovah is powerful."</p>
             <span class="examine">Look closer <span class="arrow">→</span></span>
           </button>
         </div>
         <div class="parallel-reveal">
           <div class="parallel-reveal-eyebrow"><span>What This Parallel Reveals</span></div>
-          <p class="parallel-reveal-headline">Both codes are built from the same legal sentence — ‘if a man does X, then Y’ — and reach for the same test case.</p>
-          <p class="parallel-reveal-sub">The goring ox is one of that casuistic form’s most famous recurring examples, showing up in law collections centuries apart.</p>
+          <p class="parallel-reveal-headline">Both traditions hear divine power in the thunder of the storm.</p>
+          <p class="parallel-reveal-sub">Baal’s thunder is his “voice.” Psalm 29 takes that familiar storm image and makes the voice rolling over the waters YHWH’s.</p>
         </div>
       </div>
     </section>
@@ -2240,33 +2268,33 @@
       <div class="beat-inner">
         <div class="panel-wrap clay">
           <button type="button" class="panel clay" data-icon="tablet"
-            data-title="Code of Hammurabi — Law 8" data-material="Basalt stele" data-script="Akkadian, cuneiform"
-            data-findspot="Louvre Museum (Sb 8); found at Susa, likely erected at Sippar" data-translator="L.W. King, 1910" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/P1050763_Louvre_code_Hammurabi_face_rwk.JPG" data-photo-credit="Code of Hammurabi stele, Louvre Sb 8 · Photo: Mbzt · CC BY 3.0" data-photo-position="45% 65%"
-            data-notelabel="A Shared Convention"
-            data-wordhistory="Multiplied restitution for theft — paying back several times what was taken, not just the item itself — is a documented convention across Mesopotamian and Israelite law alike, even where the exact multiples differ from code to code."
-            data-quote="&quot;If any one steal cattle or sheep, or an ass, or a pig or a goat, if it belong to a god or to the court, the thief shall pay thirtyfold therefor; if they belonged to a freed man of the king he shall pay tenfold.&quot;">
-            <span class="source">Code of Hammurabi · Law 8 · trans. L.W. King, 1910</span>
-            <p>"If any one steal cattle or <span class="trace-word" data-trace="3">sheep</span>, or an ass, or a pig or a goat, if it belong to a god or to the court, the thief shall pay thirtyfold therefor; if they belonged to a freed man of the king he shall pay tenfold."</p>
+            data-title="Baal Cycle — KTU 1.4 VI" data-material="Clay tablet" data-script="Ugaritic, cuneiform alphabet"
+            data-findspot="House of the High Priest, Acropolis of Ugarit, Ras Shamra, Syria" data-translator="Editorial rendering" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Baal_Ugarit_Louvre_AO17329.jpg" data-photo-credit="Bronze figurine of Baal, Ras Shamra (Ugarit) · Louvre AO 17329 · Photo: Jastrow · Public domain · shown for illustration" data-photo-position="50% 25%"
+            data-notelabel="A Shared Northern Landscape"
+            data-wordhistory="Baal’s palace tradition reaches into the northern Levant for its building materials: Lebanon for its trees and Siryan for its choice cedars. Psalm 29 names the same paired landscape, Lebanon and Sirion, as YHWH’s storm moves through it."
+            data-quote="&quot;He went to Lebanon for its trees, to Siryan for its choicest cedars.&quot;">
+            <span class="source">Baal Cycle · KTU 1.4 VI 18–21 · Editorial rendering</span>
+            <p>"He went to Lebanon for its trees, to Siryan for its choicest <span class="trace-word" data-trace="3">cedars</span>."</p>
             <span class="examine">Look closer <span class="arrow">→</span></span>
           </button>
         </div>
-        <div class="stratum-tag">Stratum III — The Theft</div>
+        <div class="stratum-tag">Stratum III — The Cedars</div>
         <div class="panel-wrap parchment">
           <button type="button" class="panel parchment" data-icon="scroll"
-            data-title="Exodus 22:1" data-material="Ink on parchment (tradition)" data-script="Hebrew"
-            data-findspot="Masoretic textual tradition" data-translator="American Standard Version, 1901" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Leningrad_Codex_Folio_073a.jpg" data-photo-credit="Leningrad Codex, folio 73a · National Library of Russia · Public domain"
-            data-notelabel="A Shared Convention"
-            data-wordhistory="Exodus's fivefold and fourfold repayments belong to the same legal convention as Hammurabi's thirtyfold and tenfold — theft answered with multiplied restitution, a principle shared across the region even as the exact ratios vary by code."
-            data-quote="&quot;If a man steal an ox, or a sheep, and kill it, or sell it; he shall pay five oxen for an ox, and four sheep for a sheep.&quot;">
-            <span class="source">Exodus 22:1 · ASV, 1901</span>
-            <p>"If a man steal an ox, or a sheep, and kill it, or sell it; he shall pay five oxen for an ox, and four <span class="trace-word" data-trace="3">sheep</span> for a sheep."</p>
+            data-title="Psalm 29:5–6" data-material="Ink on parchment (tradition)" data-script="Hebrew"
+            data-findspot-label="Textual Witness" data-findspot="Leningrad Codex (Firkovich B19a), fol. 370v" data-translator="American Standard Version, 1901" data-photo="https://manuscripts.sefaria.org/leningrad-color/BIB_LENCDX_F370B.jpg" data-photo-credit="Leningrad Codex (Firkovich B19a), fol. 370v · Psalm 29 · Photo: Bruce Zuckerman, West Semitic Research, with the Ancient Biblical Manuscript Center · Courtesy National Library of Russia · Public domain" data-photo-position="50% 50%"
+            data-notelabel="A Shared Northern Landscape"
+            data-wordhistory="Psalm 29 pairs Lebanon and Sirion, the same two northern locations paired in Baal’s palace-building episode. In the Ugaritic text, they supply prized timber; in the psalm, that same landscape is shaken by YHWH’s voice. The shared geography makes the contrast especially vivid."
+            data-quote="&quot;The voice of Jehovah breaketh the cedars; yea, Jehovah breaketh in pieces the cedars of Lebanon. He maketh them also to skip like a calf; Lebanon and Sirion like a young wild-ox.&quot;">
+            <span class="source">Psalm 29:5–6 · ASV, 1901</span>
+            <p>"The voice of Jehovah breaketh the <span class="trace-word" data-trace="3">cedars</span>; yea, Jehovah breaketh in pieces the cedars of Lebanon. He maketh them also to skip like a calf; Lebanon and Sirion like a young wild-ox."</p>
             <span class="examine">Look closer <span class="arrow">→</span></span>
           </button>
         </div>
         <div class="parallel-reveal">
           <div class="parallel-reveal-eyebrow"><span>What This Parallel Reveals</span></div>
-          <p class="parallel-reveal-headline">Both codes punish theft the same way: pay back more than what was taken.</p>
-          <p class="parallel-reveal-sub">Hammurabi’s thirtyfold and tenfold, Exodus’s fivefold and fourfold — the ratios differ, but multiplied restitution is the shared convention underneath.</p>
+          <p class="parallel-reveal-headline">Psalm 29 sends YHWH’s storm through a northern landscape already familiar from Ugaritic tradition.</p>
+          <p class="parallel-reveal-sub">Lebanon, Sirion, and their cedars appear in Baal’s world as well. Here, that landscape moves at the voice of YHWH.</p>
         </div>
       </div>
     </section>
@@ -2275,33 +2303,33 @@
       <div class="beat-inner">
         <div class="panel-wrap clay">
           <button type="button" class="panel clay" data-icon="tablet"
-            data-title="Code of Hammurabi — Law 14" data-material="Basalt stele" data-script="Akkadian, cuneiform"
-            data-findspot="Louvre Museum (Sb 8); found at Susa, likely erected at Sippar" data-translator="L.W. King, 1910" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/P1050763_Louvre_code_Hammurabi_face_rwk.JPG" data-photo-credit="Code of Hammurabi stele, Louvre Sb 8 · Photo: Mbzt · CC BY 3.0" data-photo-position="55% 85%"
-            data-notelabel="A Shared Structure"
-            data-wordhistory="Both codes draw the identical legal line: stealing property is punished by repayment, but stealing a person is punished by death. Kidnapping is treated as categorically different from theft in both traditions — not a matter of degree, but of kind."
-            data-quote="&quot;If any one steal the minor son of another, he shall be put to death.&quot;">
-            <span class="source">Code of Hammurabi · Law 14 · trans. L.W. King, 1910</span>
-            <p>"If any one steal the minor son of another, he shall be put to <span class="trace-word" data-trace="4">death</span>."</p>
+            data-title="Baal Cycle — KTU 1.4 VII" data-material="Clay tablet" data-script="Ugaritic, cuneiform alphabet"
+            data-findspot="House of the High Priest, Acropolis of Ugarit, Ras Shamra, Syria" data-translator="Editorial rendering" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Baal_Ugarit_Louvre_AO17329.jpg" data-photo-credit="Bronze figurine of Baal, Ras Shamra (Ugarit) · Louvre AO 17329 · Photo: Jastrow · Public domain · shown for illustration" data-photo-position="50% 25%"
+            data-notelabel="A Shared Theophany"
+            data-wordhistory="Baal’s manifestation through the storm affects the landscape itself: his thunderous voice makes the mountains tremble and the heights shake. The moving earth is part of how Ugaritic poetry portrays divine presence."
+            data-quote="&quot;At his voice the mountains quaked&hellip; the high places of the earth shook.&quot;">
+            <span class="source">Baal Cycle · KTU 1.4 VII 29–34 · Editorial rendering</span>
+            <p>"At his voice the mountains <span class="trace-word" data-trace="4">quaked</span>&hellip; the high places of the earth shook."</p>
             <span class="examine">Look closer <span class="arrow">→</span></span>
           </button>
         </div>
-        <div class="stratum-tag">Stratum IV — The Kidnapping</div>
+        <div class="stratum-tag">Stratum IV — The Shaking</div>
         <div class="panel-wrap parchment">
           <button type="button" class="panel parchment" data-icon="scroll"
-            data-title="Exodus 21:16" data-material="Ink on parchment (tradition)" data-script="Hebrew"
-            data-findspot="Masoretic textual tradition" data-translator="American Standard Version, 1901" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Leningrad_Codex_Folio_074a.jpg" data-photo-credit="Leningrad Codex, folio 74a · National Library of Russia · Public domain"
-            data-notelabel="A Shared Structure"
-            data-wordhistory="Exodus draws the same line Hammurabi does, in the same law-code position, just a few verses after its own property-theft laws: ordinary theft costs money; stealing a person costs the thief his life."
-            data-quote="&quot;And he that stealeth a man, and selleth him, or if he be found in his hand, he shall surely be put to death.&quot;">
-            <span class="source">Exodus 21:16 · ASV, 1901</span>
-            <p>"And he that stealeth a man, and selleth him, or if he be found in his hand, he shall surely be put to <span class="trace-word" data-trace="4">death</span>."</p>
+            data-title="Psalm 29:8" data-material="Ink on parchment (tradition)" data-script="Hebrew"
+            data-findspot-label="Textual Witness" data-findspot="Leningrad Codex (Firkovich B19a), fol. 370v" data-translator="American Standard Version, 1901" data-photo="https://manuscripts.sefaria.org/leningrad-color/BIB_LENCDX_F370B.jpg" data-photo-credit="Leningrad Codex (Firkovich B19a), fol. 370v · Psalm 29 · Photo: Bruce Zuckerman, West Semitic Research, with the Ancient Biblical Manuscript Center · Courtesy National Library of Russia · Public domain" data-photo-position="50% 50%"
+            data-notelabel="A Shared Theophany"
+            data-wordhistory="YHWH’s voice likewise moves through the landscape rather than merely sounding above it. Lebanon leaps, Sirion skips, and the wilderness shakes. The psalm uses a familiar storm-theophany pattern to portray YHWH’s overwhelming presence."
+            data-quote="&quot;The voice of Jehovah shaketh the wilderness; Jehovah shaketh the wilderness of Kadesh.&quot;">
+            <span class="source">Psalm 29:8 · ASV, 1901</span>
+            <p>"The voice of Jehovah <span class="trace-word" data-trace="4">shaketh</span> the wilderness; Jehovah shaketh the wilderness of Kadesh."</p>
             <span class="examine">Look closer <span class="arrow">→</span></span>
           </button>
         </div>
         <div class="parallel-reveal">
           <div class="parallel-reveal-eyebrow"><span>What This Parallel Reveals</span></div>
-          <p class="parallel-reveal-headline">Both codes draw the identical line: stealing property costs money, stealing a person costs a life.</p>
-          <p class="parallel-reveal-sub">Kidnapping sits apart from ordinary theft in both traditions — not a matter of degree, but of kind.</p>
+          <p class="parallel-reveal-headline">In both texts, the storm announces divine presence by making the landscape&nbsp;move.</p>
+          <p class="parallel-reveal-sub">Baal’s voice makes mountains tremble. Psalm 29 gives comparable earth-shaking force to the voice of YHWH.</p>
         </div>
       </div>
     </section>
@@ -2310,39 +2338,39 @@
       <div class="beat-inner">
         <div class="panel-wrap clay">
           <button type="button" class="panel clay" data-icon="tablet"
-            data-title="Code of Hammurabi — Law 25" data-material="Basalt stele" data-script="Akkadian, cuneiform"
-            data-findspot="Louvre Museum (Sb 8); found at Susa, likely erected at Sippar" data-translator="L.W. King, 1910" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/P1050763_Louvre_code_Hammurabi_face_rwk.JPG" data-photo-credit="Code of Hammurabi stele, Louvre Sb 8 · Photo: Mbzt · CC BY 3.0" data-photo-position="60% 30%"
-            data-notelabel="A Shared Convention"
-            data-wordhistory="Opening a law with its triggering event — &quot;if fire break out&quot; — is a stock formula of ancient casuistic law. Both codes use nearly the identical phrase to introduce this case, among dozens of others built the same way."
-            data-quote="&quot;If fire break out in a house, and some one who comes to put it out cast his eye upon the property of the owner of the house, and take the property of the master of the house, he shall be thrown into that self-same fire.&quot;">
-            <span class="source">Code of Hammurabi · Law 25 · trans. L.W. King, 1910</span>
-            <p>"If <span class="trace-word" data-trace="5">fire</span> break out in a house, and some one who comes to put it out cast his eye upon the property of the owner of the house, and take the property of the master of the house, he shall be thrown into that self-same fire."</p>
+            data-title="Baal Cycle — KTU 1.3 V" data-material="Clay tablet" data-script="Ugaritic, cuneiform alphabet"
+            data-findspot="House of the High Priest, Acropolis of Ugarit, Ras Shamra, Syria" data-translator="Editorial rendering" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Baal_Ugarit_Louvre_AO17329.jpg" data-photo-credit="Bronze figurine of Baal, Ras Shamra (Ugarit) · Louvre AO 17329 · Photo: Jastrow · Public domain · shown for illustration" data-photo-position="50% 25%"
+            data-notelabel="A Shared Kingship Motif"
+            data-wordhistory="The Baal Cycle connects storm power with kingship. Baal defeats rivals, receives a palace, sends thunder and rain, and is acclaimed ruler. His mastery of the storm becomes part of his claim to royal authority within the divine world."
+            data-quote="&quot;Our king is Mighty Baal; our ruler, with none above him.&quot;">
+            <span class="source">Baal Cycle · KTU 1.3 V 32–33 · Editorial rendering</span>
+            <p>"Our <span class="trace-word" data-trace="5">king</span> is Mighty Baal; our ruler, with none above him."</p>
             <span class="examine">Look closer <span class="arrow">→</span></span>
           </button>
         </div>
-        <div class="stratum-tag">Stratum V — The Fire</div>
+        <div class="stratum-tag">Stratum V — The King</div>
         <div class="panel-wrap parchment">
           <button type="button" class="panel parchment" data-icon="scroll"
-            data-title="Exodus 22:6" data-material="Ink on parchment (tradition)" data-script="Hebrew"
-            data-findspot="Masoretic textual tradition" data-translator="American Standard Version, 1901" data-photo="https://commons.wikimedia.org/wiki/Special:FilePath/Leningrad_Codex_Folio_075a.jpg" data-photo-credit="Leningrad Codex, folio 75a · National Library of Russia · Public domain"
-            data-notelabel="A Shared Convention"
-            data-wordhistory="Exodus opens this law almost word for word the way Hammurabi opens his: with the fire itself as the trigger, before either code even gets to who's liable. Same legal instinct, two law codes, centuries and cultures apart."
-            data-quote="&quot;If fire break out, and catch in thorns, so that the shocks of grain, or the standing grain, or the field are consumed; he that kindled the fire shall surely make restitution.&quot;">
-            <span class="source">Exodus 22:6 · ASV, 1901</span>
-            <p>"If <span class="trace-word" data-trace="5">fire</span> break out, and catch in thorns, so that the shocks of grain, or the standing grain, or the field are consumed; he that kindled the fire shall surely make restitution."</p>
+            data-title="Psalm 29:10" data-material="Ink on parchment (tradition)" data-script="Hebrew"
+            data-findspot-label="Textual Witness" data-findspot="Leningrad Codex (Firkovich B19a), fol. 370v" data-translator="American Standard Version, 1901" data-photo="https://manuscripts.sefaria.org/leningrad-color/BIB_LENCDX_F370B.jpg" data-photo-credit="Leningrad Codex (Firkovich B19a), fol. 370v · Psalm 29 · Photo: Bruce Zuckerman, West Semitic Research, with the Ancient Biblical Manuscript Center · Courtesy National Library of Russia · Public domain" data-photo-position="50% 50%"
+            data-notelabel="A Shared Kingship Motif"
+            data-wordhistory="Psalm 29’s storm imagery culminates in kingship. After YHWH’s voice moves across waters, mountains, and wilderness, the psalm pictures him enthroned over the flood and declares him King forever. The storm becomes a royal claim."
+            data-quote="&quot;Jehovah sat as King at the Flood; yea, Jehovah sitteth as King for ever.&quot;">
+            <span class="source">Psalm 29:10 · ASV, 1901</span>
+            <p>"Jehovah sat as <span class="trace-word" data-trace="5">King</span> at the Flood; yea, Jehovah sitteth as King for ever."</p>
             <span class="examine">Look closer <span class="arrow">→</span></span>
           </button>
         </div>
         <div class="parallel-reveal">
           <div class="parallel-reveal-eyebrow"><span>What This Parallel Reveals</span></div>
-          <p class="parallel-reveal-headline">Both codes open this law the same way: with the fire itself, before anyone asks who’s liable.</p>
-          <p class="parallel-reveal-sub">Exodus’s opening words echo Hammurabi’s almost exactly — the same casuistic instinct, two law codes, centuries and cultures apart.</p>
+          <p class="parallel-reveal-headline">The storm imagery ultimately makes a claim about who rules.</p>
+          <p class="parallel-reveal-sub">Baal’s storm power supports his kingship in Ugaritic tradition. Psalm 29 culminates by declaring YHWH enthroned as King forever.</p>
         </div>
       </div>
     </section>
 
     <div class="room-exit-nav">
-      <a class="room-exit-btn" href="#" data-goto="room-creation">&larr; Creation &amp; Chaos</a>
+      <a class="room-exit-btn" href="#" data-goto="room-creation"><span class="arrow arrow--back">&larr;</span> Creation &amp; Chaos</a>
       <a class="room-exit-btn room-exit-btn--quiet" href="#" data-coming-soon aria-disabled="true">Next Exhibit</a>
       <a class="room-exit-btn" href="#" data-goto="room-flood">Flood &amp; Survival <span class="arrow">&rarr;</span></a>
     </div>
@@ -2363,7 +2391,7 @@
       <table class="spec-table">
         <tr><th>Material</th><td id="r3_modalMaterial"></td></tr>
         <tr><th>Script</th><td id="r3_modalScript"></td></tr>
-        <tr><th>Findspot</th><td id="r3_modalFindspot"></td></tr>
+        <tr><th id="r3_modalFindspotLabel">Findspot</th><td id="r3_modalFindspot"></td></tr>
         <tr><th>Translator</th><td id="r3_modalTranslator"></td></tr>
       </table>
       <p class="photo-credit" id="r3_modalPhotoCredit"></p>
@@ -2580,6 +2608,7 @@
     document.getElementById('r1_modalMaterial').textContent = panel.dataset.material;
     document.getElementById('r1_modalScript').textContent = panel.dataset.script;
     document.getElementById('r1_modalFindspot').textContent = panel.dataset.findspot;
+    document.getElementById('r1_modalFindspotLabel').textContent = panel.dataset.findspotLabel || 'Findspot';
     document.getElementById('r1_modalTranslator').textContent = panel.dataset.translator;
     document.getElementById('r1_modalIconUse').setAttribute('href', '#icon-' + panel.dataset.icon);
 
@@ -2801,6 +2830,7 @@
     document.getElementById('r2_modalMaterial').textContent = panel.dataset.material;
     document.getElementById('r2_modalScript').textContent = panel.dataset.script;
     document.getElementById('r2_modalFindspot').textContent = panel.dataset.findspot;
+    document.getElementById('r2_modalFindspotLabel').textContent = panel.dataset.findspotLabel || 'Findspot';
     document.getElementById('r2_modalTranslator').textContent = panel.dataset.translator;
     document.getElementById('r2_modalIconUse').setAttribute('href', '#icon-' + panel.dataset.icon);
 
@@ -3023,6 +3053,7 @@
     document.getElementById('r3_modalMaterial').textContent = panel.dataset.material;
     document.getElementById('r3_modalScript').textContent = panel.dataset.script;
     document.getElementById('r3_modalFindspot').textContent = panel.dataset.findspot;
+    document.getElementById('r3_modalFindspotLabel').textContent = panel.dataset.findspotLabel || 'Findspot';
     document.getElementById('r3_modalTranslator').textContent = panel.dataset.translator;
     document.getElementById('r3_modalIconUse').setAttribute('href', '#icon-' + panel.dataset.icon);
 
@@ -3042,7 +3073,7 @@
     if (panel.dataset.photo) {
       photo.classList.add('is-loading'); // reserve the frame's space right away, no late pop-in
       photo.onload = () => photo.classList.add('is-visible');
-      photo.onerror = () => { photo.classList.remove('is-visible', 'is-loading'); }; // fall back to icon
+      photo.onerror = () => { photo.classList.remove('is-visible', 'is-loading'); credit.textContent = ''; }; // fall back to icon
       photo.src = panel.dataset.photo;
       photo.style.objectPosition = panel.dataset.photoPosition || '50% 50%';
       photo.alt = panel.dataset.title;

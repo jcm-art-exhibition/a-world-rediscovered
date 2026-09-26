@@ -118,6 +118,9 @@
     var iconOn = toggle.querySelector('.audio-icon-on');
     var iconOff = toggle.querySelector('.audio-icon-off');
     audio.volume = 0.35;
+    // Below 1024px the page shows only the desktop-only message (see
+    // chrome.css), so the music must stay silent there too.
+    var gateMQ = window.matchMedia('(max-width: 1023.98px)');
     var storedPref = null;
     try { storedPref = window.localStorage.getItem(PREF_KEY); } catch (err) { /* ignore */ }
     // No stored preference (first visit, or a fresh browser) defaults
@@ -150,10 +153,10 @@
     // Muted autoplay is permitted by every major browser, so this
     // succeeds immediately on page load.
     audio.muted = true;
-    audio.play().catch(function () { /* extremely rare even muted; the toggle and interaction listeners below cover it too */ });
+    if (!gateMQ.matches) audio.play().catch(function () { /* extremely rare even muted; the toggle and interaction listeners below cover it too */ });
 
     function revealAudio() {
-      if (!enabled || revealed) return;
+      if (!enabled || revealed || gateMQ.matches) return;
       revealed = true;
       audio.muted = false;
       audio.play().catch(function () { revealed = false; });
@@ -191,6 +194,15 @@
     window.addEventListener('pagehide', function () {
       try { window.sessionStorage.setItem(TIME_KEY, String(audio.currentTime)); } catch (err) { /* ignore */ }
     });
+
+    // Crossing the 1024px line while the page is open: silence the
+    // track when the gate appears, let it carry on when it goes away.
+    function onGateChange() {
+      if (gateMQ.matches) { audio.pause(); }
+      else { audio.play().catch(function () {}); }
+    }
+    if (gateMQ.addEventListener) gateMQ.addEventListener('change', onGateChange);
+    else if (gateMQ.addListener) gateMQ.addListener(onGateChange);
 
     syncIcon();
   })();

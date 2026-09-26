@@ -328,7 +328,7 @@
   .room-panel h3{ font-family:'Fraunces', serif; font-weight:600; font-size:clamp(1.15rem, 2vw, 1.6rem); margin:0 0 0.5rem; }
   .room-panel p{ font-family:'Instrument Sans', sans-serif; font-style:italic; color:var(--bone-dim); font-size:0.86rem; line-height:1.45; margin:0 0 1rem; }
   /* The "Enter" button — a solid filled chip with its own weight,
-     shadow and hover lift — appears on every card now that all eight
+     shadow and hover lift — appears on every card now that all seven
      are shown in the active state. */
   .room-panel-status{
     display:inline-flex; align-items:center; gap:0.4em;
@@ -443,6 +443,17 @@
 <body class="page-transition">
 <noscript><style>body.page-transition{opacity:1 !important;}</style></noscript>
 
+<div class="desktop-gate" role="region" aria-label="Best viewed on a desktop or laptop">
+  <div class="desktop-gate-inner">
+    <svg class="desktop-gate-icon" viewBox="0 0 48 34" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="3" width="34" height="21" rx="2"/><path d="M2 30h44M2 30l3-6h38l3 6"/></svg>
+    <p class="desktop-gate-eyebrow">A World Rediscovered</p>
+    <h1>Some worlds need a little more room.</h1>
+    <span class="desktop-gate-rule" aria-hidden="true"></span>
+    <p>A World Rediscovered is an interactive exploration designed for larger screens, where the connections, comparisons, and details can be experienced together.</p>
+    <p class="desktop-gate-cta">Visit on a desktop or laptop to explore.</p>
+  </div>
+</div>
+
   <div class="dust-layer" id="dustLayer" aria-hidden="true"></div>
   <div class="scroll-notice" id="scrollNotice" aria-hidden="true">
     <span>Scroll</span>
@@ -545,7 +556,7 @@
       <div class="dust-layer corridor-dust" id="corridorDust" aria-hidden="true"></div>
 
       <div class="lobby-head" id="lobbyHead">
-        <h2>Eight windows into the worlds behind the Bible.</h2>
+        <h2>Seven windows into the worlds behind the Bible.</h2>
         <p>Each exhibit opens a different window into the places, stories, beliefs, cultures, and ideas that shaped the biblical world. Choose any exhibit to begin, explore at your own pace, and move through the collection in whatever order interests you most.</p>
       </div>
 
@@ -624,26 +635,11 @@
         </article>
 
         <article class="room-panel" data-tilt="-1.8">
-          <a class="room-panel-link" href="#" data-coming-soon aria-label="The Echo Exhibit — coming soon">
-            <img class="room-panel-image" src="cards/echo.jpg" alt="" aria-hidden="true" loading="lazy" style="transform:rotate(3deg) scale(1.12); object-position:43% 45%;">
-            <div class="room-panel-fade" aria-hidden="true"></div>
-            <div class="room-panel-glow" aria-hidden="true"></div>
-            <span class="room-panel-index">06</span>
-            <div class="room-panel-body">
-              <span class="room-panel-eyebrow">Exhibit</span>
-              <h3>The Echo Exhibit</h3>
-              <p>Original music and poetry, in response. Creative work composed for this project that responds to the ancient material rather than simply explaining it.</p>
-              <span class="room-panel-status">Enter <span class="status-arrow">→</span></span>
-            </div>
-          </a>
-        </article>
-
-        <article class="room-panel" data-tilt="1">
           <a class="room-panel-link" href="#" data-coming-soon aria-label="The Tension Exhibit — coming soon">
             <img class="room-panel-image" src="cards/tension.jpg" alt="" aria-hidden="true" loading="lazy" style="transform:rotate(-6deg) scale(1.16);">
             <div class="room-panel-fade" aria-hidden="true"></div>
             <div class="room-panel-glow" aria-hidden="true"></div>
-            <span class="room-panel-index">07</span>
+            <span class="room-panel-index">06</span>
             <div class="room-panel-body">
               <span class="room-panel-eyebrow">Exhibit</span>
               <h3>The Tension Exhibit</h3>
@@ -653,20 +649,21 @@
           </a>
         </article>
 
-        <article class="room-panel" data-tilt="-1">
-          <a class="room-panel-link" href="#" data-coming-soon aria-label="The Quiz Exhibit — coming soon">
-            <img class="room-panel-image" src="cards/quiz.jpg" alt="" aria-hidden="true" loading="lazy" style="transform:rotate(4deg) scale(1.13);">
+        <article class="room-panel" data-tilt="1">
+          <a class="room-panel-link" href="#" data-coming-soon aria-label="The Echo Exhibit — coming soon">
+            <img class="room-panel-image" src="cards/echo.jpg" alt="" aria-hidden="true" loading="lazy" style="transform:rotate(3deg) scale(1.12); object-position:43% 45%;">
             <div class="room-panel-fade" aria-hidden="true"></div>
             <div class="room-panel-glow" aria-hidden="true"></div>
-            <span class="room-panel-index">08</span>
+            <span class="room-panel-index">07</span>
             <div class="room-panel-body">
               <span class="room-panel-eyebrow">Exhibit</span>
-              <h3>The Quiz Exhibit</h3>
-              <p>How much of this world can you place? A short interactive quiz testing what you've picked up about the ancient Near East and its biblical parallels.</p>
+              <h3>The Echo Exhibit</h3>
+              <p>Original music and poetry, in response. Creative work composed for this project that responds to the ancient material rather than simply explaining it.</p>
               <span class="room-panel-status">Enter <span class="status-arrow">→</span></span>
             </div>
           </a>
         </article>
+
 
         <article class="room-panel room-panel-end" data-tilt="0">
           <a class="room-panel-link room-panel-end-link" href="#corridor-cards-start" aria-label="Return to the first exhibit">
@@ -676,7 +673,7 @@
       </div>
 
       <div class="corridor-hud" id="corridorHud" aria-hidden="true">
-        <span id="hudIndex">01 / 08</span>
+        <span id="hudIndex">01 / 07</span>
         <div class="bar"><div class="bar-fill" id="hudFill"></div></div>
       </div>
     </div>
@@ -720,7 +717,7 @@
     const hudFill = document.getElementById('hudFill');
     const hudIndex = document.getElementById('hudIndex');
     // The trailing "Return to the Entrance" panel is an exit, not an
-    // exhibit, so it's excluded here — it keeps the "01 / 08" HUD count
+    // exhibit, so it's excluded here — it keeps the "01 / 07" HUD count
     // accurate and stays a steady size instead of growing into focus.
     const roomPanels = corridorTrack ? Array.from(corridorTrack.querySelectorAll('.room-panel:not(.room-panel-end)')) : [];
 

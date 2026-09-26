@@ -126,3 +126,51 @@ body.page-transition.is-leaving{ opacity:0 !important; transition:opacity .32s e
 @media (prefers-reduced-motion: reduce){
   [data-reveal]{ transition:none; opacity:1; transform:none; }
 }
+
+
+/* ============================================================
+   Desktop-only gate
+   The experience is built for large screens. Below 1024px wide the
+   whole page is replaced by a full-screen message (markup:
+   <div class="desktop-gate"> right after <body> on every page).
+   At 1024px and up the gate is display:none and nothing changes.
+   Background: the top of the ladder image (gate-bg.jpg), darkened
+   so the type cuts through. chrome.js also pauses the music here.
+   ============================================================ */
+.desktop-gate{ display:none; }
+@media (max-width:1023.98px){
+  html, body{ height:100%; overflow:hidden; }
+  body > *:not(.desktop-gate){ display:none !important; }
+  body.page-transition{ opacity:1 !important; }
+  .desktop-gate{
+    position:fixed; inset:0; z-index:2147483000;
+    display:flex; align-items:center; justify-content:center; text-align:center;
+    padding:max(2rem, env(safe-area-inset-top)) 1.75rem max(2rem, env(safe-area-inset-bottom));
+    background:
+      radial-gradient(ellipse 85% 60% at 50% 50%, rgba(14,5,0,0.55), rgba(14,5,0,0) 75%),
+      linear-gradient(180deg, rgba(20,7,1,0.80) 0%, rgba(20,7,1,0.86) 100%),
+      url("gate-bg.jpg") 50% 30% / cover no-repeat,
+      #180801;
+    color:var(--bone, #EDE6D8);
+    overflow-y:auto;
+  }
+  .desktop-gate-inner{ max-width:31rem; margin:auto; text-shadow:0 1px 18px rgba(10,3,0,0.6); }
+  .desktop-gate-icon{ width:46px; height:auto; display:block; margin:0 auto 1.6rem; color:var(--ochre, #AF9D2E); opacity:0.9; }
+  .desktop-gate p.desktop-gate-eyebrow{
+    font-family:'Instrument Sans', system-ui, sans-serif; font-weight:600; font-size:0.7rem;
+    letter-spacing:0.24em; text-transform:uppercase; color:var(--ochre, #AF9D2E); margin:0 0 1.1rem;
+  }
+  .desktop-gate h1{
+    font-family:'Fraunces', Georgia, serif; font-weight:600; color:var(--bone, #EDE6D8);
+    font-size:clamp(2rem, 8vw, 3.1rem); line-height:1.1; margin:0;
+  }
+  .desktop-gate-rule{ display:block; width:2.6rem; height:1px; background:var(--ochre, #AF9D2E); opacity:0.7; margin:1.6rem auto; }
+  .desktop-gate p{
+    font-family:'Instrument Sans', system-ui, sans-serif; font-size:clamp(0.98rem, 3.6vw, 1.1rem);
+    line-height:1.7; color:rgba(237,230,216,0.9); margin:0;
+  }
+  .desktop-gate p.desktop-gate-cta{
+    margin-top:1.4rem; font-family:'Fraunces', Georgia, serif; font-style:italic; font-size:clamp(1.05rem, 4vw, 1.25rem);
+    color:#D2C25C;
+  }
+}
