@@ -174,3 +174,6 @@ body.page-transition.is-leaving{ opacity:0 !important; transition:opacity .32s e
     color:#D2C25C;
   }
 }
+
+.credits-modal p a.credits-link{ color:var(--ochre, #AF9D2E); text-decoration:underline; text-underline-offset:3px; text-decoration-color:rgba(175,157,46,0.45); transition:text-decoration-color .2s ease, color .2s ease; }
+.credits-modal p a.credits-link:hover, .credits-modal p a.credits-link:focus-visible{ text-decoration-color:currentColor; }
