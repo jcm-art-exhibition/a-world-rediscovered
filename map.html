@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Map Exhibit — A World Rediscovered</title>
+<meta name="description" content="An interactive map of the archaeological discoveries that changed how the Bible’s ancient world is understood: where they were found, when, and why they mattered.">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="shortcut icon" href="favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="atmosphere.css">
+<link rel="stylesheet" href="chrome.css">
+<style>
+  :root{
+    --ground:#14181C;
+    --ground-deep:#0B0E11;
+    --land:#1B2127;
+    --land-edge:rgba(98,154,189,0.30);
+    --brass:#629ABD;
+    --brass-hi:#A6D6F2;
+    --brass-dim:#466A80;
+    --accent-deep:#1B3342;
+    --whisper:#F2EFE8;
+    --bone:#F2EFE8;
+    --bone-dim:rgba(242,239,232,0.62);
+    --bone-faint:rgba(242,239,232,0.36);
+    --ochre:#629ABD;          /* chrome.css uses --ochre for its accents; keep them cool on this page */
+    --panel:rgba(13,17,21,0.86);
+    --line:rgba(98,154,189,0.26);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--ground-deep); color:var(--whisper);
+    font-family:'Instrument Sans', sans-serif; overflow-x:hidden; min-height:100vh;
+  }
+  h1,h2,h3,p,dl,dd,dt{margin:0;}
+  button{font:inherit; color:inherit;}
+  a{color:inherit;}
+
+  /* ---------- return link (same treatment as the other exhibits) ---------- */
+  .lobby-return{
+    position:fixed; top:1.5rem; left:1.6rem; z-index:80;
+    display:flex; align-items:center; gap:0.5rem;
+    font-family:'Instrument Sans', sans-serif; font-weight:600; font-size:0.72rem; letter-spacing:0.08em;
+    text-transform:uppercase; color:var(--bone-dim); text-decoration:none;
+    opacity:0.68; transition:opacity .25s ease, color .25s ease;
+  }
+  .lobby-return:hover, .lobby-return:focus-visible{ opacity:1; color:var(--brass-hi); outline:none; }
+
+  /* ============================================================
+     Intro
+     ============================================================ */
+  .intro{
+    position:relative; min-height:100vh; display:flex; align-items:center; justify-content:center;
+    text-align:center; padding:6rem 2rem 5rem; overflow:hidden;
+    background:radial-gradient(ellipse at 50% 42%, #1a2229 0%, var(--ground-deep) 72%);
+  }
+  .intro-map{ position:absolute; inset:0; width:100%; height:100%; opacity:0.5; pointer-events:none; }
+  .intro-veil{
+    position:absolute; inset:0; pointer-events:none;
+    background:radial-gradient(ellipse at 50% 46%, rgba(11,14,17,0.82) 0%, rgba(11,14,17,0.55) 52%, rgba(11,14,17,0.25) 100%);
+  }
+  .intro-inner{ position:relative; z-index:2; max-width:46rem; }
+  .eyebrow{
+    font-family:'Instrument Sans', sans-serif; font-weight:600; font-size:0.76rem; letter-spacing:0.34em;
+    text-transform:uppercase; color:var(--brass);
+  }
+  .intro h1{
+    font-family:'Fraunces', serif; font-weight:500; letter-spacing:-0.01em; line-height:1.08;
+    font-size:clamp(2.5rem, 5.4vw, 4.3rem); margin:1.3rem 0 1.8rem; text-wrap:balance;
+  }
+  .intro p.lede{ font-size:1.04rem; line-height:1.75; color:var(--bone-dim); }
+  .intro p.lede + p.lede{ margin-top:1rem; }
+  .intro-cta{
+    display:inline-flex; align-items:center; gap:0.55em; margin-top:2.6rem;
+    font-family:'Instrument Sans', sans-serif; font-weight:600; font-size:0.76rem; letter-spacing:0.08em;
+    text-transform:uppercase; color:var(--whisper); background:var(--accent-deep);
+    border:none; border-radius:999px; padding:0.9rem 1.9rem; cursor:pointer; text-decoration:none;
+    box-shadow:0 0.5rem 1.1rem rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+    transition:filter .2s ease, transform .2s ease;
+  }
+  .intro-cta:hover, .intro-cta:focus-visible{ filter:brightness(1.15); transform:translateY(-2px); outline:none; }
+  .intro-cta .arrow{ display:inline-block; transition:transform .25s ease; }
+  .intro-cta:hover .arrow{ transform:translateY(3px); }
+  .intro-fade > *{ opacity:0; transform:translateY(10px); animation:introIn .7s ease forwards; }
+  .intro-fade > *:nth-child(2){ animation-delay:.12s; }
+  .intro-fade > *:nth-child(3){ animation-delay:.24s; }
+  .intro-fade > *:nth-child(4){ animation-delay:.36s; }
+  .intro-fade > *:nth-child(5){ animation-delay:.48s; }
+  @keyframes introIn{ to{ opacity:1; transform:none; } }
+
+  /* ============================================================
+     Map stage
+     ============================================================ */
+  .map-stage{ position:relative; height:100vh; min-height:640px; overflow:hidden; background:var(--ground-deep); }
+  #mapSvg{ position:absolute; inset:0; width:100%; height:100%; display:block; cursor:grab; touch-action:none; }
+  #mapSvg.is-dragging{ cursor:grabbing; }
+
+  .land{ fill:var(--land); }
+  .sea{ fill:var(--ground-deep); stroke:var(--land-edge); stroke-width:1; vector-effect:non-scaling-stroke; stroke-linejoin:round; }
+  .isle{ fill:var(--land); stroke:var(--land-edge); stroke-width:1; vector-effect:non-scaling-stroke; }
+  .lake{ fill:var(--ground-deep); stroke:var(--land-edge); stroke-width:0.8; vector-effect:non-scaling-stroke; }
+  .river{ fill:none; stroke:rgba(98,154,189,0.34); stroke-width:1.1; vector-effect:non-scaling-stroke; stroke-linecap:round; stroke-linejoin:round; }
+  .grat{ fill:none; stroke:rgba(242,239,232,0.035); stroke-width:1; vector-effect:non-scaling-stroke; }
+  .geo-label{ font-family:'Instrument Sans', sans-serif; font-size:9.5px; letter-spacing:0.32em; text-transform:uppercase; text-anchor:middle; pointer-events:none; }
+  .geo-label.sea{ fill:rgba(242,239,232,0.16); stroke:none; }
+  .geo-label.river{ fill:rgba(98,154,189,0.5); font-size:8px; letter-spacing:0.28em; }
+
+  .mk-leader{ stroke:rgba(98,154,189,0.55); stroke-width:1; vector-effect:non-scaling-stroke; }
+  .mk{ cursor:pointer; outline:none; transition:opacity .45s ease; }
+  .mk-hit{ fill:transparent; }
+  .mk-ring{ fill:none; stroke:rgba(98,154,189,0.38); stroke-width:1; transition:r .25s ease, stroke .25s ease; }
+  .mk-dot{ fill:var(--brass); transition:fill .25s ease; }
+  .mk-label{ font-family:'Instrument Sans', sans-serif; font-size:10px; letter-spacing:0.04em; fill:var(--bone-dim); opacity:0; transition:opacity .3s ease; pointer-events:none; paint-order:stroke; stroke:rgba(11,14,17,0.85); stroke-width:3px; stroke-linejoin:round; }
+  .map-stage.is-zoomed .mk-label{ opacity:1; }
+  .mk:hover .mk-ring, .mk:focus-visible .mk-ring{ r:11px; stroke:rgba(166,214,242,0.85); }
+  .mk:hover .mk-dot, .mk:focus-visible .mk-dot{ fill:var(--brass-hi); }
+  .mk:hover, .mk:focus-visible{ filter:drop-shadow(0 0 5px rgba(98,154,189,0.85)); }
+  .mk.is-selected .mk-dot{ fill:var(--brass-hi); }
+  .mk.is-selected .mk-ring{ r:12px; stroke:var(--brass-hi); }
+  .mk.is-selected{ filter:drop-shadow(0 0 7px rgba(166,214,242,0.9)); }
+  .mk.is-dim{ opacity:0.1; pointer-events:none; }
+  .mk.is-hidden{ opacity:0; pointer-events:none; }
+  .mk.is-new .mk-ring{ animation:ping 1.3s ease-out 1; }
+  @keyframes ping{ 0%{ r:5px; opacity:1; stroke:var(--brass-hi); } 100%{ r:26px; opacity:0; } }
+  .lead-line.is-dim{ opacity:0.1; } .lead-line.is-hidden{ opacity:0; }
+  .lead-line{ transition:opacity .45s ease; }
+
+  /* header block, top-left */
+  .map-head{ position:absolute; z-index:5; top:4.6rem; left:1.6rem; width:19.5rem; pointer-events:none; }
+  .map-head .eyebrow{ font-size:0.66rem; letter-spacing:0.3em; }
+  .map-head h2{
+    font-family:'Fraunces', serif; font-weight:500; font-size:1.42rem; line-height:1.22; letter-spacing:-0.005em;
+    margin:0.75rem 0 0.7rem; text-wrap:balance;
+  }
+  .map-head p{ font-size:0.8rem; line-height:1.6; color:var(--bone-dim); }
+
+  /* filters */
+  .map-filters{ position:absolute; z-index:5; top:15.6rem; left:1.6rem; width:19.5rem; display:flex; flex-direction:column; gap:0.85rem; }
+  .fgroup-label{ font-family:'Instrument Sans', sans-serif; font-weight:600; font-size:0.58rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--bone-faint); margin-bottom:0.4rem; display:block; }
+  .fchips{ display:flex; flex-wrap:wrap; gap:0.35rem; }
+  .fchip{
+    font-family:'Instrument Sans', sans-serif; font-weight:600; font-size:0.6rem; letter-spacing:0.09em; text-transform:uppercase;
+    color:var(--bone-dim); background:rgba(11,14,17,0.55); border:1px solid rgba(242,239,232,0.16); border-radius:999px;
+    padding:0.32rem 0.7rem; cursor:pointer; transition:color .2s ease, border-color .2s ease, background .2s ease;
+  }
+  .fchip:hover, .fchip:focus-visible{ color:var(--whisper); border-color:var(--line); outline:none; }
+  .fchip[aria-pressed="true"]{ color:var(--brass-hi); border-color:rgba(98,154,189,0.6); background:rgba(27,51,66,0.55); }
+  .flang-toggle{ background:none; border:none; padding:0; cursor:pointer; text-align:left; }
+  .flang-toggle .fgroup-label{ display:inline-flex; align-items:center; gap:0.5rem; margin:0; transition:color .2s ease; }
+  .flang-toggle:hover .fgroup-label, .flang-toggle:focus-visible .fgroup-label{ color:var(--bone-dim); }
+  .flang-toggle:focus-visible{ outline:none; }
+  .flang-toggle .caret{ display:inline-block; transition:transform .25s ease; }
+  .flang-toggle[aria-expanded="true"] .caret{ transform:rotate(180deg); }
+  #langChips{ margin-top:0.5rem; }
+  #langChips[hidden]{ display:none; }
+
+  /* zoom controls */
+  .map-zoom{ position:absolute; z-index:6; top:1.3rem; right:1.6rem; display:flex; gap:0.4rem; }
+  .zbtn{
+    height:2rem; min-width:2rem; padding:0 0.65rem; display:inline-flex; align-items:center; justify-content:center;
+    font-family:'Instrument Sans', sans-serif; font-weight:600; font-size:0.62rem; letter-spacing:0.1em; text-transform:uppercase;
+    color:var(--bone-dim); background:rgba(11,14,17,0.6); border:1px solid rgba(242,239,232,0.18); border-radius:999px; cursor:pointer;
+    transition:color .2s ease, border-color .2s ease;
+  }
+  .zbtn.sq{ font-size:1rem; font-weight:500; padding:0; letter-spacing:0; }
+  .zbtn:hover, .zbtn:focus-visible{ color:var(--brass-hi); border-color:rgba(98,154,189,0.6); outline:none; }
+
+  /* hover preview */
+  .map-tip{
+    position:absolute; z-index:20; pointer-events:none; opacity:0; transform:translateY(4px);
+    transition:opacity .18s ease, transform .18s ease; min-width:13rem; max-width:19rem;
+    padding:0.8rem 0.95rem; background:var(--panel); border:1px solid var(--line); border-radius:12px; backdrop-filter:blur(6px);
+  }
+  .map-tip.is-on{ opacity:1; transform:none; }
+  .tip-name{ font-family:'Instrument Sans', sans-serif; font-weight:600; font-size:0.7rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--brass-hi); }
+  .tip-site{ font-size:0.8rem; color:var(--whisper); margin-top:0.35rem; }
+  .tip-when{ font-size:0.72rem; color:var(--bone-dim); margin-top:0.15rem; }
+
+  /* information panel */
+  .map-panel{
+    position:absolute; z-index:30; top:4.4rem; right:1.6rem; bottom:5rem; width:min(27rem, calc(100% - 3.2rem));
+    display:flex; flex-direction:column; background:var(--panel); border:1px solid var(--line); border-radius:20px;
+    backdrop-filter:blur(10px); overflow:hidden;
+    opacity:0; transform:translateX(18px); pointer-events:none;
+    transition:opacity .32s cubic-bezier(0.22,1,0.36,1), transform .32s cubic-bezier(0.22,1,0.36,1);
+  }
+  .map-panel.is-open{ opacity:1; transform:none; pointer-events:auto; }
+  .pn-scroll{ overflow-y:auto; padding:1.9rem 1.8rem 1.8rem; scrollbar-width:thin; scrollbar-color:rgba(98,154,189,0.4) transparent; }
+  .pn-close{ position:absolute; top:0.8rem; right:0.9rem; z-index:2; width:2rem; height:2rem; background:none; border:none; color:var(--bone-dim); cursor:pointer; border-radius:50%; font-size:1.3rem; line-height:1; }
+  .pn-close:hover, .pn-close:focus-visible{ color:var(--brass-hi); outline:none; }
+  .pn-eyebrow{ font-family:'Instrument Sans', sans-serif; font-weight:600; font-size:0.6rem; letter-spacing:0.26em; text-transform:uppercase; color:var(--brass); }
+  .pn-title{ font-family:'Fraunces', serif; font-weight:500; font-size:1.7rem; line-height:1.15; letter-spacing:-0.005em; margin:0.55rem 1.6rem 1.3rem 0; }
+  .pn-rows{ border-top:1px solid rgba(242,239,232,0.12); }
+  .pn-row{ display:grid; grid-template-columns:6.4rem 1fr; gap:0.9rem; padding:0.6rem 0; border-bottom:1px solid rgba(242,239,232,0.12); }
+  .pn-row dt{ font-family:'Instrument Sans', sans-serif; font-weight:600; font-size:0.58rem; letter-spacing:0.16em; text-transform:uppercase; color:var(--brass); padding-top:0.18rem; }
+  .pn-row dd{ font-size:0.82rem; line-height:1.5; color:var(--whisper); }
+  .pn-sec{ margin-top:1.5rem; }
+  .pn-sec h4{ margin:0 0 0.55rem; font-family:'Instrument Sans', sans-serif; font-weight:600; font-size:0.6rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--brass); }
+  .pn-sec p{ font-size:0.86rem; line-height:1.65; color:var(--bone-dim); }
+  .pn-why{ padding-left:1.05rem; border-left:2px solid rgba(98,154,189,0.55); }
+  .pn-why p{ font-family:'Fraunces', serif; font-weight:400; font-size:1.02rem; line-height:1.62; color:var(--whisper); }
+  .pn-chips{ display:flex; flex-wrap:wrap; gap:0.4rem; }
+  .pn-chip{ font-size:0.72rem; color:var(--bone-dim); border:1px solid rgba(242,239,232,0.2); border-radius:999px; padding:0.25rem 0.7rem; }
+  .pn-link{
+    display:inline-flex; align-items:center; gap:0.5em; margin-top:1.6rem;
+    font-family:'Instrument Sans', sans-serif; font-weight:600; font-size:0.68rem; letter-spacing:0.1em; text-transform:uppercase;
+    color:var(--brass-hi); text-decoration:none; border-bottom:1px solid rgba(98,154,189,0.4); padding-bottom:0.2rem; transition:border-color .2s ease;
+  }
+  .pn-link:hover, .pn-link:focus-visible{ border-color:var(--brass-hi); outline:none; }
+  .pn-link .arrow{ transition:transform .25s ease; }
+  .pn-link:hover .arrow{ transform:translateX(4px); }
+
+  /* timeline */
+  .timeline{
+    position:absolute; z-index:6; left:50%; transform:translateX(-50%); bottom:1.2rem;
+    width:min(46rem, calc(100% - 28rem)); min-width:26rem;
+    display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:1.1rem;
+    padding:0.7rem 1.1rem; background:rgba(11,14,17,0.72); border:1px solid rgba(242,239,232,0.14); border-radius:16px; backdrop-filter:blur(6px);
+  }
+  .tl-toggle{
+    font-family:'Instrument Sans', sans-serif; font-weight:600; font-size:0.6rem; letter-spacing:0.12em; text-transform:uppercase;
+    color:var(--bone-dim); background:none; border:1px solid rgba(242,239,232,0.2); border-radius:999px; padding:0.42rem 0.85rem; cursor:pointer; white-space:nowrap;
+    transition:color .2s ease, border-color .2s ease, background .2s ease;
+  }
+  .tl-toggle:hover, .tl-toggle:focus-visible{ color:var(--whisper); border-color:var(--line); outline:none; }
+  .tl-toggle[aria-pressed="true"]{ color:var(--brass-hi); border-color:rgba(98,154,189,0.6); background:rgba(27,51,66,0.55); }
+  .tl-mid{ position:relative; min-width:0; opacity:0.38; transition:opacity .3s ease; }
+  .timeline.is-on .tl-mid{ opacity:1; }
+  .tl-scale{ position:relative; height:1.5rem; }
+  .tl-dot{ position:absolute; top:0.2rem; width:5px; height:5px; margin-left:-2.5px; border-radius:50%; background:rgba(98,154,189,0.45); transition:background .25s ease; }
+  .tl-dot.is-past{ background:var(--brass-hi); }
+  .tl-tick{ position:absolute; top:0.75rem; transform:translateX(-50%); font-family:'Instrument Sans', sans-serif; font-size:0.56rem; letter-spacing:0.08em; color:var(--bone-faint); white-space:nowrap; }
+  .tl-range{ display:block; width:100%; margin:0; height:1.1rem; background:none; -webkit-appearance:none; appearance:none; cursor:pointer; }
+  .tl-range:disabled{ cursor:default; }
+  .tl-range::-webkit-slider-runnable-track{ height:2px; background:rgba(242,239,232,0.22); border-radius:2px; }
+  .tl-range::-moz-range-track{ height:2px; background:rgba(242,239,232,0.22); border-radius:2px; }
+  .tl-range::-webkit-slider-thumb{ -webkit-appearance:none; width:14px; height:14px; margin-top:-6px; border-radius:50%; background:var(--brass-hi); border:2px solid var(--ground-deep); }
+  .tl-range::-moz-range-thumb{ width:10px; height:10px; border-radius:50%; background:var(--brass-hi); border:2px solid var(--ground-deep); }
+  .tl-range:focus-visible{ outline:none; }
+  .tl-range:focus-visible::-webkit-slider-thumb{ box-shadow:0 0 0 3px rgba(98,154,189,0.5); }
+  .tl-right{ display:flex; align-items:center; gap:0.75rem; }
+  .tl-read{ text-align:right; min-width:7.5rem; }
+  .tl-year{ display:block; font-family:'Instrument Sans', sans-serif; font-weight:500; font-size:1.15rem; letter-spacing:0.02em; font-variant-numeric:tabular-nums; color:var(--whisper); line-height:1.1; }
+  .tl-cap{ display:block; font-size:0.62rem; color:var(--bone-dim); margin-top:0.2rem; max-width:10rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-left:auto; }
+  .tl-play{ width:1.9rem; height:1.9rem; border-radius:50%; border:1px solid rgba(242,239,232,0.22); background:none; color:var(--bone-dim); cursor:pointer; display:inline-flex; align-items:center; justify-content:center; transition:color .2s ease, border-color .2s ease, opacity .2s ease; }
+  .tl-play:hover:not(:disabled), .tl-play:focus-visible{ color:var(--brass-hi); border-color:rgba(98,154,189,0.6); outline:none; }
+  .tl-play:disabled{ opacity:0.35; cursor:default; }
+  .tl-play svg{ width:11px; height:11px; }
+
+  /* empty state when filters hide everything */
+  .map-empty{ position:absolute; z-index:4; left:50%; top:46%; transform:translate(-50%,-50%); font-size:0.8rem; color:var(--bone-faint); opacity:0; transition:opacity .3s ease; pointer-events:none; }
+  .map-empty.is-on{ opacity:1; }
+
+  @media (prefers-reduced-motion: reduce){
+    .intro-fade > *{ animation:none; opacity:1; transform:none; }
+    .mk.is-new .mk-ring{ animation:none; }
+    .map-panel, .map-tip{ transition:none; }
+  }
+  /* audio + credits controls sit bottom-right; keep them above the map furniture */
+  .audio-toggle, .credits-toggle{ z-index:95; }
+</style>
+</head>
+<body class="page-transition">
+<noscript><style>body.page-transition{opacity:1 !important;}</style></noscript>
+
+<div class="desktop-gate" role="region" aria-label="Best viewed on a desktop or laptop">
+  <div class="desktop-gate-inner">
+    <svg class="desktop-gate-icon" viewBox="0 0 48 34" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="3" width="34" height="21" rx="2"/><path d="M2 30h44M2 30l3-6h38l3 6"/></svg>
+    <p class="desktop-gate-eyebrow">A World Rediscovered</p>
+    <h1>Some worlds need a little more room.</h1>
+    <span class="desktop-gate-rule" aria-hidden="true"></span>
+    <p>A World Rediscovered is an interactive exploration designed for larger screens.</p>
+    <p class="desktop-gate-cta">Visit on a desktop or laptop to explore.</p>
+  </div>
+</div>
+
+<button class="audio-toggle" id="audioToggle" type="button" aria-pressed="false" aria-label="Mute background music">
+  <svg class="audio-icon audio-icon-on" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/>
+    <path d="M16.3 8.7a5 5 0 0 1 0 6.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+    <path d="M19 6a8.7 8.7 0 0 1 0 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity="0.55"/>
+  </svg>
+  <svg class="audio-icon audio-icon-off" viewBox="0 0 24 24" fill="none" aria-hidden="true" style="display:none">
+    <path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/>
+    <path d="M15.5 9.5l5 5M20.5 9.5l-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+  </svg>
+</button>
+<audio id="bgAudio" src="Buried%20Chambers.mp3" loop preload="auto" muted></audio>
+
+<button class="credits-toggle" id="creditsToggle" type="button" aria-haspopup="dialog" aria-controls="creditsModal">Credits</button>
+<div class="credits-overlay" id="creditsOverlay">
+  <div class="credits-modal" id="creditsModal" role="dialog" aria-modal="true" aria-labelledby="creditsTitle">
+    <button class="credits-close" id="creditsClose" type="button" aria-label="Close credits">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+        <path d="M1 1L13 13M13 1L1 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      </svg>
+    </button>
+    <h3 id="creditsTitle">Credits</h3>
+    <section>
+      <div class="credits-label">Made by</div>
+      <p>Jarrett Michael · <a class="credits-link" href="https://jarrettmichael.com" target="_blank" rel="noopener">jarrettmichael.com</a></p>
+    </section>
+    <section>
+      <div class="credits-label">Photography</div>
+      <p>Photography courtesy of contributors on Unsplash.<br><br>Roberto Catarinicchia<br>Drew Coffman<br>Taylor Flowe<br>Vladimir Kramer<br>Volodymyr Leush<br>Parastoo Maleki<br>Zoltan Tasi<br>Drew Walker</p>
+    </section>
+  </div>
+</div>
+
+<div class="dust-layer" id="dustLayer" aria-hidden="true"></div>
+
+<a class="lobby-return" href="index.html#corridor-cards-start" aria-label="Return to the first exhibit">&larr; Return to Entrance</a>
+
+<main>
+  <!-- ================= INTRO ================= -->
+  <section class="intro" id="intro">
+    <svg class="intro-map" id="introMap" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
+    <div class="intro-veil" aria-hidden="true"></div>
+    <div class="intro-inner intro-fade">
+      <p class="eyebrow">The Discovery Map</p>
+      <h1>A world rediscovered, one excavation at a time.</h1>
+      <p class="lede">For centuries, much of the world surrounding the Bible was known primarily through the biblical texts themselves. Archaeological discoveries across Mesopotamia, Egypt, Canaan, and the Levant gradually brought that world back into view.</p>
+      <p class="lede">Explore where these discoveries were made, when they entered modern scholarship, and how they changed the way the Bible was read.</p>
+      <div><a class="intro-cta" id="exploreBtn" href="#mapStage">Explore the map <span class="arrow" aria-hidden="true">&darr;</span></a></div>
+    </div>
+  </section>
+
+  <!-- ================= MAP ================= -->
+  <section class="map-stage" id="mapStage" aria-label="Map of archaeological discoveries in the ancient Near East">
+    <svg id="mapSvg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" role="group" aria-label="Map of the ancient Near East. Each marker is an archaeological discovery.">
+      <g id="view">
+        <g id="baseLayer"></g>
+        <g id="leaders"></g>
+        <g id="markers"></g>
+      </g>
+    </svg>
+
+    <div class="map-head">
+      <p class="eyebrow">The Discovery Map</p>
+      <h2>Our picture of the biblical world did not arrive all at once.</h2>
+      <p>It was reconstructed discovery by discovery. Select a marker to see what was found, and why it mattered.</p>
+    </div>
+
+    <div class="map-filters" id="filters" role="group" aria-label="Filter discoveries">
+      <div>
+        <span class="fgroup-label">Kind of find</span>
+        <div class="fchips" id="typeChips"></div>
+      </div>
+      <div>
+        <span class="fgroup-label">Region</span>
+        <div class="fchips" id="regionChips"></div>
+      </div>
+      <div>
+        <button class="flang-toggle" id="langToggle" type="button" aria-expanded="false" aria-controls="langChips">
+          <span class="fgroup-label">Language <span class="caret" aria-hidden="true">&#9662;</span></span>
+        </button>
+        <div class="fchips" id="langChips" hidden></div>
+      </div>
+    </div>
+
+    <div class="map-zoom" role="group" aria-label="Map view">
+      <button class="zbtn sq" id="zoomIn" type="button" aria-label="Zoom in">+</button>
+      <button class="zbtn sq" id="zoomOut" type="button" aria-label="Zoom out">&minus;</button>
+      <button class="zbtn" id="zoomLevant" type="button">Levant</button>
+      <button class="zbtn" id="zoomReset" type="button">Full region</button>
+    </div>
+
+    <div class="map-tip" id="tip" role="tooltip"><div class="tip-name" id="tipName"></div><div class="tip-site" id="tipSite"></div><div class="tip-when" id="tipWhen"></div></div>
+    <p class="map-empty" id="mapEmpty">No discoveries match these filters.</p>
+
+    <aside class="map-panel" id="panel" role="dialog" aria-modal="false" aria-labelledby="pnTitle" aria-hidden="true">
+      <button class="pn-close" id="pnClose" type="button" aria-label="Close discovery details">&times;</button>
+      <div class="pn-scroll" id="pnScroll"></div>
+    </aside>
+
+    <div class="timeline" id="timeline">
+      <button class="tl-toggle" id="tlToggle" type="button" aria-pressed="false">Chronological view</button>
+      <div class="tl-mid">
+        <div class="tl-scale" id="tlScale" aria-hidden="true"></div>
+        <input class="tl-range" id="tlRange" type="range" min="1840" max="2000" step="1" value="1840" disabled aria-label="Year of discovery">
+      </div>
+      <div class="tl-right">
+        <div class="tl-read" aria-live="polite"><span class="tl-year" id="tlYear">All</span><span class="tl-cap" id="tlCap"></span></div>
+        <button class="tl-play" id="tlPlay" type="button" aria-label="Play through the discoveries in order" disabled>
+          <svg viewBox="0 0 12 12" fill="currentColor" id="tlPlayIcon" aria-hidden="true"><path d="M2 1l9 5-9 5z"/></svg>
+        </button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script src="map-discoveries.js"></script>
+<script src="map-geo.js"></script>
+<script>
+(function () {
+  'use strict';
+  var NS = 'http://www.w3.org/2000/svg';
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var DATA = (window.MAP_DISCOVERIES || []).slice().sort(function (a, b) { return a.year - b.year; });
+  var GEO = window.MAP_GEO;
+
+  /* ---------- projection (Mercator, fitted to the Near East) ---------- */
+  var W = 1600, H = 900, LON0 = 41.3, TOP = 38.9, BOT = 21.2;
+  function my(p) { return Math.log(Math.tan(Math.PI / 4 + p * Math.PI / 360)) * 180 / Math.PI; }
+  var S = H / (my(TOP) - my(BOT));
+  var MIDM = (my(TOP) + my(BOT)) / 2;
+  function proj(lon, lat) { return [W / 2 + (lon - LON0) * S, H / 2 - S * (my(lat) - MIDM)]; }
+  function r1(n) { return Math.round(n * 10) / 10; }
+
+  function el(name, attrs, parent) {
+    var e = document.createElementNS(NS, name);
+    for (var k in attrs) if (attrs.hasOwnProperty(k)) e.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  /* Catmull-Rom spline through the projected points, as cubic Beziers */
+  function smooth(pts, closed) {
+    var p = pts.map(function (q) { return proj(q[0], q[1]); });
+    var n = p.length, d = 'M' + r1(p[0][0]) + ' ' + r1(p[0][1]);
+    var last = closed ? n : n - 1;
+    for (var i = 0; i < last; i++) {
+      var p0 = p[closed ? (i - 1 + n) % n : Math.max(i - 1, 0)];
+      var p1 = p[i], p2 = p[(i + 1) % n];
+      var p3 = p[closed ? (i + 2) % n : Math.min(i + 2, n - 1)];
+      d += 'C' + r1(p1[0] + (p2[0] - p0[0]) / 6) + ' ' + r1(p1[1] + (p2[1] - p0[1]) / 6) + ' ' +
+                 r1(p2[0] - (p3[0] - p1[0]) / 6) + ' ' + r1(p2[1] - (p3[1] - p1[1]) / 6) + ' ' +
+                 r1(p2[0]) + ' ' + r1(p2[1]);
+    }
+    return closed ? d + 'Z' : d;
+  }
+
+  function buildBase(g, withLabels) {
+    el('rect', { 'class': 'land', x: -2400, y: -1400, width: 6400, height: 3700 }, g);
+    for (var lon = 20; lon <= 65; lon += 5) { var a = proj(lon, TOP + 10), b = proj(lon, BOT - 10); el('path', { 'class': 'grat', d: 'M' + r1(a[0]) + ' ' + r1(a[1]) + 'L' + r1(b[0]) + ' ' + r1(b[1]) }, g); }
+    for (var lat = 15; lat <= 45; lat += 5) { var c = proj(10, lat), e2 = proj(75, lat); el('path', { 'class': 'grat', d: 'M' + r1(c[0]) + ' ' + r1(c[1]) + 'L' + r1(e2[0]) + ' ' + r1(e2[1]) }, g); }
+    Object.keys(GEO.seas).forEach(function (k) { el('path', { 'class': 'sea', d: smooth(GEO.seas[k], true) }, g); });
+    Object.keys(GEO.islands).forEach(function (k) { el('path', { 'class': 'isle', d: smooth(GEO.islands[k], true) }, g); });
+    Object.keys(GEO.lakes).forEach(function (k) { el('path', { 'class': 'lake', d: smooth(GEO.lakes[k], true) }, g); });
+    Object.keys(GEO.rivers).forEach(function (k) { el('path', { 'class': 'river', d: smooth(GEO.rivers[k], false) }, g); });
+    if (withLabels) GEO.labels.forEach(function (l) {
+      var q = proj(l[1], l[2]);
+      var t = el('text', { 'class': 'geo-label ' + l[3], x: r1(q[0]), y: r1(q[1]) }, g); t.textContent = l[0];
+    });
+  }
+  buildBase(document.getElementById('baseLayer'), true);
+  buildBase(document.getElementById('introMap'), false);
+
+  /* ---------- labels for filters ---------- */
+  var TYPE_LABELS = { texts: 'Texts & Tablets', inscriptions: 'Inscriptions', manuscripts: 'Manuscripts', archives: 'Archives' };
+  var REGION_LABELS = { israel: 'Israel & Judah', mesopotamia: 'Mesopotamia', canaan: 'Canaan & Syria', egypt: 'Egypt & Transjordan' };
+  var filters = { type: 'all', region: 'all', lang: 'all' };
+  var chrono = { on: false, year: 1840 };
+
+  function makeChips(container, key, options) {
+    var all = [['all', 'All']].concat(options);
+    all.forEach(function (o) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'fchip'; b.textContent = o[1]; b.dataset.value = o[0];
+      b.setAttribute('aria-pressed', o[0] === 'all' ? 'true' : 'false');
+      b.addEventListener('click', function () {
+        filters[key] = o[0];
+        Array.prototype.forEach.call(container.children, function (c) { c.setAttribute('aria-pressed', c.dataset.value === o[0] ? 'true' : 'false'); });
+        refresh(false);
+      });
+      container.appendChild(b);
+    });
+  }
+  makeChips(document.getElementById('typeChips'), 'type', Object.keys(TYPE_LABELS).map(function (k) { return [k, TYPE_LABELS[k]]; }));
+  makeChips(document.getElementById('regionChips'), 'region', Object.keys(REGION_LABELS).map(function (k) { return [k, REGION_LABELS[k]]; }));
+  var langs = {}; DATA.forEach(function (d) { d.languages.forEach(function (l) { langs[l] = 1; }); });
+  makeChips(document.getElementById('langChips'), 'lang', Object.keys(langs).sort().map(function (l) { return [l, l]; }));
+  var langToggle = document.getElementById('langToggle'), langChips = document.getElementById('langChips');
+  langToggle.addEventListener('click', function () {
+    var open = langToggle.getAttribute('aria-expanded') === 'true';
+    langToggle.setAttribute('aria-expanded', open ? 'false' : 'true');
+    langChips.hidden = open;
+  });
+
+  /* ---------- markers ---------- */
+  var svg = document.getElementById('mapSvg'), viewG = document.getElementById('view');
+  var leadersG = document.getElementById('leaders'), markersG = document.getElementById('markers');
+  var stage = document.getElementById('mapStage');
+  var view = { k: 1, tx: 0, ty: 0 };
+  var items = DATA.map(function (d) {
+    var pt = proj(d.lon, d.lat), nudge = d.nudge || [0, 0];
+    var g = el('g', { 'class': 'mk', tabindex: '0', role: 'button', 'data-id': d.id, 'aria-label': d.name + ', ' + d.location + '. ' + whenText(d) + '. Open details.' }, markersG);
+    el('circle', { 'class': 'mk-hit', r: 15 }, g);
+    el('circle', { 'class': 'mk-ring', r: 8 }, g);
+    el('circle', { 'class': 'mk-dot', r: 4.2 }, g);
+    if (!d.noLabel) { var t = el('text', { 'class': 'mk-label', x: 11, y: 3.6 }, g); t.textContent = d.site; }
+    var ln = null;
+    if (nudge[0] || nudge[1]) ln = el('line', { 'class': 'mk-leader lead-line' }, leadersG);
+    var it = { d: d, x: pt[0], y: pt[1], nx: nudge[0], ny: nudge[1], g: g, ln: ln, shown: false };
+    g.addEventListener('pointerenter', function () { showTip(it); });
+    g.addEventListener('pointerleave', hideTip);
+    g.addEventListener('focus', function () { showTip(it); });
+    g.addEventListener('blur', hideTip);
+    g.addEventListener('click', function (e) { e.stopPropagation(); select(it); });
+    g.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(it); } });
+    return it;
+  });
+  function whenText(d) { return /^(Recognized|Discovered)/.test(d.discovered) ? d.discovered : 'Discovered ' + d.discovered; }
+
+  function layoutMarkers() {
+    var k = view.k;
+    items.forEach(function (it) {
+      var px = it.x + it.nx / k, py = it.y + it.ny / k;
+      it.g.setAttribute('transform', 'translate(' + r1(px * 100) / 100 + ' ' + r1(py * 100) / 100 + ') scale(' + (1 / k) + ')');
+      if (it.ln) { it.ln.setAttribute('x1', it.x); it.ln.setAttribute('y1', it.y); it.ln.setAttribute('x2', px); it.ln.setAttribute('y2', py); }
+    });
+    stage.classList.toggle('is-zoomed', k >= 2.3);
+  }
+  function applyView() {
+    viewG.setAttribute('transform', 'translate(' + view.tx + ' ' + view.ty + ') scale(' + view.k + ')');
+    layoutMarkers();
+    if (selected) placePanelAware(false);
+  }
+  function clampView() {
+    view.k = Math.min(Math.max(view.k, 1), 9);
+    view.tx = Math.min(0, Math.max(W - W * view.k, view.tx));
+    view.ty = Math.min(0, Math.max(H - H * view.k, view.ty));
+  }
+
+  /* ---------- filtering + chronology ---------- */
+  function matches(d) {
+    return (filters.type === 'all' || d.types.indexOf(filters.type) > -1) &&
+           (filters.region === 'all' || d.region === filters.region) &&
+           (filters.lang === 'all' || d.languages.indexOf(filters.lang) > -1);
+  }
+  function refresh(animateNew) {
+    var visibleCount = 0;
+    items.forEach(function (it) {
+      var found = !chrono.on || it.d.year <= chrono.year;
+      var ok = matches(it.d);
+      var g = it.g;
+      g.classList.toggle('is-hidden', !found);
+      g.classList.toggle('is-dim', found && !ok);
+      if (it.ln) { it.ln.classList.toggle('is-hidden', !found); it.ln.classList.toggle('is-dim', found && !ok); }
+      g.setAttribute('tabindex', found && ok ? '0' : '-1');
+      g.setAttribute('aria-hidden', found && ok ? 'false' : 'true');
+      if (found && ok) visibleCount++;
+      if (animateNew && found && !it.shown && !reduceMotion) {
+        g.classList.remove('is-new'); void g.getBBox; g.classList.add('is-new');
+        setTimeout(function () { g.classList.remove('is-new'); }, 1400);
+      }
+      it.shown = found;
+    });
+    if (selected && (!(selected.shown) || !matches(selected.d))) closePanel();
+    document.getElementById('mapEmpty').classList.toggle('is-on', visibleCount === 0 && !(chrono.on && chrono.year < DATA[0].year));
+    updateTimelineText();
+  }
+
+  /* ---------- hover preview ---------- */
+  var tip = document.getElementById('tip');
+  function showTip(it) {
+    if (it.g.classList.contains('is-hidden') || it.g.classList.contains('is-dim')) return;
+    document.getElementById('tipName').textContent = it.d.name;
+    document.getElementById('tipSite').textContent = it.d.location;
+    document.getElementById('tipWhen').textContent = whenText(it.d);
+    var r = it.g.querySelector('.mk-dot').getBoundingClientRect(), s = stage.getBoundingClientRect();
+    var x = r.right - s.left + 12, y = r.top - s.top - 10;
+    tip.classList.add('is-on');
+    var tw = tip.offsetWidth, th = tip.offsetHeight;
+    if (x + tw > s.width - 12) x = r.left - s.left - tw - 12;
+    if (y + th > s.height - 12) y = s.height - th - 12;
+    if (y < 8) y = 8;
+    tip.style.left = x + 'px'; tip.style.top = y + 'px';
+  }
+  function hideTip() { tip.classList.remove('is-on'); }
+
+  /* ---------- information panel ---------- */
+  var panel = document.getElementById('panel'), pnScroll = document.getElementById('pnScroll'), selected = null, lastFocus = null;
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function select(it) {
+    if (selected) selected.g.classList.remove('is-selected');
+    selected = it; it.g.classList.add('is-selected'); hideTip();
+    var d = it.d;
+    var rows = [['Found at', d.location], ['Discovered', d.discovered], ['Discovered by', d.foundBy], ['Dates to', d.dates]];
+    var html = '<p class="pn-eyebrow">Discovery</p><h3 class="pn-title" id="pnTitle">' + esc(d.name) + '</h3><dl class="pn-rows">' +
+      rows.map(function (r) { return '<div class="pn-row"><dt>' + r[0] + '</dt><dd>' + esc(r[1]) + '</dd></div>'; }).join('') + '</dl>' +
+      '<div class="pn-sec"><h4>What was found</h4><p>' + esc(d.found) + '</p></div>' +
+      '<div class="pn-sec pn-why"><h4>Why it mattered</h4><p>' + esc(d.why) + '</p></div>';
+    if (d.biblical && d.biblical.length) html += '<div class="pn-sec"><h4>Related biblical texts</h4><div class="pn-chips">' + d.biblical.map(function (b) { return '<span class="pn-chip">' + esc(b) + '</span>'; }).join('') + '</div></div>';
+    if (d.link) html += '<a class="pn-link" href="' + esc(d.link.url) + '" target="_blank" rel="noopener">' + esc((d.link.label || 'View artifact')) + ' <span class="arrow" aria-hidden="true">&rarr;</span></a>';
+    pnScroll.innerHTML = html; pnScroll.scrollTop = 0;
+    lastFocus = it.g;
+    panel.classList.add('is-open'); panel.setAttribute('aria-hidden', 'false');
+    placePanelAware(true);
+    setTimeout(function () { document.getElementById('pnClose').focus({ preventScroll: true }); }, 60);
+  }
+  function closePanel() {
+    if (!selected) return;
+    selected.g.classList.remove('is-selected'); selected = null;
+    panel.classList.remove('is-open'); panel.setAttribute('aria-hidden', 'true');
+    if (lastFocus && document.activeElement && panel.contains(document.activeElement)) lastFocus.focus({ preventScroll: true });
+  }
+  document.getElementById('pnClose').addEventListener('click', closePanel);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && selected) closePanel(); });
+  svg.addEventListener('click', function () { if (selected && !dragMoved) closePanel(); });
+
+  /* keep the selected marker clear of the panel */
+  function scenePxScale() { var m = svg.getScreenCTM(); return m ? m.a : 1; }
+  function markerScreenX(it) {
+    var m = svg.getScreenCTM(); if (!m) return 0;
+    var px = (it.x + it.nx / view.k) * view.k + view.tx;
+    return px * m.a + m.e;
+  }
+  function placePanelAware(animate) {
+    if (!selected) return;
+    var s = stage.getBoundingClientRect(), pr = panel.getBoundingClientRect();
+    var limit = s.right - Math.min(448, s.width - 48) - 44;
+    var sx = markerScreenX(selected);
+    if (sx > limit && animate) {
+      var dx = (limit - sx) / scenePxScale();
+      tweenView(view.k, view.tx + dx, view.ty);
+    }
+  }
+
+  /* ---------- pan, zoom ---------- */
+  var tween = null, dragMoved = false;
+  function tweenView(k2, tx2, ty2, ms) {
+    if (tween) cancelAnimationFrame(tween.raf);
+    var k1 = view.k, x1 = view.tx, y1 = view.ty; var dur = reduceMotion ? 0 : (ms || 650), t0 = performance.now();
+    var tgt = { k: k2, tx: tx2, ty: ty2 };
+    function step(now) {
+      var t = dur ? Math.min(1, (now - t0) / dur) : 1, e = 1 - Math.pow(1 - t, 3);
+      view.k = k1 + (tgt.k - k1) * e; view.tx = x1 + (tgt.tx - x1) * e; view.ty = y1 + (tgt.ty - y1) * e;
+      clampView(); applyView();
+      if (t < 1) tween = { raf: requestAnimationFrame(step) }; else tween = null;
+    }
+    tween = { raf: requestAnimationFrame(step) };
+  }
+  function focusOn(lon, lat, k, fx) {
+    var p = proj(lon, lat), cx = (fx === undefined ? W / 2 : fx), cy = H / 2;
+    tweenView(k, cx - p[0] * k, cy - p[1] * k);
+  }
+  function zoomAt(factor, sx, sy) {
+    var k2 = Math.min(Math.max(view.k * factor, 1), 9);
+    var lx = (sx - view.tx) / view.k, ly = (sy - view.ty) / view.k;
+    var tx2 = sx - lx * k2, ty2 = sy - ly * k2;
+    tweenView(k2, tx2, ty2, 320);
+  }
+  document.getElementById('zoomIn').addEventListener('click', function () { zoomAt(1.6, W / 2, H / 2); });
+  document.getElementById('zoomOut').addEventListener('click', function () { zoomAt(1 / 1.6, W / 2, H / 2); });
+  document.getElementById('zoomReset').addEventListener('click', function () { tweenView(1, 0, 0); });
+  document.getElementById('zoomLevant').addEventListener('click', function () { focusOn(35.35, 32.0, 4.6, 590); });
+
+  function toScene(evt) {
+    var pt = svg.createSVGPoint(); pt.x = evt.clientX; pt.y = evt.clientY;
+    var m = svg.getScreenCTM(); return m ? pt.matrixTransform(m.inverse()) : { x: W / 2, y: H / 2 };
+  }
+  svg.addEventListener('wheel', function (e) {
+    e.preventDefault();
+    var p = toScene(e), f = Math.exp(-e.deltaY * 0.0016);
+    var k2 = Math.min(Math.max(view.k * f, 1), 9);
+    var lx = (p.x - view.tx) / view.k, ly = (p.y - view.ty) / view.k;
+    if (tween) { cancelAnimationFrame(tween.raf); tween = null; }
+    view.k = k2; view.tx = p.x - lx * k2; view.ty = p.y - ly * k2;
+    clampView(); applyView();
+  }, { passive: false });
+
+  var drag = null;
+  svg.addEventListener('pointerdown', function (e) {
+    if (e.button !== 0 || e.target.closest('.mk')) return;
+    if (tween) { cancelAnimationFrame(tween.raf); tween = null; }
+    drag = { x: e.clientX, y: e.clientY, tx: view.tx, ty: view.ty, id: e.pointerId }; dragMoved = false;
+  });
+  svg.addEventListener('pointermove', function (e) {
+    if (!drag || e.pointerId !== drag.id) return;
+    var dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+    if (!dragMoved && Math.abs(dx) + Math.abs(dy) < 4) return;
+    if (!dragMoved) { dragMoved = true; svg.classList.add('is-dragging'); try { svg.setPointerCapture(e.pointerId); } catch (_) {} hideTip(); }
+    var sc = scenePxScale();
+    view.tx = drag.tx + dx / sc; view.ty = drag.ty + dy / sc;
+    clampView(); applyView();
+  });
+  function endDrag(e) {
+    if (!drag) return;
+    drag = null; svg.classList.remove('is-dragging');
+    setTimeout(function () { dragMoved = false; }, 0);
+  }
+  svg.addEventListener('pointerup', endDrag);
+  svg.addEventListener('pointercancel', endDrag);
+
+  /* ---------- timeline ---------- */
+  var MIN = 1840, MAX = 2000;
+  var tl = document.getElementById('timeline'), range = document.getElementById('tlRange'), scale = document.getElementById('tlScale');
+  var tlToggle = document.getElementById('tlToggle'), tlPlay = document.getElementById('tlPlay');
+  var tlYear = document.getElementById('tlYear'), tlCap = document.getElementById('tlCap');
+  function pct(y) { return ((y - MIN) / (MAX - MIN)) * 100; }
+  var dots = DATA.map(function (d) {
+    var s = document.createElement('span'); s.className = 'tl-dot'; s.style.left = pct(d.year) + '%'; scale.appendChild(s); return s;
+  });
+  [1840, 1870, 1900, 1930, 1960, 1990].forEach(function (y) {
+    var t = document.createElement('span'); t.className = 'tl-tick'; t.textContent = y + 's'; t.style.left = pct(y) + '%'; scale.appendChild(t);
+  });
+  function updateTimelineText() {
+    if (!chrono.on) { tlYear.textContent = 'All'; tlCap.textContent = DATA.length + ' discoveries'; dots.forEach(function (s) { s.classList.remove('is-past'); }); return; }
+    tlYear.textContent = Math.round(chrono.year);
+    var seen = DATA.filter(function (d) { return d.year <= chrono.year; });
+    tlCap.textContent = seen.length ? seen[seen.length - 1].year + ' · ' + seen[seen.length - 1].name : 'Before the first find';
+    dots.forEach(function (s, i) { s.classList.toggle('is-past', DATA[i].year <= chrono.year); });
+  }
+  function setYear(y, animateNew) {
+    chrono.year = Math.max(MIN, Math.min(MAX, y)); range.value = Math.round(chrono.year);
+    refresh(animateNew);
+  }
+  tlToggle.addEventListener('click', function () {
+    chrono.on = !chrono.on;
+    tlToggle.setAttribute('aria-pressed', chrono.on ? 'true' : 'false');
+    tl.classList.toggle('is-on', chrono.on);
+    range.disabled = !chrono.on; tlPlay.disabled = !chrono.on;
+    stopPlay();
+    if (chrono.on) { chrono.year = MIN; range.value = MIN; }
+    refresh(false);
+  });
+  range.addEventListener('input', function () { stopPlay(); chrono.year = +range.value; refresh(true); });
+
+  var playing = null;
+  var playIcon = document.getElementById('tlPlayIcon');
+  var ICON_PLAY = '<path d="M2 1l9 5-9 5z"/>', ICON_PAUSE = '<path d="M2 1h3v10H2zM7 1h3v10H7z"/>';
+  function stopPlay() { if (playing) { clearTimeout(playing.t); cancelAnimationFrame(playing.raf); playing = null; } playIcon.innerHTML = ICON_PLAY; tlPlay.setAttribute('aria-label', 'Play through the discoveries in order'); }
+  function glide(from, to, done) {
+    var dur = reduceMotion ? 0 : 900, t0 = performance.now();
+    function step(now) {
+      var t = dur ? Math.min(1, (now - t0) / dur) : 1;
+      chrono.year = from + (to - from) * t; range.value = Math.round(chrono.year); refresh(t === 1);
+      if (t < 1) playing.raf = requestAnimationFrame(step); else done();
+    }
+    playing.raf = requestAnimationFrame(step);
+  }
+  function playNext() {
+    if (!playing) return;
+    var next = DATA.filter(function (d) { return d.year > Math.round(chrono.year); })[0];
+    if (!next) { stopPlay(); return; }
+    glide(chrono.year, next.year, function () { if (playing) playing.t = setTimeout(playNext, reduceMotion ? 200 : 1500); });
+  }
+  tlPlay.addEventListener('click', function () {
+    if (playing) { stopPlay(); return; }
+    if (chrono.year >= DATA[DATA.length - 1].year) { chrono.year = MIN; range.value = MIN; refresh(false); }
+    playing = { t: null, raf: null };
+    playIcon.innerHTML = ICON_PAUSE; tlPlay.setAttribute('aria-label', 'Pause');
+    playNext();
+  });
+
+  /* ---------- intro CTA ---------- */
+  document.getElementById('exploreBtn').addEventListener('click', function (e) {
+    e.preventDefault();
+    document.getElementById('mapStage').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' });
+  });
+
+  applyView();
+  refresh(false);
+})();
+</script>
+<script src="atmosphere.js"></script>
+<script src="chrome.js"></script>
+</body>
+</html>
