@@ -333,6 +333,54 @@ window.MAP_DISCOVERIES = [
     nudge: [-13, -9]
   },
   {
+    id: 'merneptah-stele',
+    name: 'Merneptah Stele',
+    site: 'Thebes',
+    location: "Merneptah's mortuary temple, Thebes (modern Luxor), Egypt",
+    lat: 25.72, lon: 32.61,
+    year: 1896,
+    discovered: 'Discovered 1896; published 1897',
+    discoveryYear: 1896,
+    scholarshipYear: 1896,
+    foundBy: 'Flinders Petrie, in the ruins of the mortuary temple of Merneptah; first translated by Wilhelm Spiegelberg',
+    dates: 'Carved in the 5th year of Merneptah’s reign, about 1208 BCE',
+    found: 'A black granite victory stele, originally raised by Amenhotep III and reinscribed on its back by Merneptah, celebrating campaigns against Libya and a raid into Canaan.',
+    why: 'Near the end of the inscription, among a list of defeated peoples, a line reads “Israel is laid waste, its seed is no more” — the earliest known mention of Israel outside the Bible. The hieroglyphic determinative marks Israel as a people rather than a city or established land, suggesting a group already known to Egypt by about 1208 BCE, more than a century before Israel appears in any other surviving text. Scholars broadly accept the reading, though what kind of group Merneptah’s Israel actually was remains debated.',
+    biblical: ['Background to Israel’s early history in Canaan'],
+    types: ['inscriptions'],
+    region: 'egypt',
+    languages: ['Egyptian']
+  },
+  /* Soleb lies at roughly 20.4°N, well south of this basemap's southern
+     edge (BOT = 21.2 in map.html). Its marker is nudged north to about
+     24.5°N — not just inside the nominal 0–900 viewBox, but inside the
+     range that stays visible once the SVG's preserveAspectRatio="slice"
+     crops top and bottom on wider-than-16:9 browser windows (on a
+     2000x903 window, only y=88.8–811.2 of the 900-tall viewBox is
+     actually shown; a wider monitor crops further still). 24.5°N keeps
+     a safety margin inside that shrinking window. The location text
+     below still gives Soleb's true position. See map.html's projection
+     constants if the frame is ever extended further south. */
+  {
+    id: 'soleb-inscription',
+    name: 'Soleb Inscription',
+    site: 'Soleb',
+    location: 'Soleb, Upper Nubia, Sudan',
+    lat: 24.5, lon: 30.3,
+    year: 1844,
+    discovered: 'Temple documented from 1844; the “Yhw” toponym identified in 1964',
+    discoveryYear: 1844,
+    scholarshipYear: 1964,
+    foundBy: 'Temple recorded by Karl Richard Lepsius (1844); the “Shasu of Yhw” toponym connected to the divine name by Raphael Giveon (1964)',
+    dates: 'Carved under Amenhotep III, reign about 1390–1352 BCE',
+    found: 'A place-name list carved on a column in Amenhotep III’s temple at Soleb, in Upper Nubia, recording peoples Egypt claimed to have subdued — including “the land of the Shasu of Yhw.”',
+    why: 'This is among the earliest occurrences anywhere of a name matching YHWH, centuries before Israel’s own writings. The Shasu were Semitic pastoralists associated with the Sinai, Transjordan, and southern Canaan rather than any single nation, so scholars debate whether this reflects an early form of Yahweh worship among groups later related to Israel, a separate regional deity, or something else entirely. It remains one of the most discussed, and most contested, proposed extra-biblical references to the divine name.',
+    biblical: ['Exodus 3:13–15'],
+    types: ['inscriptions'],
+    region: 'egypt',
+    languages: ['Egyptian']
+  },
+  {
     id: 'tel-dan',
     name: 'Tel Dan Stele',
     site: 'Tel Dan',
