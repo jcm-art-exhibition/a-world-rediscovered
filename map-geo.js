@@ -73,14 +73,63 @@ window.MAP_GEO = {
     ]
   },
 
+  /* Mountain ranges, drawn as a faint ridge line with hachure ticks
+     scattered along it — enough to read as relief without needing
+     real elevation data. Each is a short spine of [lon,lat] points. */
+  ranges: {
+    lebanon: [[36.05,34.35],[35.95,33.85],[35.85,33.15]],
+    antiLebanon: [[36.35,33.95],[36.25,33.6],[36.15,33.35]],
+    taurus: [[30.8,37.0],[33.5,37.35],[35.8,37.55],[37.6,38.05]],
+    zagros: [[45.0,37.0],[46.6,35.2],[47.6,33.4],[48.7,31.6],[49.6,30.3]],
+    sinai: [[33.75,28.95],[33.95,28.55],[33.85,28.3]]
+  },
+
+  /* Loose stipple of small dots suggesting the desert interior — the
+     Syrian Desert between the Euphrates bend and the Levant, and the
+     Arabian interior further south. Hand-placed, not randomized, so
+     the map is stable between loads. */
+  desertDots: [
+    [38.2,34.3],[39.4,34.6],[40.6,34.2],[38.8,33.4],[40.1,33.1],[41.4,33.6],[42.3,32.9],
+    [39.6,32.4],[37.9,32.9],[41.0,31.8],[43.0,31.4],[38.6,31.5],[36.9,32.2],[40.4,30.6],
+    [42.1,25.8],[43.6,24.6],[45.2,25.2],[46.8,24.0],[44.4,23.0],[47.5,22.6],[41.6,23.6],
+    [45.9,26.8],[48.1,23.4],[43.1,26.4],[46.3,21.9],[39.8,24.8],[44.8,21.4]
+  ],
+
+  /* Ancient trade routes as open polylines, drawn dotted and quieter
+     than the rivers — the King's Highway ran the Transjordan plateau
+     north–south, the Via Maris hugged the Levant coast. Stylized, not
+     archaeologically precise. */
+  routes: {
+    viaMaris: [
+      [31.3,30.95],[32.6,31.0],[33.8,31.13],[34.47,31.5],[34.75,32.05],[34.95,32.6],[35.3,32.75],[35.8,33.2],[36.3,33.51]
+    ],
+    kingsHighway: [
+      [36.3,33.51],[36.0,32.6],[35.93,31.95],[35.8,31.5],[35.7,30.9],[35.6,30.5],[35.44,30.33],[35.2,29.7],[34.99,29.55]
+    ]
+  },
+
   /* Quiet map lettering: [text, lon, lat, class] */
   labels: [
     ['Mediterranean Sea', 32.2, 33.6, 'sea'],
-    ['Red Sea', 37.7, 23.0, 'sea'],
-    ['Persian Gulf', 51.6, 27.7, 'sea'],
+    ['Red Sea', 36.8, 25.3, 'sea'],
+    ['Persian Gulf', 53.5, 26.1, 'sea'],
     ['Caspian Sea', 51.0, 38.9, 'sea'],
     ['Nile', 31.45, 26.2, 'river'],
     ['Euphrates', 41.6, 34.9, 'river'],
-    ['Tigris', 44.6, 34.1, 'river']
+    ['Tigris', 44.6, 34.1, 'river'],
+    ['Lebanon Mts.', 35.35, 33.75, 'mtn'],
+    ['Taurus Mts.', 34.2, 37.95, 'mtn'],
+    ['Zagros Mts.', 48.3, 34.3, 'mtn'],
+    ['Sinai', 33.95, 29.35, 'land'],
+    ['Syrian Desert', 39.6, 33.9, 'land'],
+    ['Arabian Desert', 44.5, 24.7, 'land'],
+    ['Assyria', 46.3, 37.5, 'region'],
+    ['Babylonia', 45.5, 30.5, 'region'],
+    ['Elam', 49.5, 32.0, 'region'],
+    ['Canaan', 33.3, 31.3, 'region'],
+    ['Egypt', 29.0, 27.5, 'region'],
+    ['Anatolia', 33.5, 38.35, 'region'],
+    ['Via Maris', 33.5, 30.95, 'route'],
+    ["King's Highway", 36.6, 30.6, 'route']
   ]
 };
